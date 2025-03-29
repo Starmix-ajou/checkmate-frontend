@@ -19,12 +19,10 @@ const ProjectCard = ({ id, name, startDate, endDate }: ProjectCardProps) => {
     setIsFavorited((prev) => !prev)
   }
 
-  // 시작일과 종료일을 Date 객체로 변환
   const start = new Date(startDate)
   const end = new Date(endDate)
   const today = new Date()
 
-  // 프로젝트 기간 계산
   const totalDuration = end.getTime() - start.getTime()
   const elapsedTime = today.getTime() - start.getTime()
   const progress =
@@ -33,7 +31,7 @@ const ProjectCard = ({ id, name, startDate, endDate }: ProjectCardProps) => {
       : (elapsedTime / totalDuration) * 100
 
   return (
-    <div className="w-60 h-40">
+    <div className="w-90 h-50">
       <Link href={`/projects/${id}/overview`}>
         <Card className="w-full h-full cursor-pointer hover:shadow-lg transition-all ease-in-out duration-300 transform hover:scale-105">
           <CardContent className="flex items-center justify-center h-full bg-gray-200 rounded-2xl overflow-hidden">

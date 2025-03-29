@@ -18,7 +18,7 @@ const ProjectList = ({ filter, projects }: ProjectListProps) => {
   )
 
   return (
-    <div className="grid grid-cols-3 gap-6">
+    <div className="flex justify-around gap-6">
       {filteredProjects.map((project) => (
         <ProjectCard
           key={project.id}
