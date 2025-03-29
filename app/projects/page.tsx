@@ -45,7 +45,7 @@ const Home = () => {
   )
 
   return (
-    <div className="p-6">
+    <div className="p-6 w-full max-w-7xl mx-auto">
       <ProjectFilter setFilter={setFilter} />
       <ProjectList filter={filter} projects={filteredProjects} />
     </div>
