@@ -22,9 +22,10 @@ export default function ProjectOverview() {
   const { id } = useParams()
 
   const teamMembers = [
-    { name: 'Alice', src: '/avatar1.png' },
-    { name: 'Bob', src: '/avatar2.png' },
-    { name: 'Charlie', src: '/avatar3.png' },
+    { name: '조성연', src: '/avatar1.png' },
+    { name: '김평주', src: '/avatar2.png' },
+    { name: '한도연', src: '/avatar3.png' },
+    { name: '박승연', src: '/avatar4.png' },
   ]
 
   const tasks: {
