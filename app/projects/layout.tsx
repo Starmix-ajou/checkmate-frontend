@@ -1,9 +1,18 @@
-import { SidebarProvider } from '@/components/ui/sidebar'
+import ProjectSidebar from '@/components/project/Sidebar'
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 
 export default function ProjectsLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <SidebarProvider>{children}</SidebarProvider>
+  return (
+    <SidebarProvider>
+      <ProjectSidebar />
+      <main>
+        <SidebarTrigger />
+        {children}
+      </main>
+    </SidebarProvider>
+  )
 }
