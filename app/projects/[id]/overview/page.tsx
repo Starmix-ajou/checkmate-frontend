@@ -2,7 +2,6 @@
 
 import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Sidebar } from '@/components/ui/sidebar'
 import AvatarGroup from '@/components/project/overview/AvatarGroup'
 import StatusCard from '@/components/project/overview/StatusCard'
 import MyTaskCard from '@/components/project/overview/MyTaskCard'
@@ -45,7 +44,6 @@ export default function ProjectOverview() {
 
   return (
     <div className="flex min-h-screen w-full">
-      <Sidebar />
       <div className="flex-1 p-6">
         {/* Header */}
         <Breadcrumb>
