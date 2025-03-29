@@ -22,7 +22,7 @@ jobs:
 
       - name: Push Changes to Personal Repository
         env:
-          GH_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}  # GitHub Secrets에서 개인 액세스 토큰을 읽어옵니다.
+          GH_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }} # GitHub Secrets에서 개인 액세스 토큰을 읽어옵니다.
         run: |
           # 개인 레포지토리 클론
           git clone https://x-access-token:${GH_TOKEN}@github.com/pjookim/checkmate-frontend-deploy.git
@@ -30,7 +30,7 @@ jobs:
 
           # 원격 레포지토리에서 'main' 또는 'master' 브랜치 체크
           git fetch origin  # 모든 브랜치 정보 가져오기
-          
+
           # 'main' 또는 'master' 브랜치로 체크아웃
           if git show-ref --verify --quiet refs/heads/main; then
             git checkout main
@@ -40,10 +40,10 @@ jobs:
             echo "No valid branch found. Please check the target branch."
             exit 1
           fi
-          
+
           # 기존 파일 삭제 후 새로운 빌드 파일 복사
           rm -rf *  # 기존 파일 삭제
-          
+
           # `rsync`를 사용하여 상위 디렉토리의 모든 파일을 복사 (현재 디렉토리를 제외하고 복사)
           rsync -av --exclude './checkmate-frontend-deploy' --exclude '.git' ../* . 
 
