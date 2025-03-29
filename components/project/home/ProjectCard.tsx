@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Calendar, Heart } from 'lucide-react'
@@ -13,6 +13,15 @@ type ProjectCardProps = {
 
 const ProjectCard = ({ id, name, startDate, endDate }: ProjectCardProps) => {
   const [isFavorited, setIsFavorited] = useState(false) // 하트 클릭 상태 관리
+  const [today, setToday] = useState<Date | null>(null)
+
+  useEffect(() => {
+    setToday(new Date())
+  }, [])
+
+  if (!today) {
+    return <div>Loading...</div>
+  }
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation() // 하트 클릭 시 페이지 이동 방지
@@ -21,7 +30,6 @@ const ProjectCard = ({ id, name, startDate, endDate }: ProjectCardProps) => {
 
   const start = new Date(startDate)
   const end = new Date(endDate)
-  const today = new Date()
 
   const totalDuration = end.getTime() - start.getTime()
   const elapsedTime = today.getTime() - start.getTime()
