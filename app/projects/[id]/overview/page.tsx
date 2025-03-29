@@ -54,19 +54,13 @@ export default function ProjectOverview() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href={`/projects/${id}`}>
-                프로젝트 제목
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Overview</BreadcrumbPage>
+              <BreadcrumbPage>프로젝트 - {id}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
 
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Project Overview - {id}</h1>
+          <h1 className="text-3xl font-bold">프로젝트 - {id}</h1>
           <div className="flex items-center gap-4">
             <Button variant="outline">+ Invite</Button>
             <AvatarGroup users={teamMembers} />
