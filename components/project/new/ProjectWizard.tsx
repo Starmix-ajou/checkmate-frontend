@@ -18,7 +18,7 @@ export default function ProjectWizard() {
   const currentPhase: Phase = phases[currentPhaseIndex]
 
   return (
-    <div className="mx-auto p-6 rounded-lg space-y-6 max-w-5xl">
+    <div className="mx-auto p-6 rounded-lg space-y-6 max-w-5xl w-full">
       {currentPhase.type === 'form' ? (
         <FormPhase phase={currentPhase} onNext={handleNextPhase} />
       ) : (

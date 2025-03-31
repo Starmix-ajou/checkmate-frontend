@@ -4,7 +4,7 @@ export const phases: Phase[] = [
   {
     id: 1,
     title: '프로젝트 생성',
-    question: '어떤 프로젝트를 기획했나요?',
+    question: '어떤 프로젝트를\n기획했나요?',
     type: 'form',
   },
   {
