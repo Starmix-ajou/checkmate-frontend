@@ -4,13 +4,7 @@ import { useState } from 'react'
 import { phases } from './phases'
 import FormPhase from '@/components/project/new/FormPhase'
 import ChatPhase from '@/components/project/new/ChatPhase'
-
-type Phase = {
-  id: number
-  title: string
-  question: string
-  type: 'form' | 'chat'
-}
+import { Phase } from '@/types/phase'
 
 export default function ProjectWizard() {
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState<number>(0)

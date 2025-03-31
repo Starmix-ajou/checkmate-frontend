@@ -1,9 +1,4 @@
-type Phase = {
-  id: number
-  title: string
-  question: string
-  type: 'form' | 'chat'
-}
+import { Phase } from '@/types/phase'
 
 export const phases: Phase[] = [
   {
