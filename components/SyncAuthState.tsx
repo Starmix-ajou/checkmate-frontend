@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useAuthStore } from '@/stores/useAuthStore'
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export default function SyncAuthState() {
   const { data: session } = useSession()
   const setUser = useAuthStore((state) => state.setUser)
   const clearUser = useAuthStore((state) => state.clearUser)
@@ -20,5 +20,5 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [session, setUser, clearUser])
 
-  return <>{children}</>
+  return null
 }
