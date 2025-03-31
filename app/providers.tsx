@@ -6,7 +6,7 @@ import SyncAuthState from '@/components/SyncAuthState'
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
-      <SyncAuthState /> {/* Zustand에 로그인 정보 동기화 */}
+      <SyncAuthState />
       {children}
     </SessionProvider>
   )
