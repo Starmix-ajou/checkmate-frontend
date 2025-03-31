@@ -3,13 +3,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { phases } from '@/components/project/new/phases'
-
-type Phase = {
-  id: number
-  title: string
-  question: string
-  type: 'form' | 'chat'
-}
+import { Phase } from '@/types/phase'
 
 type Message = {
   sender: 'user' | 'ai'

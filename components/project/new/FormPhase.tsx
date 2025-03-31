@@ -1,12 +1,7 @@
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-type Phase = {
-  id: number
-  title: string
-  question: string
-  type: 'form' | 'chat'
-}
+import { Phase } from '@/types/phase'
 
 type FormPhaseProps = {
   phase: Phase
