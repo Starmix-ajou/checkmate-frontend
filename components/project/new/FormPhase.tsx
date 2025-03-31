@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Phase } from '@/types/phase'
+import { TypeAnimation } from 'react-type-animation'
 
 type FormPhaseProps = {
   phase: Phase
@@ -19,13 +20,24 @@ export default function FormPhase({ phase, onNext }: FormPhaseProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="block text-6xl font-medium">{phase.question}</div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <TypeAnimation
+        sequence={[phase.question, 1000]}
+        wrapper="p"
+        speed={50}
+        repeat={Infinity}
+        className="text-8xl font-bold whitespace-pre-line h-64"
+      />
+      <div className="text-2xl text-gray-500">
+        프로젝트를 한 줄로 설명해주세요
+      </div>
+
       <Input
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="프로젝트를 한 줄로 설명해주세요"
+        placeholder="간단하게 입력하세요"
       />
+
       <Button type="submit" className="w-full">
         다음
       </Button>
