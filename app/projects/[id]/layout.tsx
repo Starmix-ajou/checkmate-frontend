@@ -1,18 +1,9 @@
-import ProjectSidebar from '@/components/project/Sidebar'
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import AuthContext from './AuthContext'
 
-export default function ProjectsLayout({
-  children,
-}: {
+export interface AccountLayoutProps {
   children: React.ReactNode
-}) {
-  return (
-    <SidebarProvider>
-      <ProjectSidebar />
-      <main>
-        <SidebarTrigger />
-        {children}
-      </main>
-    </SidebarProvider>
-  )
+}
+
+export default function AccountLayout({ children }: AccountLayoutProps) {
+  return <AuthContext>{children}</AuthContext>
 }
