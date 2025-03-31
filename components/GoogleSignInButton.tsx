@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 
 export default function GoogleSignInButton() {
   const handleGoogleSignIn = () => {
-    signIn('google')
+    signIn('google', { callbackUrl: '/projects' })
   }
   return (
     <Button

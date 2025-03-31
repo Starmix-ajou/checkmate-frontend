@@ -30,7 +30,7 @@ export default function Navbar() {
       <div className="text-xl font-bold">CheckMate</div>
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-2">
-          {user.image ? (
+          {0 ? (
             <Image
               src={user.image}
               alt={user.name}
