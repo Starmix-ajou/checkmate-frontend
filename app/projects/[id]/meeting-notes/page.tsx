@@ -13,6 +13,7 @@ import {
 import { SlidersHorizontal, Search, CircleX } from 'lucide-react'
 import { useState } from 'react'
 import MeetingNotes from '@/components/project/meeting-notes/MeetingNotes'
+import MeetingNotesAdd from '@/components/project/meeting-notes/MeetingNotesAdd'
 
 export default function MeetingNotesPage() {
   const { id } = useParams()
@@ -21,7 +22,6 @@ export default function MeetingNotesPage() {
   return (
     <div className="flex min-h-screen w-full">
       <div className="flex-1 p-6">
-        {/* Breadcrumb */}
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -45,8 +45,8 @@ export default function MeetingNotesPage() {
           <h1 className="text-3xl font-bold">프로젝트 - {id}</h1>
         </div>
 
-        {/* 필터 & 검색 */}
-        <div className="flex items-center gap-4">
+        {/* 필터 & 검색 & 추가 버튼 */}
+        <div className="flex items-center gap-4 mb-6">
           <Button
             variant="default"
             className="bg-black text-white flex items-center gap-2 rounded-3xl"
@@ -72,9 +72,11 @@ export default function MeetingNotesPage() {
               />
             )}
           </div>
+
+          {/* 회의록 추가 버튼 */}
+          <MeetingNotesAdd />
         </div>
 
-        {/* 회의록 카드 (갤러리) */}
         <MeetingNotes />
       </div>
     </div>
