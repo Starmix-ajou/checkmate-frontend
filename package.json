@@ -22,7 +22,6 @@
     "@types/next-auth": "^3.13.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "gantt-task-react": "^0.3.9",
     "lucide-react": "^0.483.0",
     "next": "15.2.2",
     "next-auth": "^4.24.11",
