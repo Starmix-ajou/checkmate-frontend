@@ -1,4 +1,4 @@
-import { Task } from 'gantt-task-react'
+import { Task } from '@/types/public-types'
 
 export const allTasks: Task[] = [
   {
