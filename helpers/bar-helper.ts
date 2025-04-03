@@ -1,6 +1,6 @@
-import { Task } from "../types/public-types";
-import { BarTask, TaskTypeInternal } from "../types/bar-task";
-import { BarMoveAction } from "../types/gantt-task-actions";
+import { Task } from '../types/public-types'
+import { BarTask, TaskTypeInternal } from '../types/bar-task'
+import { BarMoveAction } from '../types/gantt-task-actions'
 
 export const convertToBarTasks = (
   tasks: Task[],
@@ -43,23 +43,23 @@ export const convertToBarTasks = (
       projectBackgroundSelectedColor,
       milestoneBackgroundColor,
       milestoneBackgroundSelectedColor
-    );
-  });
+    )
+  })
 
   // set dependencies
-  barTasks = barTasks.map(task => {
-    const dependencies = task.dependencies || [];
+  barTasks = barTasks.map((task) => {
+    const dependencies = task.dependencies || []
     for (let j = 0; j < dependencies.length; j++) {
       const dependence = barTasks.findIndex(
-        value => value.id === dependencies[j]
-      );
-      if (dependence !== -1) barTasks[dependence].barChildren.push(task);
+        (value) => value.id === dependencies[j]
+      )
+      if (dependence !== -1) barTasks[dependence].barChildren.push(task)
     }
-    return task;
-  });
+    return task
+  })
 
-  return barTasks;
-};
+  return barTasks
+}
 
 const convertToBarTask = (
   task: Task,
@@ -82,9 +82,9 @@ const convertToBarTask = (
   milestoneBackgroundColor: string,
   milestoneBackgroundSelectedColor: string
 ): BarTask => {
-  let barTask: BarTask;
+  let barTask: BarTask
   switch (task.type) {
-    case "milestone":
+    case 'milestone':
       barTask = convertToMilestone(
         task,
         index,
@@ -96,9 +96,9 @@ const convertToBarTask = (
         handleWidth,
         milestoneBackgroundColor,
         milestoneBackgroundSelectedColor
-      );
-      break;
-    case "project":
+      )
+      break
+    case 'project':
       barTask = convertToBar(
         task,
         index,
@@ -113,8 +113,8 @@ const convertToBarTask = (
         projectProgressSelectedColor,
         projectBackgroundColor,
         projectBackgroundSelectedColor
-      );
-      break;
+      )
+      break
     default:
       barTask = convertToBar(
         task,
@@ -130,11 +130,11 @@ const convertToBarTask = (
         barProgressSelectedColor,
         barBackgroundColor,
         barBackgroundSelectedColor
-      );
-      break;
+      )
+      break
   }
-  return barTask;
-};
+  return barTask
+}
 
 const convertToBar = (
   task: Task,
@@ -151,19 +151,19 @@ const convertToBar = (
   barBackgroundColor: string,
   barBackgroundSelectedColor: string
 ): BarTask => {
-  let x1: number;
-  let x2: number;
+  let x1: number
+  let x2: number
   if (rtl) {
-    x2 = taskXCoordinateRTL(task.start, dates, columnWidth);
-    x1 = taskXCoordinateRTL(task.end, dates, columnWidth);
+    x2 = taskXCoordinateRTL(task.start, dates, columnWidth)
+    x1 = taskXCoordinateRTL(task.end, dates, columnWidth)
   } else {
-    x1 = taskXCoordinate(task.start, dates, columnWidth);
-    x2 = taskXCoordinate(task.end, dates, columnWidth);
+    x1 = taskXCoordinate(task.start, dates, columnWidth)
+    x2 = taskXCoordinate(task.end, dates, columnWidth)
   }
-  let typeInternal: TaskTypeInternal = task.type;
-  if (typeInternal === "task" && x2 - x1 < handleWidth * 2) {
-    typeInternal = "smalltask";
-    x2 = x1 + handleWidth * 2;
+  let typeInternal: TaskTypeInternal = task.type
+  if (typeInternal === 'task' && x2 - x1 < handleWidth * 2) {
+    typeInternal = 'smalltask'
+    x2 = x1 + handleWidth * 2
   }
 
   const [progressWidth, progressX] = progressWithByParams(
@@ -171,9 +171,9 @@ const convertToBar = (
     x2,
     task.progress,
     rtl
-  );
-  const y = taskYCoordinate(index, rowHeight, taskHeight);
-  const hideChildren = task.type === "project" ? task.hideChildren : undefined;
+  )
+  const y = taskYCoordinate(index, rowHeight, taskHeight)
+  const hideChildren = task.type === 'project' ? task.hideChildren : undefined
 
   const styles = {
     backgroundColor: barBackgroundColor,
@@ -181,7 +181,7 @@ const convertToBar = (
     progressColor: barProgressColor,
     progressSelectedColor: barProgressSelectedColor,
     ...task.styles,
-  };
+  }
   return {
     ...task,
     typeInternal,
@@ -197,8 +197,8 @@ const convertToBar = (
     height: taskHeight,
     barChildren: [],
     styles,
-  };
-};
+  }
+}
 
 const convertToMilestone = (
   task: Task,
@@ -212,20 +212,20 @@ const convertToMilestone = (
   milestoneBackgroundColor: string,
   milestoneBackgroundSelectedColor: string
 ): BarTask => {
-  const x = taskXCoordinate(task.start, dates, columnWidth);
-  const y = taskYCoordinate(index, rowHeight, taskHeight);
+  const x = taskXCoordinate(task.start, dates, columnWidth)
+  const y = taskYCoordinate(index, rowHeight, taskHeight)
 
-  const x1 = x - taskHeight * 0.5;
-  const x2 = x + taskHeight * 0.5;
+  const x1 = x - taskHeight * 0.5
+  const x2 = x + taskHeight * 0.5
 
-  const rotatedHeight = taskHeight / 1.414;
+  const rotatedHeight = taskHeight / 1.414
   const styles = {
     backgroundColor: milestoneBackgroundColor,
     backgroundSelectedColor: milestoneBackgroundSelectedColor,
-    progressColor: "",
-    progressSelectedColor: "",
+    progressColor: '',
+    progressSelectedColor: '',
     ...task.styles,
-  };
+  }
   return {
     ...task,
     end: task.start,
@@ -243,35 +243,35 @@ const convertToMilestone = (
     hideChildren: undefined,
     barChildren: [],
     styles,
-  };
-};
+  }
+}
 
 const taskXCoordinate = (xDate: Date, dates: Date[], columnWidth: number) => {
-  const index = dates.findIndex(d => d.getTime() >= xDate.getTime()) - 1;
+  const index = dates.findIndex((d) => d.getTime() >= xDate.getTime()) - 1
 
-  const remainderMillis = xDate.getTime() - dates[index].getTime();
+  const remainderMillis = xDate.getTime() - dates[index].getTime()
   const percentOfInterval =
-    remainderMillis / (dates[index + 1].getTime() - dates[index].getTime());
-  const x = index * columnWidth + percentOfInterval * columnWidth;
-  return x;
-};
+    remainderMillis / (dates[index + 1].getTime() - dates[index].getTime())
+  const x = index * columnWidth + percentOfInterval * columnWidth
+  return x
+}
 const taskXCoordinateRTL = (
   xDate: Date,
   dates: Date[],
   columnWidth: number
 ) => {
-  let x = taskXCoordinate(xDate, dates, columnWidth);
-  x += columnWidth;
-  return x;
-};
+  let x = taskXCoordinate(xDate, dates, columnWidth)
+  x += columnWidth
+  return x
+}
 const taskYCoordinate = (
   index: number,
   rowHeight: number,
   taskHeight: number
 ) => {
-  const y = index * rowHeight + (rowHeight - taskHeight) / 2;
-  return y;
-};
+  const y = index * rowHeight + (rowHeight - taskHeight) / 2
+  return y
+}
 
 export const progressWithByParams = (
   taskX1: number,
@@ -279,45 +279,45 @@ export const progressWithByParams = (
   progress: number,
   rtl: boolean
 ) => {
-  const progressWidth = (taskX2 - taskX1) * progress * 0.01;
-  let progressX: number;
+  const progressWidth = (taskX2 - taskX1) * progress * 0.01
+  let progressX: number
   if (rtl) {
-    progressX = taskX2 - progressWidth;
+    progressX = taskX2 - progressWidth
   } else {
-    progressX = taskX1;
+    progressX = taskX1
   }
-  return [progressWidth, progressX];
-};
+  return [progressWidth, progressX]
+}
 
 export const progressByProgressWidth = (
   progressWidth: number,
   barTask: BarTask
 ) => {
-  const barWidth = barTask.x2 - barTask.x1;
-  const progressPercent = Math.round((progressWidth * 100) / barWidth);
-  if (progressPercent >= 100) return 100;
-  else if (progressPercent <= 0) return 0;
-  else return progressPercent;
-};
+  const barWidth = barTask.x2 - barTask.x1
+  const progressPercent = Math.round((progressWidth * 100) / barWidth)
+  if (progressPercent >= 100) return 100
+  else if (progressPercent <= 0) return 0
+  else return progressPercent
+}
 
 const progressByX = (x: number, task: BarTask) => {
-  if (x >= task.x2) return 100;
-  else if (x <= task.x1) return 0;
+  if (x >= task.x2) return 100
+  else if (x <= task.x1) return 0
   else {
-    const barWidth = task.x2 - task.x1;
-    const progressPercent = Math.round(((x - task.x1) * 100) / barWidth);
-    return progressPercent;
+    const barWidth = task.x2 - task.x1
+    const progressPercent = Math.round(((x - task.x1) * 100) / barWidth)
+    return progressPercent
   }
-};
+}
 const progressByXRTL = (x: number, task: BarTask) => {
-  if (x >= task.x2) return 0;
-  else if (x <= task.x1) return 100;
+  if (x >= task.x2) return 0
+  else if (x <= task.x1) return 100
   else {
-    const barWidth = task.x2 - task.x1;
-    const progressPercent = Math.round(((task.x2 - x) * 100) / barWidth);
-    return progressPercent;
+    const barWidth = task.x2 - task.x1
+    const progressPercent = Math.round(((task.x2 - x) * 100) / barWidth)
+    return progressPercent
   }
-};
+}
 
 export const getProgressPoint = (
   progressX: number,
@@ -331,37 +331,37 @@ export const getProgressPoint = (
     taskY + taskHeight,
     progressX,
     taskY + taskHeight - 8.66,
-  ];
-  return point.join(",");
-};
+  ]
+  return point.join(',')
+}
 
 const startByX = (x: number, xStep: number, task: BarTask) => {
   if (x >= task.x2 - task.handleWidth * 2) {
-    x = task.x2 - task.handleWidth * 2;
+    x = task.x2 - task.handleWidth * 2
   }
-  const steps = Math.round((x - task.x1) / xStep);
-  const additionalXValue = steps * xStep;
-  const newX = task.x1 + additionalXValue;
-  return newX;
-};
+  const steps = Math.round((x - task.x1) / xStep)
+  const additionalXValue = steps * xStep
+  const newX = task.x1 + additionalXValue
+  return newX
+}
 
 const endByX = (x: number, xStep: number, task: BarTask) => {
   if (x <= task.x1 + task.handleWidth * 2) {
-    x = task.x1 + task.handleWidth * 2;
+    x = task.x1 + task.handleWidth * 2
   }
-  const steps = Math.round((x - task.x2) / xStep);
-  const additionalXValue = steps * xStep;
-  const newX = task.x2 + additionalXValue;
-  return newX;
-};
+  const steps = Math.round((x - task.x2) / xStep)
+  const additionalXValue = steps * xStep
+  const newX = task.x2 + additionalXValue
+  return newX
+}
 
 const moveByX = (x: number, xStep: number, task: BarTask) => {
-  const steps = Math.round((x - task.x1) / xStep);
-  const additionalXValue = steps * xStep;
-  const newX1 = task.x1 + additionalXValue;
-  const newX2 = newX1 + task.x2 - task.x1;
-  return [newX1, newX2];
-};
+  const steps = Math.round((x - task.x1) / xStep)
+  const additionalXValue = steps * xStep
+  const newX1 = task.x1 + additionalXValue
+  const newX2 = newX1 + task.x2 - task.x1
+  return [newX1, newX2]
+}
 
 const dateByX = (
   x: number,
@@ -370,13 +370,13 @@ const dateByX = (
   xStep: number,
   timeStep: number
 ) => {
-  let newDate = new Date(((x - taskX) / xStep) * timeStep + taskDate.getTime());
+  let newDate = new Date(((x - taskX) / xStep) * timeStep + taskDate.getTime())
   newDate = new Date(
     newDate.getTime() +
       (newDate.getTimezoneOffset() - taskDate.getTimezoneOffset()) * 60000
-  );
-  return newDate;
-};
+  )
+  return newDate
+}
 
 /**
  * Method handles event in real time(mousemove) and on finish(mouseup)
@@ -390,9 +390,9 @@ export const handleTaskBySVGMouseEvent = (
   initEventX1Delta: number,
   rtl: boolean
 ): { isChanged: boolean; changedTask: BarTask } => {
-  let result: { isChanged: boolean; changedTask: BarTask };
+  let result: { isChanged: boolean; changedTask: BarTask }
   switch (selectedTask.type) {
-    case "milestone":
+    case 'milestone':
       result = handleTaskBySVGMouseEventForMilestone(
         svgX,
         action,
@@ -400,8 +400,8 @@ export const handleTaskBySVGMouseEvent = (
         xStep,
         timeStep,
         initEventX1Delta
-      );
-      break;
+      )
+      break
     default:
       result = handleTaskBySVGMouseEventForBar(
         svgX,
@@ -411,11 +411,11 @@ export const handleTaskBySVGMouseEvent = (
         timeStep,
         initEventX1Delta,
         rtl
-      );
-      break;
+      )
+      break
   }
-  return result;
-};
+  return result
+}
 
 const handleTaskBySVGMouseEventForBar = (
   svgX: number,
@@ -426,31 +426,31 @@ const handleTaskBySVGMouseEventForBar = (
   initEventX1Delta: number,
   rtl: boolean
 ): { isChanged: boolean; changedTask: BarTask } => {
-  const changedTask: BarTask = { ...selectedTask };
-  let isChanged = false;
+  const changedTask: BarTask = { ...selectedTask }
+  let isChanged = false
   switch (action) {
-    case "progress":
+    case 'progress':
       if (rtl) {
-        changedTask.progress = progressByXRTL(svgX, selectedTask);
+        changedTask.progress = progressByXRTL(svgX, selectedTask)
       } else {
-        changedTask.progress = progressByX(svgX, selectedTask);
+        changedTask.progress = progressByX(svgX, selectedTask)
       }
-      isChanged = changedTask.progress !== selectedTask.progress;
+      isChanged = changedTask.progress !== selectedTask.progress
       if (isChanged) {
         const [progressWidth, progressX] = progressWithByParams(
           changedTask.x1,
           changedTask.x2,
           changedTask.progress,
           rtl
-        );
-        changedTask.progressWidth = progressWidth;
-        changedTask.progressX = progressX;
+        )
+        changedTask.progressWidth = progressWidth
+        changedTask.progressX = progressX
       }
-      break;
-    case "start": {
-      const newX1 = startByX(svgX, xStep, selectedTask);
-      changedTask.x1 = newX1;
-      isChanged = changedTask.x1 !== selectedTask.x1;
+      break
+    case 'start': {
+      const newX1 = startByX(svgX, xStep, selectedTask)
+      changedTask.x1 = newX1
+      isChanged = changedTask.x1 !== selectedTask.x1
       if (isChanged) {
         if (rtl) {
           changedTask.end = dateByX(
@@ -459,7 +459,7 @@ const handleTaskBySVGMouseEventForBar = (
             selectedTask.end,
             xStep,
             timeStep
-          );
+          )
         } else {
           changedTask.start = dateByX(
             newX1,
@@ -467,23 +467,23 @@ const handleTaskBySVGMouseEventForBar = (
             selectedTask.start,
             xStep,
             timeStep
-          );
+          )
         }
         const [progressWidth, progressX] = progressWithByParams(
           changedTask.x1,
           changedTask.x2,
           changedTask.progress,
           rtl
-        );
-        changedTask.progressWidth = progressWidth;
-        changedTask.progressX = progressX;
+        )
+        changedTask.progressWidth = progressWidth
+        changedTask.progressX = progressX
       }
-      break;
+      break
     }
-    case "end": {
-      const newX2 = endByX(svgX, xStep, selectedTask);
-      changedTask.x2 = newX2;
-      isChanged = changedTask.x2 !== selectedTask.x2;
+    case 'end': {
+      const newX2 = endByX(svgX, xStep, selectedTask)
+      changedTask.x2 = newX2
+      isChanged = changedTask.x2 !== selectedTask.x2
       if (isChanged) {
         if (rtl) {
           changedTask.start = dateByX(
@@ -492,7 +492,7 @@ const handleTaskBySVGMouseEventForBar = (
             selectedTask.start,
             xStep,
             timeStep
-          );
+          )
         } else {
           changedTask.end = dateByX(
             newX2,
@@ -500,26 +500,26 @@ const handleTaskBySVGMouseEventForBar = (
             selectedTask.end,
             xStep,
             timeStep
-          );
+          )
         }
         const [progressWidth, progressX] = progressWithByParams(
           changedTask.x1,
           changedTask.x2,
           changedTask.progress,
           rtl
-        );
-        changedTask.progressWidth = progressWidth;
-        changedTask.progressX = progressX;
+        )
+        changedTask.progressWidth = progressWidth
+        changedTask.progressX = progressX
       }
-      break;
+      break
     }
-    case "move": {
+    case 'move': {
       const [newMoveX1, newMoveX2] = moveByX(
         svgX - initEventX1Delta,
         xStep,
         selectedTask
-      );
-      isChanged = newMoveX1 !== selectedTask.x1;
+      )
+      isChanged = newMoveX1 !== selectedTask.x1
       if (isChanged) {
         changedTask.start = dateByX(
           newMoveX1,
@@ -527,30 +527,30 @@ const handleTaskBySVGMouseEventForBar = (
           selectedTask.start,
           xStep,
           timeStep
-        );
+        )
         changedTask.end = dateByX(
           newMoveX2,
           selectedTask.x2,
           selectedTask.end,
           xStep,
           timeStep
-        );
-        changedTask.x1 = newMoveX1;
-        changedTask.x2 = newMoveX2;
+        )
+        changedTask.x1 = newMoveX1
+        changedTask.x2 = newMoveX2
         const [progressWidth, progressX] = progressWithByParams(
           changedTask.x1,
           changedTask.x2,
           changedTask.progress,
           rtl
-        );
-        changedTask.progressWidth = progressWidth;
-        changedTask.progressX = progressX;
+        )
+        changedTask.progressWidth = progressWidth
+        changedTask.progressX = progressX
       }
-      break;
+      break
     }
   }
-  return { isChanged, changedTask };
-};
+  return { isChanged, changedTask }
+}
 
 const handleTaskBySVGMouseEventForMilestone = (
   svgX: number,
@@ -560,16 +560,16 @@ const handleTaskBySVGMouseEventForMilestone = (
   timeStep: number,
   initEventX1Delta: number
 ): { isChanged: boolean; changedTask: BarTask } => {
-  const changedTask: BarTask = { ...selectedTask };
-  let isChanged = false;
+  const changedTask: BarTask = { ...selectedTask }
+  let isChanged = false
   switch (action) {
-    case "move": {
+    case 'move': {
       const [newMoveX1, newMoveX2] = moveByX(
         svgX - initEventX1Delta,
         xStep,
         selectedTask
-      );
-      isChanged = newMoveX1 !== selectedTask.x1;
+      )
+      isChanged = newMoveX1 !== selectedTask.x1
       if (isChanged) {
         changedTask.start = dateByX(
           newMoveX1,
@@ -577,13 +577,13 @@ const handleTaskBySVGMouseEventForMilestone = (
           selectedTask.start,
           xStep,
           timeStep
-        );
-        changedTask.end = changedTask.start;
-        changedTask.x1 = newMoveX1;
-        changedTask.x2 = newMoveX2;
+        )
+        changedTask.end = changedTask.start
+        changedTask.x1 = newMoveX1
+        changedTask.x2 = newMoveX2
       }
-      break;
+      break
     }
   }
-  return { isChanged, changedTask };
-};
+  return { isChanged, changedTask }
+}
