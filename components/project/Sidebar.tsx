@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { useState } from 'react'
 import {
   Sidebar,
@@ -48,6 +48,7 @@ const notifications = [
 
 export default function ProjectSidebar() {
   const { id } = useParams()
+  const pathname = usePathname()
 
   const items = [
     { title: 'Overview', url: `/projects/${id}/overview`, icon: Home },
@@ -141,16 +142,26 @@ export default function ProjectSidebar() {
           <SidebarGroupLabel>Project</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map((item) => {
+                const isActive = pathname === item.url
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a
+                        href={item.url}
+                        className={`flex items-center gap-2 p-2 rounded-md transition ${
+                          isActive
+                            ? 'font-bold text-black bg-neutral-100'
+                            : 'text-neutral-600 hover:text-black hover:bg-neutral-100'
+                        }`}
+                      >
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
