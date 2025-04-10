@@ -1,4 +1,3 @@
-// 칸반 뷰
 'use client'
 
 import { useParams } from 'next/navigation'
@@ -12,11 +11,21 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { SlidersHorizontal, Search, CircleX } from 'lucide-react'
+import {
+  SlidersHorizontal,
+  Search,
+  CircleX,
+  ToggleLeft,
+  ToggleRight,
+} from 'lucide-react'
+
+import KanbanView from '@/components/project/task/KanbanView'
+import CalendarView from '@/components/project/task/CalendarView'
 
 export default function TasksPage() {
   const { id } = useParams()
   const [searchText, setSearchText] = useState('')
+  const [isToggled, setIsToggled] = useState(false)
 
   return (
     <div className="flex min-h-screen w-full">
@@ -46,7 +55,7 @@ export default function TasksPage() {
         </div>
 
         {/* Filter & Search */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-4">
           <Button
             variant="default"
             className="bg-black text-white flex items-center gap-2 rounded-3xl"
@@ -74,8 +83,22 @@ export default function TasksPage() {
           </div>
         </div>
 
-        {/* 작업 목록 영역 */}
-        <div className="text-gray-500">작업 목록이 여기에 표시됩니다.</div>
+        {/* Toggle View */}
+        <div className="mb-6">
+          <button
+            onClick={() => setIsToggled(!isToggled)}
+            className="hover:opacity-80 transition"
+          >
+            {isToggled ? (
+              <ToggleRight size={48} className="text-black" />
+            ) : (
+              <ToggleLeft size={48} className="text-black" />
+            )}
+          </button>
+        </div>
+
+        {/* Task View */}
+        {isToggled ? <CalendarView /> : <KanbanView />}
       </div>
     </div>
   )
