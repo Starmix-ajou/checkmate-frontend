@@ -28,8 +28,8 @@ export default function TasksPage() {
   const [isToggled, setIsToggled] = useState(false)
 
   return (
-    <div className="flex min-h-screen w-full">
-      <div className="flex-1 p-6">
+    <div className="min-h-screen w-full px-4 sm:px-8">
+      <div className="mx-auto w-full max-w-[1600px] py-6">
         {/* Breadcrumb */}
         <Breadcrumb>
           <BreadcrumbList>
@@ -81,20 +81,20 @@ export default function TasksPage() {
               />
             )}
           </div>
-        </div>
 
-        {/* Toggle View */}
-        <div className="mb-6">
-          <button
-            onClick={() => setIsToggled(!isToggled)}
-            className="hover:opacity-80 transition"
-          >
-            {isToggled ? (
-              <ToggleRight size={48} className="text-black" />
-            ) : (
-              <ToggleLeft size={48} className="text-black" />
-            )}
-          </button>
+          {/* Toggle View */}
+          <div className="ml-6">
+            <button
+              onClick={() => setIsToggled(!isToggled)}
+              className="hover:opacity-80 transition"
+            >
+              {isToggled ? (
+                <ToggleRight size={48} className="text-black" />
+              ) : (
+                <ToggleLeft size={48} className="text-black" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Task View */}
