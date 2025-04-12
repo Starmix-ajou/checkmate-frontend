@@ -46,7 +46,7 @@ const calendarMessages = {
 
 export default function CalendarView() {
   return (
-    <div className="w-full h-[600px] lg:h-[700px] bg-white rounded-2xl shadow-md p-4 sm:p-6 overflow-auto">
+    <div className="h-[600px] lg:h-[700px] bg-white rounded-2xl shadow-md p-4 sm:p-6 overflow-auto">
       <Calendar
         localizer={localizer}
         events={events}
