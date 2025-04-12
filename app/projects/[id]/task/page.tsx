@@ -28,9 +28,8 @@ export default function TasksPage() {
   const [isToggled, setIsToggled] = useState(false)
 
   return (
-    <div className="min-h-screen w-full px-4 sm:px-8">
-      <div className="mx-auto w-full max-w-[1600px] py-6">
-        {/* Breadcrumb */}
+    <div className="flex min-h-screen">
+      <div className="flex-1 p-6">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
