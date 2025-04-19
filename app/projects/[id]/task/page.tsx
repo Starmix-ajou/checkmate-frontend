@@ -2,6 +2,7 @@
 
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { Button } from '@/components/ui/button'
 import {
   Breadcrumb,
@@ -19,7 +20,15 @@ import {
   ToggleRight,
 } from 'lucide-react'
 
-import KanbanView from '@/components/project/task/KanbanView'
+// KanbanView를 클라이언트 전용으로 동적 import
+const KanbanView = dynamic(
+  () => import('@/components/project/task/KanbanView'),
+  {
+    ssr: false,
+  }
+)
+
+// CalendarView는 SSR 문제 없으면 그대로 사용
 import CalendarView from '@/components/project/task/CalendarView'
 
 export default function TasksPage() {
@@ -30,6 +39,7 @@ export default function TasksPage() {
   return (
     <div className="flex min-h-screen">
       <div className="flex-1 p-6">
+        {/* Breadcrumb */}
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
