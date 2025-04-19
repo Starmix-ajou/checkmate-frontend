@@ -46,7 +46,7 @@ const calendarMessages = {
 
 export default function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [view, setView] = useState<View>('month') // 'month'로 기본 뷰를 설정
+  const [view, setView] = useState<View>('month')
 
   const handleNavigate = (newDate: Date) => {
     setCurrentDate(newDate)
@@ -85,34 +85,6 @@ export default function CalendarView() {
 
   return (
     <div className="h-[600px] lg:h-[700px] bg-white rounded-2xl shadow-md p-4 sm:p-6 overflow-auto">
-      {/* 기본 버튼 (월, 주, 일, 목록) */}
-      <div className="flex justify-end space-x-4 mb-4">
-        <button
-          className={`px-4 py-2 rounded-md ${view === 'month' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => setView('month')}
-        >
-          월
-        </button>
-        <button
-          className={`px-4 py-2 rounded-md ${view === 'week' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => setView('week')}
-        >
-          주
-        </button>
-        <button
-          className={`px-4 py-2 rounded-md ${view === 'day' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => setView('day')}
-        >
-          일
-        </button>
-        <button
-          className={`px-4 py-2 rounded-md ${view === 'agenda' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => setView('agenda')}
-        >
-          목록
-        </button>
-      </div>
-
       <Calendar
         localizer={localizer}
         events={events}
@@ -120,12 +92,13 @@ export default function CalendarView() {
         endAccessor="end"
         date={currentDate}
         onNavigate={handleNavigate}
+        onView={(newView) => setView(newView)} // 기본 버튼 클릭 시 view 상태 업데이트
         dayPropGetter={customDayPropGetter}
         style={{ height: '100%' }}
         messages={calendarMessages}
         className="text-sm"
-        views={['month', 'week', 'day', 'agenda']} // 사용할 수 있는 뷰 설정
-        view={view} // 현재 뷰 상태를 Calendar에 전달
+        views={['month', 'week', 'day', 'agenda']}
+        view={view}
       />
     </div>
   )
