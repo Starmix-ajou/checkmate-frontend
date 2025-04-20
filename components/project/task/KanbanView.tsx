@@ -15,6 +15,7 @@ import {
   useSortable,
   rectSortingStrategy,
 } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 // 타입 정의
 type Task = {
@@ -37,7 +38,10 @@ const DroppableColumn = ({
   })
 
   return (
-    <div ref={setNodeRef} className="w-1/3 p-4 rounded-md min-h-[200px]">
+    <div
+      ref={setNodeRef}
+      className="w-1/3 p-4 rounded-md min-h-[200px] m-0 flex flex-col gap-2"
+    >
       {children}
     </div>
   )
@@ -49,17 +53,18 @@ const SortableItem = ({ id, content }: { id: string; content: string }) => {
     useSortable({ id })
 
   const style = {
-    transform: `translate3d(${transform?.x}px, ${transform?.y}px, 0)`,
+    transform: CSS.Transform.toString(transform),
     transition,
-    padding: '8px',
-    marginBottom: '8px',
-    backgroundColor: 'white',
-    borderRadius: '4px',
-    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
   }
 
   return (
-    <div ref={setNodeRef} {...attributes} {...listeners} style={style}>
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      style={style}
+      className="bg-white text-black rounded-md shadow-md p-3 select-none cursor-pointer mb-2"
+    >
       {content}
     </div>
   )
@@ -136,7 +141,7 @@ export default function KanbanView() {
     return (
       <DroppableColumn columnKey={columnKey}>
         <div className={`${bg} p-4 rounded-md`}>
-          <h2 className="font-bold mb-4">{title}</h2>
+          <h2 className="font-bold text-lg mb-4">{title}</h2>
           {tasks.map((task) => (
             <SortableItem key={task.id} id={task.id} content={task.content} />
           ))}
@@ -158,7 +163,7 @@ export default function KanbanView() {
             .map((task) => task.id)}
           strategy={rectSortingStrategy}
         >
-          <div className="flex space-x-4">
+          <div className="flex gap-4">
             {renderColumn('To Do', 'todo', 'bg-gray-100')}
             {renderColumn('In Progress', 'inProgress', 'bg-sky-100')}
             {renderColumn('Done', 'done', 'bg-lime-100')}
