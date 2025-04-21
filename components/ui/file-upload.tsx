@@ -1,10 +1,10 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Upload, X, Check } from "lucide-react"
-import { Checkbox } from "@/components/ui/checkbox"
+import * as React from 'react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Upload, X, Check } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 
 export interface FileUploadProps {
   onFileChange?: (file: File | null) => void
@@ -16,7 +16,10 @@ export interface FileUploadProps {
 }
 
 const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
-  ({ className, onFileChange, onSkipChange, value, skip, accept, ...props }, ref) => {
+  (
+    { className, onFileChange, onSkipChange, value, skip, accept, ...props },
+    _ref
+  ) => {
     const [file, setFile] = React.useState<File | null>(value || null)
     const [isDragging, setIsDragging] = React.useState(false)
 
@@ -50,22 +53,22 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
     }
 
     return (
-      <div className="space-y-4">
+      <div className="flex-1 space-y-4">
         <div
           className={cn(
-            "flex min-h-[120px] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors",
+            'flex min-h-[120px] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors',
             isDragging
-              ? "border-primary bg-primary/10"
-              : "border-muted-foreground/25 hover:border-primary/50",
+              ? 'border-primary bg-primary/10'
+              : 'border-muted-foreground/25 hover:border-primary/50',
             className
           )}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => {
-            const input = document.createElement("input")
-            input.type = "file"
-            input.accept = accept || "*/*"
+            const input = document.createElement('input')
+            input.type = 'file'
+            input.accept = accept || '*/*'
             input.onchange = (e) => {
               const target = e.target as HTMLInputElement
               handleFileChange(target.files?.[0] || null)
@@ -120,6 +123,6 @@ const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
     )
   }
 )
-FileUpload.displayName = "FileUpload"
+FileUpload.displayName = 'FileUpload'
 
-export { FileUpload } 
+export { FileUpload }
