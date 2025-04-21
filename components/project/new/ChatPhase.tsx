@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
-import { TextField } from '@/components/ui/text-field'
 import { FileUpload } from '@/components/ui/file-upload'
 import { Button } from '@/components/ui/button'
 import { phases } from '@/components/project/new/phases'
@@ -82,13 +81,13 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
 
   const renderInput = () => {
     const renderSendButton = () => (
-      <div className="absolute bottom-0 right-0 p-2">
+      <div>
         <Button
           onClick={handleSendMessage}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full p-1.5 h-fit"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-8 h-8 flex items-center justify-center"
           disabled={!input.trim() && !dateRange && !file && !skipFile}
         >
-          <ArrowUp className="h-4 w-4" />
+          <ArrowUp className="h-6 w-6" />
         </Button>
       </div>
     )
@@ -96,7 +95,7 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
     switch (phase.inputType) {
       case 'number':
         return (
-          <div className="relative flex-1">
+          <div className="relative flex-1 flex gap-2">
             <Input
               type="number"
               value={input}
@@ -109,14 +108,14 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
         )
       case 'dateRange':
         return (
-          <div className="relative flex-1">
+          <div className="relative flex-1 flex gap-2">
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   id="date"
                   variant="outline"
                   className={cn(
-                    'w-full justify-start text-left font-normal',
+                    'flex-1 justify-start text-left font-normal',
                     !dateRange && 'text-muted-foreground'
                   )}
                 >
@@ -151,7 +150,7 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
         )
       case 'file':
         return (
-          <div className="relative flex-1">
+          <div className="relative flex-1 flex gap-2">
             <FileUpload
               value={file}
               skip={skipFile}
@@ -165,12 +164,12 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
         )
       default:
         return (
-          <div className="relative flex-1">
+          <div className="relative flex gap-2 flex-1">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="메시지를 입력하세요..."
-              className="flex w-full border border-input px-3 py-2 rounded-2xl bg-muted resize-none min-h-[24px] max-h-[calc(75dvh)] pb-10"
+              className="flex-1 border border-input px-3 py-2 rounded-2xl bg-muted resize-none min-h-[24px] max-h-[calc(75dvh)] pb-10"
               rows={2}
               autoFocus
             />
