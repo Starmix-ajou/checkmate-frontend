@@ -3,4 +3,5 @@ export type Phase = {
   title: string
   question: string
   type: 'form' | 'chat'
+  inputType?: 'text' | 'number' | 'date' | 'dateRange' | 'file'
 }

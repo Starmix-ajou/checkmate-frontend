@@ -1,9 +1,22 @@
 import { useState } from 'react'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
+import { TextField } from '@/components/ui/text-field'
+import { FileUpload } from '@/components/ui/file-upload'
 import { Button } from '@/components/ui/button'
 import { phases } from '@/components/project/new/phases'
 import { Phase } from '@/types/phase'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
+import { CalendarIcon, ArrowUp } from 'lucide-react'
+import { DateRange } from 'react-day-picker'
+import { cn } from '@/lib/utils'
 
 type Message = {
   sender: 'user' | 'ai'
@@ -20,13 +33,38 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
     { sender: 'ai', text: phase.question },
   ])
   const [input, setInput] = useState<string>('')
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
+  const [file, setFile] = useState<File | null>(null)
+  const [skipFile, setSkipFile] = useState(false)
 
   const handleSendMessage = () => {
-    if (!input.trim()) return
+    if (!input.trim() && !dateRange && !file && !skipFile) return
 
-    const userMessage: Message = { sender: 'user', text: input }
+    let messageText = input
+    if (phase.inputType === 'dateRange' && dateRange) {
+      if (dateRange.to) {
+        messageText = `${format(dateRange.from!, 'PPP', { locale: ko })} ~ ${format(
+          dateRange.to,
+          'PPP',
+          { locale: ko }
+        )}`
+      } else {
+        messageText = format(dateRange.from!, 'PPP', { locale: ko })
+      }
+    } else if (phase.inputType === 'file') {
+      if (skipFile) {
+        messageText = '파일 업로드를 건너뜁니다.'
+      } else if (file) {
+        messageText = `파일 업로드: ${file.name}`
+      }
+    }
+
+    const userMessage: Message = { sender: 'user', text: messageText }
     setMessages((prev) => [...prev, userMessage])
     setInput('')
+    setDateRange(undefined)
+    setFile(null)
+    setSkipFile(false)
 
     setTimeout(() => {
       const nextPhaseIndex = phases.findIndex((p) => p.id === phase.id) + 1
@@ -40,6 +78,106 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
       setMessages((prev) => [...prev, aiMessage])
       setTimeout(onNext, 1000)
     }, 1000)
+  }
+
+  const renderInput = () => {
+    const renderSendButton = () => (
+      <div className="absolute bottom-0 right-0 p-2">
+        <Button
+          onClick={handleSendMessage}
+          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full p-1.5 h-fit"
+          disabled={!input.trim() && !dateRange && !file && !skipFile}
+        >
+          <ArrowUp className="h-4 w-4" />
+        </Button>
+      </div>
+    )
+
+    switch (phase.inputType) {
+      case 'number':
+        return (
+          <div className="relative flex-1">
+            <Input
+              type="number"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="숫자를 입력하세요"
+              className="flex-1"
+            />
+            {renderSendButton()}
+          </div>
+        )
+      case 'dateRange':
+        return (
+          <div className="relative flex-1">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant="outline"
+                  className={cn(
+                    'w-full justify-start text-left font-normal',
+                    !dateRange && 'text-muted-foreground'
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, 'PPP', { locale: ko })} -{' '}
+                        {format(dateRange.to, 'PPP', { locale: ko })}
+                      </>
+                    ) : (
+                      format(dateRange.from, 'PPP', { locale: ko })
+                    )
+                  ) : (
+                    <span>기간을 선택하세요</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
+            {renderSendButton()}
+          </div>
+        )
+      case 'file':
+        return (
+          <div className="relative flex-1">
+            <FileUpload
+              value={file}
+              skip={skipFile}
+              onFileChange={setFile}
+              onSkipChange={setSkipFile}
+              accept=".pdf,.doc,.docx"
+              className="flex-1"
+            />
+            {renderSendButton()}
+          </div>
+        )
+      default:
+        return (
+          <div className="relative flex-1">
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="메시지를 입력하세요..."
+              className="flex w-full border border-input px-3 py-2 rounded-2xl bg-muted resize-none min-h-[24px] max-h-[calc(75dvh)] pb-10"
+              rows={2}
+              autoFocus
+            />
+            {renderSendButton()}
+          </div>
+        )
+    }
   }
 
   return (
@@ -71,13 +209,7 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
 
       <div className="fixed bottom-0 left-0 w-full bg-white p-4 flex items-center gap-2">
         <div className="w-full max-w-5xl mx-auto flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="메시지를 입력하세요..."
-            className="flex-1"
-          />
-          <Button onClick={handleSendMessage}>전송</Button>
+          {renderInput()}
         </div>
       </div>
     </div>
