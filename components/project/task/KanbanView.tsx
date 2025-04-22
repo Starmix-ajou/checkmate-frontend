@@ -55,10 +55,9 @@ const SortableItem = ({ id, content }: { id: string; content: string }) => {
     isDragging,
   } = useSortable({ id })
 
-  const style = {
+  const dynamicStyle = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.3 : 1,
   }
 
   return (
@@ -66,8 +65,11 @@ const SortableItem = ({ id, content }: { id: string; content: string }) => {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      style={style}
-      className="bg-white text-black rounded-md shadow-md p-3 select-none cursor-pointer mb-2"
+      style={dynamicStyle}
+      className={`
+        bg-white text-black rounded-md shadow-md p-3 select-none cursor-pointer mb-2
+        ${isDragging ? 'opacity-30' : 'opacity-100'}
+      `}
     >
       {content}
     </div>

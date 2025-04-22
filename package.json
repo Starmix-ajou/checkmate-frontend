@@ -38,11 +38,8 @@
     "next": "15.2.2",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
-<<<<<<< HEAD
     "react-big-calendar": "^1.18.0",
-=======
     "react-day-picker": "^8.10.1",
->>>>>>> e189594 (feat: 프로젝트 생성 시 입력 형식 제한 추가 (CM-41))
     "react-dom": "^19.0.0",
     "react-type-animation": "^3.2.0",
     "stream-chat": "^8.57.6",
