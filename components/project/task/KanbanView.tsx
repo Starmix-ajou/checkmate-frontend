@@ -4,6 +4,7 @@ import { useState } from 'react'
 import {
   DndContext,
   DragEndEvent,
+  DragOverlay,
   MouseSensor,
   useSensor,
   useSensors,
@@ -11,13 +12,12 @@ import {
   useDroppable,
 } from '@dnd-kit/core'
 import {
-  SortableContext,
   useSortable,
   rectSortingStrategy,
+  SortableContext,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-// 타입 정의
 type Task = {
   id: string
   content: string
@@ -25,7 +25,6 @@ type Task = {
 
 type ColumnType = 'todo' | 'inProgress' | 'done'
 
-// DroppableColumn 컴포넌트
 const DroppableColumn = ({
   columnKey,
   children,
@@ -47,14 +46,20 @@ const DroppableColumn = ({
   )
 }
 
-// SortableItem 컴포넌트
 const SortableItem = ({ id, content }: { id: string; content: string }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id })
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0.3 : 1, // 드래그 중 원본은 흐리게
   }
 
   return (
@@ -70,7 +75,6 @@ const SortableItem = ({ id, content }: { id: string; content: string }) => {
   )
 }
 
-// KanbanView 컴포넌트
 export default function KanbanView() {
   const [columns, setColumns] = useState<Record<ColumnType, Task[]>>({
     todo: [
@@ -81,10 +85,13 @@ export default function KanbanView() {
     done: [],
   })
 
+  const [activeTask, setActiveTask] = useState<Task | null>(null)
+
   const sensors = useSensors(useSensor(MouseSensor))
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
+    setActiveTask(null)
     if (!over) return
 
     const activeId = active.id
@@ -93,14 +100,12 @@ export default function KanbanView() {
     let fromColumn: ColumnType | null = null
     let toColumn: ColumnType | null = null
 
-    // fromColumn 찾기
     for (const key of Object.keys(columns) as ColumnType[]) {
       if (columns[key].some((task) => task.id === activeId)) {
         fromColumn = key
       }
     }
 
-    // toColumn 찾기
     if (['todo', 'inProgress', 'done'].includes(String(overId))) {
       toColumn = overId as ColumnType
     } else {
@@ -134,7 +139,6 @@ export default function KanbanView() {
     })
   }
 
-  // 컬럼 렌더링 함수
   const renderColumn = (title: string, columnKey: ColumnType, bg: string) => {
     const tasks = columns[columnKey]
 
@@ -142,9 +146,14 @@ export default function KanbanView() {
       <DroppableColumn columnKey={columnKey}>
         <div className={`${bg} p-4 rounded-md`}>
           <h2 className="font-bold text-lg mb-4">{title}</h2>
-          {tasks.map((task) => (
-            <SortableItem key={task.id} id={task.id} content={task.content} />
-          ))}
+          <SortableContext
+            items={tasks.map((task) => task.id)}
+            strategy={rectSortingStrategy}
+          >
+            {tasks.map((task) => (
+              <SortableItem key={task.id} id={task.id} content={task.content} />
+            ))}
+          </SortableContext>
         </div>
       </DroppableColumn>
     )
@@ -156,19 +165,31 @@ export default function KanbanView() {
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragEnd={handleDragEnd}
+        onDragStart={(event) => {
+          const activeId = event.active.id
+          for (const column of Object.values(columns)) {
+            const found = column.find((task) => task.id === activeId)
+            if (found) {
+              setActiveTask(found)
+              break
+            }
+          }
+        }}
       >
-        <SortableContext
-          items={Object.values(columns)
-            .flat()
-            .map((task) => task.id)}
-          strategy={rectSortingStrategy}
-        >
-          <div className="flex gap-4">
-            {renderColumn('To Do', 'todo', 'bg-gray-100')}
-            {renderColumn('In Progress', 'inProgress', 'bg-sky-100')}
-            {renderColumn('Done', 'done', 'bg-lime-100')}
-          </div>
-        </SortableContext>
+        <div className="flex gap-4">
+          {renderColumn('To Do', 'todo', 'bg-gray-100')}
+          {renderColumn('In Progress', 'inProgress', 'bg-sky-100')}
+          {renderColumn('Done', 'done', 'bg-lime-100')}
+        </div>
+
+        {/* 마우스를 따라다니는 드래그 오버레이 */}
+        <DragOverlay>
+          {activeTask ? (
+            <div className="bg-white text-black rounded-md shadow-md p-3 select-none cursor-pointer">
+              {activeTask.content}
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </div>
   )
