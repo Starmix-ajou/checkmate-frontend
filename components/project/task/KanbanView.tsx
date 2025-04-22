@@ -148,9 +148,7 @@ export default function KanbanView() {
 
     return (
       <DroppableColumn columnKey={columnKey}>
-        <div
-          className={`${bg} p-4 rounded-md flex flex-col justify-between h-full`}
-        >
+        <div className={`${bg} p-4 rounded-md flex flex-col justify-between`}>
           <div>
             <h2 className="font-bold text-lg mb-4">{title}</h2>
             <SortableContext
@@ -167,7 +165,6 @@ export default function KanbanView() {
             </SortableContext>
           </div>
 
-          {/* Add 버튼 */}
           <button
             className="flex items-center text-sm text-gray-600 mt-4 hover:text-black"
             onClick={() => {
