@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import {
   DndContext,
-  DragEndEvent,
   DragOverlay,
   MouseSensor,
   useSensor,
   useSensors,
   closestCorners,
   useDroppable,
+  DragOverEvent,
 } from '@dnd-kit/core'
 import {
   useSortable,
@@ -17,6 +17,7 @@ import {
   SortableContext,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { Plus } from 'lucide-react'
 
 type Task = {
   id: string
@@ -32,9 +33,7 @@ const DroppableColumn = ({
   columnKey: ColumnType
   children: React.ReactNode
 }) => {
-  const { setNodeRef } = useDroppable({
-    id: columnKey,
-  })
+  const { setNodeRef } = useDroppable({ id: columnKey })
 
   return (
     <div
@@ -59,7 +58,7 @@ const SortableItem = ({ id, content }: { id: string; content: string }) => {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.3 : 1, // 드래그 중 원본은 흐리게
+    opacity: isDragging ? 0.3 : 1,
   }
 
   return (
@@ -89,54 +88,59 @@ export default function KanbanView() {
 
   const sensors = useSensors(useSensor(MouseSensor))
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const findColumn = (taskId: string): ColumnType | null => {
+    return (
+      (Object.keys(columns) as ColumnType[]).find((key) =>
+        columns[key].some((task) => task.id === taskId)
+      ) || null
+    )
+  }
+
+  const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event
-    setActiveTask(null)
-    if (!over) return
+    if (!over || active.id === over.id) return
 
-    const activeId = active.id
-    const overId = over.id
+    const activeId = active.id.toString()
+    const overId = over.id.toString()
 
-    let fromColumn: ColumnType | null = null
-    let toColumn: ColumnType | null = null
-
-    for (const key of Object.keys(columns) as ColumnType[]) {
-      if (columns[key].some((task) => task.id === activeId)) {
-        fromColumn = key
-      }
-    }
-
-    if (['todo', 'inProgress', 'done'].includes(String(overId))) {
-      toColumn = overId as ColumnType
-    } else {
-      for (const key of Object.keys(columns) as ColumnType[]) {
-        if (columns[key].some((task) => task.id === overId)) {
-          toColumn = key
-        }
-      }
-    }
+    const fromColumn = findColumn(activeId)
+    const toColumn =
+      findColumn(overId) ||
+      (['todo', 'inProgress', 'done'].includes(overId)
+        ? (overId as ColumnType)
+        : null)
 
     if (!fromColumn || !toColumn) return
-    if (fromColumn === toColumn && activeId === overId) return
 
     const fromTasks = [...columns[fromColumn]]
     const toTasks = [...columns[toColumn]]
 
     const fromIndex = fromTasks.findIndex((task) => task.id === activeId)
-    const [movedTask] = fromTasks.splice(fromIndex, 1)
+    const toIndex = toTasks.findIndex((task) => task.id === overId)
 
-    const toIndex =
-      toColumn === fromColumn
-        ? toTasks.findIndex((task) => task.id === overId)
-        : 0
+    if (fromColumn === toColumn) {
+      const updated = [...toTasks]
+      const [moved] = updated.splice(fromIndex, 1)
+      updated.splice(toIndex, 0, moved)
 
-    toTasks.splice(toIndex, 0, movedTask)
+      setColumns((prev) => ({
+        ...prev,
+        [fromColumn]: updated,
+      }))
+    } else {
+      const [moved] = fromTasks.splice(fromIndex, 1)
+      toTasks.splice(toIndex === -1 ? toTasks.length : toIndex, 0, moved)
 
-    setColumns({
-      ...columns,
-      [fromColumn]: fromTasks,
-      [toColumn]: toTasks,
-    })
+      setColumns((prev) => ({
+        ...prev,
+        [fromColumn]: fromTasks,
+        [toColumn]: toTasks,
+      }))
+    }
+  }
+
+  const handleDragEnd = () => {
+    setActiveTask(null)
   }
 
   const renderColumn = (title: string, columnKey: ColumnType, bg: string) => {
@@ -144,16 +148,42 @@ export default function KanbanView() {
 
     return (
       <DroppableColumn columnKey={columnKey}>
-        <div className={`${bg} p-4 rounded-md`}>
-          <h2 className="font-bold text-lg mb-4">{title}</h2>
-          <SortableContext
-            items={tasks.map((task) => task.id)}
-            strategy={rectSortingStrategy}
+        <div
+          className={`${bg} p-4 rounded-md flex flex-col justify-between h-full`}
+        >
+          <div>
+            <h2 className="font-bold text-lg mb-4">{title}</h2>
+            <SortableContext
+              items={tasks.map((task) => task.id)}
+              strategy={rectSortingStrategy}
+            >
+              {tasks.map((task) => (
+                <SortableItem
+                  key={task.id}
+                  id={task.id}
+                  content={task.content}
+                />
+              ))}
+            </SortableContext>
+          </div>
+
+          {/* Add 버튼 */}
+          <button
+            className="flex items-center text-sm text-gray-600 mt-4 hover:text-black"
+            onClick={() => {
+              const newTask: Task = {
+                id: `task-${Date.now()}`, // 고유 ID 생성
+                content: 'New Task',
+              }
+              setColumns((prev) => ({
+                ...prev,
+                [columnKey]: [...prev[columnKey], newTask],
+              }))
+            }}
           >
-            {tasks.map((task) => (
-              <SortableItem key={task.id} id={task.id} content={task.content} />
-            ))}
-          </SortableContext>
+            <Plus className="w-4 h-4 mr-1" />
+            Add
+          </button>
         </div>
       </DroppableColumn>
     )
@@ -164,13 +194,14 @@ export default function KanbanView() {
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
+        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
-        onDragStart={(event) => {
-          const activeId = event.active.id
+        onDragStart={({ active }) => {
+          const activeId = active.id.toString()
           for (const column of Object.values(columns)) {
-            const found = column.find((task) => task.id === activeId)
-            if (found) {
-              setActiveTask(found)
+            const task = column.find((t) => t.id === activeId)
+            if (task) {
+              setActiveTask(task)
               break
             }
           }
@@ -182,13 +213,12 @@ export default function KanbanView() {
           {renderColumn('Done', 'done', 'bg-lime-100')}
         </div>
 
-        {/* 마우스를 따라다니는 드래그 오버레이 */}
         <DragOverlay>
-          {activeTask ? (
+          {activeTask && (
             <div className="bg-white text-black rounded-md shadow-md p-3 select-none cursor-pointer">
               {activeTask.content}
             </div>
-          ) : null}
+          )}
         </DragOverlay>
       </DndContext>
     </div>
