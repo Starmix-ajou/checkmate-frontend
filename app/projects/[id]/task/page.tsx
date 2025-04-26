@@ -12,13 +12,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import {
-  SlidersHorizontal,
-  Search,
-  CircleX,
-  ToggleLeft,
-  ToggleRight,
-} from 'lucide-react'
+import { SlidersHorizontal, Search, CircleX } from 'lucide-react'
 
 const KanbanView = dynamic(
   () => import('@/components/project/task/KanbanView'),
@@ -56,51 +50,57 @@ export default function TasksPage() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex justify-between items-center mb-6 mt-3">
+        <div className="flex justify-between items-center mb-3 mt-2">
           <h1 className="text-3xl font-bold gap-4 text-MainBlack">
             프로젝트 - {id}
           </h1>
         </div>
 
-        <div className="flex items-center gap-4 mb-4">
-          <Button
-            variant="default"
-            className="bg-black text-white flex items-center gap-2 rounded-3xl"
-          >
-            <SlidersHorizontal size={20} />
-            Filter
-          </Button>
-
-          <div className="flex items-center border-2 border-black rounded-lg px-3 py-2 w-80">
-            <Search size={16} className="text-black" />
-            <input
-              type="text"
-              className="flex-1 bg-transparent outline-none px-2 text-black"
-              placeholder="Search"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-            />
-            {searchText && (
-              <CircleX
-                size={16}
-                className="text-black cursor-pointer"
-                onClick={() => setSearchText('')}
-              />
-            )}
+        <div className="flex items-center gap-4 mb-6">
+          <div className="gap-8 flex-1">
+            <button
+              className={`text-lg font-medium px-2 py-3.5 ${
+                isToggled ? 'text-[#9B9B9B]' : 'text-MainBlack'
+              } transition`}
+              onClick={() => setIsToggled(false)}
+            >
+              칸반보드
+            </button>
+            <button
+              className={`text-lg font-medium px-2 py-3.5 ${
+                isToggled ? 'text-MainBlack' : 'text-[#9B9B9B]'
+              } transition`}
+              onClick={() => setIsToggled(true)}
+            >
+              캘린더
+            </button>
           </div>
 
-          {/* Toggle View */}
-          <div className="ml-6">
-            <button
-              onClick={() => setIsToggled(!isToggled)}
-              className="hover:opacity-80 transition"
+          <div className="flex flex-row justify-end">
+            <Button
+              variant="ghost"
+              className="text-[#9B9B9B] hover:text-MainBlack p-2 h-auto"
             >
-              {isToggled ? (
-                <ToggleRight size={48} className="text-black" />
-              ) : (
-                <ToggleLeft size={48} className="text-black" />
+              <SlidersHorizontal size={20} />
+            </Button>
+
+            <div className="flex items-center border-2 border-black rounded-lg px-3 py-2 w-80">
+              <Search size={16} className="text-black" />
+              <input
+                type="text"
+                className="flex-1 bg-transparent outline-none px-2 text-black"
+                placeholder="Search"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              {searchText && (
+                <CircleX
+                  size={16}
+                  className="text-black cursor-pointer"
+                  onClick={() => setSearchText('')}
+                />
               )}
-            </button>
+            </div>
           </div>
         </div>
 
