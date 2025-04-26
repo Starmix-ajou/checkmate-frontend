@@ -51,7 +51,15 @@ jobs:
           rm -rf *  # 기존 파일 삭제
 
           # `rsync`를 사용하여 상위 디렉토리의 모든 파일을 복사 (현재 디렉토리를 제외하고 복사)
-          rsync -av --exclude './checkmate-frontend-deploy' --exclude '.git' ../* . 
+          rsync -av \
+            --exclude './checkmate-frontend-deploy' \
+            --exclude '.git' \
+            --exclude 'build' \
+            --exclude 'dist' \
+            --exclude '.next' \
+            --exclude 'out' \
+            ../* .
+
 
           # 변경 사항 확인 후 커밋 및 푸시
           git add .
