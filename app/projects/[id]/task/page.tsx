@@ -20,7 +20,6 @@ import {
   ToggleRight,
 } from 'lucide-react'
 
-// KanbanView를 클라이언트 전용으로 동적 import
 const KanbanView = dynamic(
   () => import('@/components/project/task/KanbanView'),
   {
@@ -39,7 +38,6 @@ export default function TasksPage() {
   return (
     <div className="flex min-h-screen">
       <div className="flex-1 p-6">
-        {/* Breadcrumb */}
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -58,12 +56,12 @@ export default function TasksPage() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">프로젝트 - {id}</h1>
+        <div className="flex justify-between items-center mb-6 mt-3">
+          <h1 className="text-3xl font-bold gap-4 text-MainBlack">
+            프로젝트 - {id}
+          </h1>
         </div>
 
-        {/* Filter & Search */}
         <div className="flex items-center gap-4 mb-4">
           <Button
             variant="default"
