@@ -3,7 +3,7 @@ name: Sync Changes to Personal Repo
 on:
   push:
     branches:
-      - main
+      - '**'
 
 jobs:
   sync:
