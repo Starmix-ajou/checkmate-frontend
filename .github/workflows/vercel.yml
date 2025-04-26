@@ -54,6 +54,7 @@ jobs:
           rsync -av \
             --exclude './checkmate-frontend-deploy' \
             --exclude '.git' \
+            --exclude 'node_modules' \
             --exclude 'build' \
             --exclude 'dist' \
             --exclude '.next' \
