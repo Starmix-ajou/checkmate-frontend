@@ -56,20 +56,24 @@ export default function TasksPage() {
           </h1>
         </div>
 
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center mb-6">
           <div className="gap-8 flex-1">
             <button
-              className={`text-lg font-medium px-2 py-3.5 ${
-                isToggled ? 'text-[#9B9B9B]' : 'text-MainBlack'
-              } transition`}
+              className={`text-lg font-medium mr-2 px-2 py-3.5 border-b-2 transition ${
+                isToggled
+                  ? 'text-[#9B9B9B] border-transparent'
+                  : 'text-MainBlack border-[#0F0F0F]'
+              }`}
               onClick={() => setIsToggled(false)}
             >
               칸반보드
             </button>
             <button
-              className={`text-lg font-medium px-2 py-3.5 ${
-                isToggled ? 'text-MainBlack' : 'text-[#9B9B9B]'
-              } transition`}
+              className={`text-lg font-medium px-2 py-3.5 border-b-2 transition ${
+                isToggled
+                  ? 'text-MainBlack border-[#0F0F0F]'
+                  : 'text-[#9B9B9B] border-transparent'
+              }`}
               onClick={() => setIsToggled(true)}
             >
               캘린더
@@ -81,7 +85,7 @@ export default function TasksPage() {
               variant="ghost"
               className="text-[#9B9B9B] hover:text-MainBlack p-2 h-auto"
             >
-              <SlidersHorizontal size={20} />
+              <SlidersHorizontal size={24} />
             </Button>
 
             <div className="flex items-center border-2 border-black rounded-lg px-3 py-2 w-80">
