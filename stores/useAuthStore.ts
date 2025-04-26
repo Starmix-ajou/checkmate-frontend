@@ -4,10 +4,11 @@ type User = {
   name: string
   email: string
   image: string
-} | null
+  accessToken: string
+}
 
 type AuthStore = {
-  user: User
+  user: User | null
   setUser: (user: User) => void
   clearUser: () => void
 }

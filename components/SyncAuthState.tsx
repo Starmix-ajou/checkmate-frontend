@@ -14,6 +14,7 @@ export default function SyncAuthState() {
         name: session.user.name ?? '',
         email: session.user.email ?? '',
         image: session.user.image ?? '',
+        accessToken: session.accessToken ?? '',
       })
     } else {
       clearUser()
