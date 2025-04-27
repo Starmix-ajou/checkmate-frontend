@@ -146,11 +146,11 @@
   right: 0;
 }
 
-.pyungjoo .cm-square.cm-dark {
+.cm-loading-wrapper .cm-square.cm-dark {
   animation: rotateA 2.5s infinite cubic-bezier(0.25, 0.75, 0.5, 1);
 }
 
-.pyungjoo .cm-square.cm-light {
+.cm-loading-wrapper .cm-square.cm-light {
   animation: rotateB 2.5s infinite cubic-bezier(0.25, 0.75, 0.5, 1);
 }
 
