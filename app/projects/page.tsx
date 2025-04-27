@@ -1,5 +1,6 @@
 'use client'
 
+import LoadingCheckMate from '@/components/LoadingCheckMate'
 import { ProjectFilter, ProjectList } from '@/components/project/home'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Project } from '@/types/project'
@@ -98,15 +99,14 @@ const Home = () => {
     fetchProjects()
   }, [filter, user?.accessToken])
 
-  if (loading) {
-    return <div>Loading...</div>
-  }
-
   return (
-    <div className="p-6 w-full max-w-7xl mx-auto">
-      <ProjectFilter setFilter={setFilter} />
-      <ProjectList projects={projects} />
-    </div>
+    <>
+      <LoadingCheckMate size={64} loading={loading} />
+      <div className="p-6 w-full max-w-7xl mx-auto">
+        <ProjectFilter setFilter={setFilter} />
+        <ProjectList projects={projects} />
+      </div>
+    </>
   )
 }
 
