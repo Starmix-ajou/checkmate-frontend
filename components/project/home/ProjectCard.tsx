@@ -1,18 +1,35 @@
 'use client'
+
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
-import { Calendar, Heart } from 'lucide-react'
+import { Calendar, Heart, Users } from 'lucide-react'
 
 type ProjectCardProps = {
-  id: number
-  name: string
+  id: string
+  position: string[]
+  members: {
+    name: string
+    email: string
+    profileImageUrl: string
+    profiles: any[]
+    role: string
+    pendingProjectIds: string[]
+  }[]
+  title: string
   startDate: string
   endDate: string
 }
 
-const ProjectCard = ({ id, name, startDate, endDate }: ProjectCardProps) => {
-  const [isFavorited, setIsFavorited] = useState(false) // 하트 클릭 상태 관리
+const ProjectCard = ({
+  id,
+  position,
+  members,
+  title,
+  startDate,
+  endDate,
+}: ProjectCardProps) => {
+  const [isFavorited, setIsFavorited] = useState(false)
   const [today, setToday] = useState<Date | null>(null)
 
   useEffect(() => {
@@ -24,7 +41,7 @@ const ProjectCard = ({ id, name, startDate, endDate }: ProjectCardProps) => {
   }
 
   const toggleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation() // 하트 클릭 시 페이지 이동 방지
+    e.stopPropagation()
     setIsFavorited((prev) => !prev)
   }
 
@@ -50,17 +67,24 @@ const ProjectCard = ({ id, name, startDate, endDate }: ProjectCardProps) => {
 
       <div className="flex justify-between items-start pt-2 ml-4">
         <div className="flex flex-col">
-          <div className="text-left font-semibold text-base">{name}</div>
-          <div className="text-left font-normal text-xs flex items-center">
-            <Calendar className="mr-1 text-gray-500" size={14} />
+          <div className="text-left font-semibold text-base">{title}</div>
+          <div className="text-left font-normal text-xs flex items-center text-gray-500">
+            <Calendar className="mr-1" size={14} />
             {startDate} ~ {endDate}
+          </div>
+          <div className="text-left font-normal text-xs flex items-center text-gray-500 mt-1">
+            <Users className="mr-1" size={14} />
+            {members.length}명 참여 중
+          </div>
+          <div className="text-left font-normal text-xs flex items-center text-gray-500 mt-1">
+            {position.join(', ')}
           </div>
         </div>
 
         <Heart
           className={`cursor-pointer ${isFavorited ? 'text-red-500' : 'text-gray-500'} mt-4 mr-4`}
           size={18}
-          onClick={toggleFavorite} // 클릭 시 상태 변경
+          onClick={toggleFavorite}
         />
       </div>
 
