@@ -1,0 +1,25 @@
+export type Profile = {
+  stacks: string[]
+  positions: string[]
+  projectId: string
+}
+
+export type Member = {
+  name: string
+  email: string
+  profileImageUrl: string
+  profiles: Profile[]
+  role: string
+  pendingProjectIds: string[]
+}
+
+export type Project = {
+  projectId: string
+  projectTitle: string
+  projectImageUrl: string
+  profile: Profile
+  startDate: string
+  endDate: string
+  members: Member[]
+  leader: Member
+}

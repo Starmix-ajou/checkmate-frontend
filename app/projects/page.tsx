@@ -3,34 +3,9 @@
 import { useEffect, useState } from 'react'
 import { ProjectFilter, ProjectList } from '@/components/project/home'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { Project } from '@/types/project'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
-
-type Profile = {
-  stacks: string[]
-  positions: string[]
-  projectId: string
-}
-
-type Member = {
-  name: string
-  email: string
-  profileImageUrl: string
-  profiles: Profile[]
-  role: string
-  pendingProjectIds: string[]
-}
-
-type Project = {
-  projectId: string
-  projectTitle: string
-  projectImageUrl: string
-  profile: Profile
-  startDate: string
-  endDate: string
-  members: Member[]
-  leader: Member
-}
 
 const mockProjects: Project[] = [
   {
