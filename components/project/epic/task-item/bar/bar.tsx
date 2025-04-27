@@ -1,9 +1,10 @@
-import React from 'react'
 import { getProgressPoint } from '@/helpers/bar-helper'
-import { BarDisplay } from './bar-display'
-import { BarDateHandle } from './bar-date-handle'
-import { BarProgressHandle } from './bar-progress-handle'
+import React from 'react'
+
 import { TaskItemProps } from '../task-item'
+import { BarDateHandle } from './bar-date-handle'
+import { BarDisplay } from './bar-display'
+import { BarProgressHandle } from './bar-progress-handle'
 import styles from './bar.module.css'
 
 export const Bar: React.FC<TaskItemProps> = ({

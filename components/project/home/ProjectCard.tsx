@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
-import { Calendar, Heart, Users } from 'lucide-react'
 import { Member, Profile } from '@/types/project'
+import { Calendar, Heart, Users } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 type ProjectCardProps = {
   id: string

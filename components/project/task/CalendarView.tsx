@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { Calendar, dateFnsLocalizer, View } from 'react-big-calendar'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
-import { format, parse, startOfWeek, getDay, isSameDay } from 'date-fns'
+import { format, getDay, isSameDay, parse, startOfWeek } from 'date-fns'
 import { ko } from 'date-fns/locale'
+import { useState } from 'react'
+import { Calendar, View, dateFnsLocalizer } from 'react-big-calendar'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
 
 // 로컬라이저 설정
 const locales = { ko }

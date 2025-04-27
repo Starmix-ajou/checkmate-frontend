@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { phases } from './phases'
-import FormPhase from '@/components/project/new/FormPhase'
 import ChatPhase from '@/components/project/new/ChatPhase'
+import FormPhase from '@/components/project/new/FormPhase'
 import { Phase } from '@/types/phase'
+import { useState } from 'react'
+
+import { phases } from './phases'
 
 export default function ProjectWizard() {
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState<number>(0)

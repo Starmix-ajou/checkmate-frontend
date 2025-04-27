@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Phase } from '@/types/phase'
+import { useState } from 'react'
 import { TypeAnimation } from 'react-type-animation'
 
 type FormPhaseProps = {

@@ -1,6 +1,3 @@
-import React, { ReactNode } from 'react'
-import { ViewMode } from '@/types/public-types'
-import { TopPartOfCalendar } from './top-part-of-calendar'
 import {
   getCachedDateTimeFormat,
   getDaysInMonth,
@@ -9,7 +6,11 @@ import {
   getWeekNumberISO8601,
 } from '@/helpers/date-helper'
 import { DateSetup } from '@/types/date-setup'
+import { ViewMode } from '@/types/public-types'
+import React, { ReactNode } from 'react'
+
 import styles from './calendar.module.css'
+import { TopPartOfCalendar } from './top-part-of-calendar'
 
 export type CalendarProps = {
   dateSetup: DateSetup
