@@ -4,18 +4,12 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Calendar, Heart, Users } from 'lucide-react'
+import { Member, Profile } from '@/types/project'
 
 type ProjectCardProps = {
   id: string
-  position: string[]
-  members: {
-    name: string
-    email: string
-    profileImageUrl: string
-    profiles: any[]
-    role: string
-    pendingProjectIds: string[]
-  }[]
+  position: Profile['positions']
+  members: Member[]
   title: string
   startDate: string
   endDate: string

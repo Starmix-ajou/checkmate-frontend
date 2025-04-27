@@ -1,31 +1,5 @@
-// components/project/home/ProjectList.tsx
 import ProjectCard from '@/components/project/home/ProjectCard'
-
-type Profile = {
-  stacks: string[]
-  positions: string[]
-  projectId: string
-}
-
-type Member = {
-  name: string
-  email: string
-  profileImageUrl: string
-  profiles: Profile[]
-  role: string
-  pendingProjectIds: string[]
-}
-
-type Project = {
-  projectId: string
-  projectTitle: string
-  projectImageUrl: string
-  profile: Profile
-  startDate: string
-  endDate: string
-  members: Member[]
-  leader: Member
-}
+import { Project } from '@/types/project'
 
 type ProjectListProps = {
   projects: Project[]
