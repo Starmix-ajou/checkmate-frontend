@@ -17,7 +17,8 @@ import {
   SortableContext,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Plus } from 'lucide-react'
+import React from 'react'
+import { Plus, Pencil, Pickaxe, Check } from 'lucide-react'
 
 type Task = {
   id: string
@@ -38,7 +39,7 @@ const DroppableColumn = ({
   return (
     <div
       ref={setNodeRef}
-      className="w-1/3 p-4 rounded-md min-h-[200px] m-0 flex flex-col gap-2"
+      className="w-1/3 min-h-[200px] m-0 flex flex-col gap-3"
     >
       {children}
     </div>
@@ -145,14 +146,18 @@ export default function KanbanView() {
     setActiveTask(null)
   }
 
-  const renderColumn = (title: string, columnKey: ColumnType, bg: string) => {
+  const renderColumn = (
+    title: React.ReactNode,
+    columnKey: ColumnType,
+    bg: string
+  ) => {
     const tasks = columns[columnKey]
 
     return (
       <DroppableColumn columnKey={columnKey}>
         <div className={`${bg} p-4 rounded-md flex flex-col justify-between`}>
           <div>
-            <h2 className="font-bold text-lg mb-4">{title}</h2>
+            <h2 className="font-medium text-sm mb-3.5">{title}</h2>
             <SortableContext
               items={tasks.map((task) => task.id)}
               strategy={rectSortingStrategy}
@@ -168,7 +173,7 @@ export default function KanbanView() {
           </div>
 
           <button
-            className="flex items-center text-sm text-gray-600 mt-4 hover:text-black"
+            className="flex items-center text-sm text-[#474747] mt-4 hover:text-black-01"
             onClick={() => {
               const newTask: Task = {
                 id: `task-${Date.now()}`, // 고유 ID 생성
@@ -180,7 +185,7 @@ export default function KanbanView() {
               }))
             }}
           >
-            <Plus className="w-4 h-4 mr-1" />
+            <Plus size={20} className="mr-1.5 text-inherit" />
             Add
           </button>
         </div>
@@ -206,15 +211,36 @@ export default function KanbanView() {
           }
         }}
       >
-        <div className="flex gap-4">
-          {renderColumn('To Do', 'todo', 'bg-gray-100')}
-          {renderColumn('In Progress', 'inProgress', 'bg-sky-100')}
-          {renderColumn('Done', 'done', 'bg-lime-100')}
+        <div className="flex gap-3">
+          {renderColumn(
+            <div className="flex items-center">
+              <Pencil size={14} color="#858380" />
+              <span className="ml-1">To Do</span>
+            </div>,
+            'todo',
+            'bg-[#F8F8F7] rounded-none'
+          )}
+          {renderColumn(
+            <div className="flex items-center">
+              <Pickaxe size={14} color="#5093BC" />
+              <span className="ml-1">In Progress</span>
+            </div>,
+            'inProgress',
+            'bg-[#F3F9FC] rounded-none'
+          )}
+          {renderColumn(
+            <div className="flex items-center">
+              <Check size={14} color="#5C9771" />
+              <span className="ml-1">Done</span>
+            </div>,
+            'done',
+            'bg-[#F6FAF6] rounded-none'
+          )}
         </div>
 
         <DragOverlay>
           {activeTask && (
-            <div className="bg-white text-black rounded-md shadow-md p-3 select-none cursor-pointer">
+            <div className="bg-white text-black shadow-md p-3 select-none cursor-pointer">
               {activeTask.content}
             </div>
           )}
