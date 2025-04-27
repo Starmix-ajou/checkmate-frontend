@@ -9,5 +9,8 @@ const config = {
   semi: false,
   singleQuote: true,
   endOfLine: 'lf',
+  importOrder: ['^@core/(.*)$', '^@server/(.*)$', '^@ui/(.*)$', '^[./]'],
+  importOrderSeparation: true,
+  importOrderSortSpecifiers: true,
 }
 export default config
