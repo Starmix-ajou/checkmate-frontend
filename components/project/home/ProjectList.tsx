@@ -38,7 +38,9 @@ const ProjectList = ({ projects }: ProjectListProps) => {
         <ProjectCard
           key={project.projectId}
           id={project.projectId}
-          name={project.projectTitle}
+          position={project.profile.positions}
+          members={project.members}
+          title={project.projectTitle}
           startDate={project.startDate}
           endDate={project.endDate}
         />
