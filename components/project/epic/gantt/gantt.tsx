@@ -1,28 +1,29 @@
+import { convertToBarTasks } from '@/helpers/bar-helper'
+import { ganttDateRange, seedDates } from '@/helpers/date-helper'
+import { removeHiddenTasks, sortTasks } from '@/helpers/other-helper'
+import { BarTask } from '@/types/bar-task'
+import { DateSetup } from '@/types/date-setup'
+import { GanttEvent } from '@/types/gantt-task-actions'
+import { GanttProps, Task, ViewMode } from '@/types/public-types'
 import React, {
-  useState,
   SyntheticEvent,
-  useRef,
   useEffect,
   useMemo,
+  useRef,
+  useState,
 } from 'react'
-import { ViewMode, GanttProps, Task } from '@/types/public-types'
-import { GridProps } from '../grid/grid'
-import { ganttDateRange, seedDates } from '@/helpers/date-helper'
+
 import { CalendarProps } from '../calendar/calendar'
-import { TaskGanttContentProps } from './task-gantt-content'
-import { TaskListHeaderDefault } from '../task-list/task-list-header'
-import { TaskListTableDefault } from '../task-list/task-list-table'
+import { GridProps } from '../grid/grid'
+import { HorizontalScroll } from '../other/horizontal-scroll'
 import { StandardTooltipContent, Tooltip } from '../other/tooltip'
 import { VerticalScroll } from '../other/vertical-scroll'
-import { TaskListProps, TaskList } from '../task-list/task-list'
-import { TaskGantt } from './task-gantt'
-import { BarTask } from '@/types/bar-task'
-import { convertToBarTasks } from '@/helpers/bar-helper'
-import { GanttEvent } from '@/types/gantt-task-actions'
-import { DateSetup } from '@/types/date-setup'
-import { HorizontalScroll } from '../other/horizontal-scroll'
-import { removeHiddenTasks, sortTasks } from '@/helpers/other-helper'
+import { TaskList, TaskListProps } from '../task-list/task-list'
+import { TaskListHeaderDefault } from '../task-list/task-list-header'
+import { TaskListTableDefault } from '../task-list/task-list-table'
 import styles from './gantt.module.css'
+import { TaskGantt } from './task-gantt'
+import { TaskGanttContentProps } from './task-gantt-content'
 
 export const Gantt: React.FunctionComponent<GanttProps> = ({
   tasks,

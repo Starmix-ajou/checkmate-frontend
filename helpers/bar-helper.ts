@@ -1,6 +1,6 @@
-import { Task } from '../types/public-types'
 import { BarTask, TaskTypeInternal } from '../types/bar-task'
 import { BarMoveAction } from '../types/gantt-task-actions'
+import { Task } from '../types/public-types'
 
 export const convertToBarTasks = (
   tasks: Task[],

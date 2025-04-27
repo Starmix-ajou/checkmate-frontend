@@ -1,7 +1,8 @@
 'use client'
 
-import { useCreateBlockNoteWithLiveblocks } from '@liveblocks/react-blocknote'
 import { BlockNoteView } from '@blocknote/mantine'
+import { useCreateBlockNoteWithLiveblocks } from '@liveblocks/react-blocknote'
+
 import { Threads } from './Threads'
 
 export function Editor() {

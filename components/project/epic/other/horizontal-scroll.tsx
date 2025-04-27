@@ -1,4 +1,5 @@
-import React, { SyntheticEvent, useRef, useEffect } from 'react'
+import React, { SyntheticEvent, useEffect, useRef } from 'react'
+
 import styles from './horizontal-scroll.module.css'
 
 export const HorizontalScroll: React.FC<{

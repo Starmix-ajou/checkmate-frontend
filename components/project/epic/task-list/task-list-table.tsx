@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react'
-import styles from './task-list-table.module.css'
 import { Task } from '@/types/public-types'
+import React, { useMemo } from 'react'
+
+import styles from './task-list-table.module.css'
 
 const localeDateStringCache: { [key: string]: string } = {}
 

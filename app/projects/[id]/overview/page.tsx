@@ -1,11 +1,11 @@
 'use client'
 
-import { useParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
 import AvatarGroup from '@/components/project/overview/AvatarGroup'
-import StatusCard from '@/components/project/overview/StatusCard'
+import DailyScrumCard from '@/components/project/overview/DailyScrumCard'
 import MyTaskCard from '@/components/project/overview/MyTaskCard'
 import ScheduleCard from '@/components/project/overview/ScheduleCard'
+import SprintPeriodCard from '@/components/project/overview/SprintPeriodCard'
+import StatusCard from '@/components/project/overview/StatusCard'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,8 +14,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import DailyScrumCard from '@/components/project/overview/DailyScrumCard'
-import SprintPeriodCard from '@/components/project/overview/SprintPeriodCard'
+import { Button } from '@/components/ui/button'
+import { useParams } from 'next/navigation'
 
 export default function ProjectOverview() {
   const { id } = useParams()

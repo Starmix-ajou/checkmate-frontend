@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { ProjectFilter, ProjectList } from '@/components/project/home'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Project } from '@/types/project'
+import { useEffect, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 

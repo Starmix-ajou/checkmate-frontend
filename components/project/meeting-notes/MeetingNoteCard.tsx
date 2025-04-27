@@ -1,7 +1,7 @@
-import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
-import { useParams } from 'next/navigation'
 import { Lightbulb } from 'lucide-react'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 
 export default function MeetingNoteCard() {
   const { id } = useParams()

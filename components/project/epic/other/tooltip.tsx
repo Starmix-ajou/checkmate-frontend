@@ -1,6 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react'
-import { Task } from '@/types/public-types'
 import { BarTask } from '@/types/bar-task'
+import { Task } from '@/types/public-types'
+import React, { useEffect, useRef, useState } from 'react'
+
 import styles from './tooltip.module.css'
 
 export type TooltipProps = {

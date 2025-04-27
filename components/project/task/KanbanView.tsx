@@ -1,23 +1,23 @@
 'use client'
 
-import { useState } from 'react'
 import {
   DndContext,
+  DragOverEvent,
   DragOverlay,
   MouseSensor,
-  useSensor,
-  useSensors,
   closestCorners,
   useDroppable,
-  DragOverEvent,
+  useSensor,
+  useSensors,
 } from '@dnd-kit/core'
 import {
-  useSortable,
-  rectSortingStrategy,
   SortableContext,
+  rectSortingStrategy,
+  useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Plus } from 'lucide-react'
+import { useState } from 'react'
 
 type Task = {
   id: string

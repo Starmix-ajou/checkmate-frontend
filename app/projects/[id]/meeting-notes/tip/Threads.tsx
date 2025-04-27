@@ -1,10 +1,10 @@
-import { useThreads } from '@liveblocks/react/suspense'
+import { BlockNoteEditor } from '@blocknote/core'
 import {
   AnchoredThreads,
   FloatingComposer,
   FloatingThreads,
 } from '@liveblocks/react-blocknote'
-import { BlockNoteEditor } from '@blocknote/core'
+import { useThreads } from '@liveblocks/react/suspense'
 
 export function Threads({ editor }: { editor: BlockNoteEditor | null }) {
   const { threads } = useThreads({ query: { resolved: false } })

@@ -1,21 +1,21 @@
-import { useState } from 'react'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { Input } from '@/components/ui/input'
-import { FileUpload } from '@/components/ui/file-upload'
-import { Button } from '@/components/ui/button'
 import { phases } from '@/components/project/new/phases'
-import { Phase } from '@/types/phase'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
+import { FileUpload } from '@/components/ui/file-upload'
+import { Input } from '@/components/ui/input'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
+import { Phase } from '@/types/phase'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
-import { CalendarIcon, ArrowUp } from 'lucide-react'
+import { ArrowUp, CalendarIcon } from 'lucide-react'
+import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
-import { cn } from '@/lib/utils'
 
 type Message = {
   sender: 'user' | 'ai'

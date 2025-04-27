@@ -1,4 +1,5 @@
-import React, { SyntheticEvent, useRef, useEffect } from 'react'
+import React, { SyntheticEvent, useEffect, useRef } from 'react'
+
 import styles from './vertical-scroll.module.css'
 
 export const VerticalScroll: React.FC<{

@@ -1,16 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { signOut } from 'next-auth/react'
-import Image from 'next/image'
-import { User, LogOut } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { LogOut, User } from 'lucide-react'
+import { signOut } from 'next-auth/react'
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 export default function Navbar() {
   const user = useAuthStore((state) => state.user)
