@@ -10,10 +10,6 @@ const config = {
       fontFamily: {
         sans: ['Pretendard', 'sans-serif'],
       },
-      colors: {
-        MainBlack: '#0F0F0F',
-        SideBlack: '#1C1C1C',
-      },
     },
   },
   plugins: [],
