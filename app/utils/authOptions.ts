@@ -15,7 +15,32 @@ const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
-        token.accessToken = account.access_token
+        try {
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                accessToken: account.access_token,
+              }),
+            }
+          )
+
+          if (!res.ok) {
+            throw new Error('Failed to exchange accessToken with backend')
+          }
+
+          const data = await res.json()
+
+          token.accessToken = data.accessToken
+          token.email = data.email
+          token.name = data.name
+        } catch (error) {
+          console.error('JWT Callback Error:', error)
+        }
       }
       return token
     },
