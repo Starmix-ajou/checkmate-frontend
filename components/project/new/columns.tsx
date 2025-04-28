@@ -123,7 +123,7 @@ function EditableCell<TData>({
       onChange={(e) => setValue(e.target.value)}
       onBlur={onBlur}
       className="w-full border rounded p-1"
-      placeholder="이름을 입력하세요"
+      placeholder="이메일을 입력하세요"
     />
   )
 }
@@ -133,7 +133,7 @@ const defaultColumn: Partial<ColumnDef<TeamMember>> = {
 }
 
 export const columns: ColumnDef<TeamMember>[] = [
-  { accessorKey: 'name', header: '이름' },
+  { accessorKey: 'email', header: '이메일' },
   { accessorKey: 'positions', header: '역할' },
   { accessorKey: 'stacks', header: '기술 스택' },
 ]
