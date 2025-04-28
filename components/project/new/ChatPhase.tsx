@@ -57,7 +57,7 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
   }
 
   const handleSendMessage = () => {
-    if (!input.trim() && !dateRange && !file && !skipFile) return
+    if (!input.trim() && !dateRange && !file && !skipFile && !tableData) return
 
     let messageText = input
     if (phase.inputType === 'dateRange' && dateRange) {
@@ -105,7 +105,9 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
         <Button
           onClick={handleSendMessage}
           className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-8 h-8 flex items-center justify-center"
-          disabled={!input.trim() && !dateRange && !file && !skipFile}
+          disabled={
+            !input.trim() && !dateRange && !file && !skipFile && !tableData
+          }
         >
           <ArrowUp className="h-6 w-6" />
         </Button>
@@ -128,11 +130,14 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
         )
       case 'table':
         return (
-          <DataTable
-            columns={columns}
-            data={tableData}
-            onSave={handleSaveData}
-          />
+          <div className="relative flex-1 flex gap-2">
+            <DataTable
+              columns={columns}
+              data={tableData}
+              onSave={handleSaveData}
+            />
+            {renderSendButton()}
+          </div>
         )
       case 'dateRange':
         return (
