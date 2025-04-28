@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import { Position, Stack, TeamMember } from '@/types/NewProjectTeamMember'
+import { Position, TeamMember } from '@/types/NewProjectTeamMember'
 import { Phase } from '@/types/phase'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
@@ -34,22 +34,13 @@ type ChatPhaseProps = {
 function getMemberData(): TeamMember[] {
   return [
     {
-      name: '홍길동',
-      positions: Position.Frontend,
-      stacks: [Stack.NextJS, Stack.TypeScript, Stack.TailwindCSS],
-    },
-    {
-      name: '이몽룡',
-      positions: Position.Backend,
-      stacks: [Stack.NodeJS, Stack.NestJS, Stack.PostgreSQL],
-    },
-    {
-      name: '성춘향',
-      positions: Position.Designer,
-      stacks: [Stack.Figma],
+      email: '',
+      positions: '' as Position,
+      stacks: [],
     },
   ]
 }
+
 export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
   const [messages, setMessages] = useState<Message[]>([
     { sender: 'ai', text: phase.question },
