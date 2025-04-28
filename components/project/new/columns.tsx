@@ -1,8 +1,10 @@
+'use client'
+
 import { Badge } from '@/components/ui/badge'
 import { Position, Stack, TeamMember } from '@/types/NewProjectTeamMember'
 import { ColumnDef, RowData } from '@tanstack/react-table'
 import { useEffect, useState } from 'react'
-import Select from 'react-select'
+import CreatableSelect from 'react-select/creatable'
 
 declare module '@tanstack/react-table' {
   interface TableMeta<TData extends RowData> {
@@ -49,20 +51,23 @@ function EditableCell<TData>({
 
   if (column.id === 'positions') {
     return (
-      <Select
+      <CreatableSelect
         menuPortalTarget={
           typeof document !== 'undefined' ? document.body : null
         }
         styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
         options={ROLE_OPTIONS}
-        value={ROLE_OPTIONS.find((option) => option.value === value)}
+        value={
+          value ? { label: value as string, value: value as string } : null
+        }
         onChange={(option) => {
           setValue(option?.value || '')
           onBlur()
         }}
-        placeholder="역할을 선택하세요"
+        placeholder="역할을 선택하거나 입력하세요"
         className="w-full"
         isClearable
+        formatCreateLabel={(inputValue) => `"${inputValue}" 추가`}
       />
     )
   }
@@ -70,7 +75,7 @@ function EditableCell<TData>({
   if (column.id === 'stacks') {
     return (
       <div className="flex flex-col gap-2">
-        <Select
+        <CreatableSelect
           menuPortalTarget={
             typeof document !== 'undefined' ? document.body : null
           }
@@ -85,9 +90,10 @@ function EditableCell<TData>({
               option.value as Stack,
             ])
           }}
-          placeholder="스택을 추가하세요"
+          placeholder="스택을 추가하거나 입력하세요"
           className="w-full"
           isClearable
+          formatCreateLabel={(inputValue) => `"${inputValue}" 추가`}
         />
         <div className="flex flex-wrap gap-1">
           {((value as Stack[]) || []).map((stack, idx) => (
