@@ -10,12 +10,16 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
+import { Position, Stack, TeamMember } from '@/types/NewProjectTeamMember'
 import { Phase } from '@/types/phase'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { ArrowUp, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
+
+import { DataTable } from './DataTable'
+import { columns } from './columns'
 
 type Message = {
   sender: 'user' | 'ai'
@@ -27,6 +31,25 @@ type ChatPhaseProps = {
   onNext: () => void
 }
 
+function getMemberData(): TeamMember[] {
+  return [
+    {
+      name: '홍길동',
+      positions: Position.Frontend,
+      stacks: [Stack.NextJS, Stack.TypeScript, Stack.TailwindCSS],
+    },
+    {
+      name: '이몽룡',
+      positions: Position.Backend,
+      stacks: [Stack.NodeJS, Stack.NestJS, Stack.PostgreSQL],
+    },
+    {
+      name: '성춘향',
+      positions: Position.Designer,
+      stacks: [Stack.Figma],
+    },
+  ]
+}
 export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
   const [messages, setMessages] = useState<Message[]>([
     { sender: 'ai', text: phase.question },
@@ -35,6 +58,12 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [file, setFile] = useState<File | null>(null)
   const [skipFile, setSkipFile] = useState(false)
+  const [tableData, setTableData] = useState<TeamMember[]>(getMemberData())
+
+  const handleSaveData = (savedData: TeamMember[]) => {
+    setTableData(savedData)
+    console.log('저장된 데이터:', savedData)
+  }
 
   const handleSendMessage = () => {
     if (!input.trim() && !dateRange && !file && !skipFile) return
@@ -105,6 +134,14 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
             />
             {renderSendButton()}
           </div>
+        )
+      case 'table':
+        return (
+          <DataTable
+            columns={columns}
+            data={tableData}
+            onSave={handleSaveData}
+          />
         )
       case 'dateRange':
         return (
