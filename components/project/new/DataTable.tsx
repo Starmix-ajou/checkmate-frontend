@@ -55,6 +55,15 @@ export function DataTable<TData extends TeamMember, TValue>({
     },
   })
 
+  const handleAddRow = () => {
+    const emptyRow = {} as TData
+    setData((prev) => [...prev, emptyRow])
+  }
+
+  const handleDeleteRow = (index: number) => {
+    setData((prev) => prev.filter((_, i) => i !== index))
+  }
+
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
@@ -72,27 +81,47 @@ export function DataTable<TData extends TeamMember, TValue>({
                         )}
                   </TableHead>
                 ))}
+                <TableHead></TableHead>
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+              <>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                    <TableCell className="text-center">
+                      <button
+                        onClick={() => handleDeleteRow(row.index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        x
+                      </button>
                     </TableCell>
-                  ))}
+                  </TableRow>
+                ))}
+                <TableRow>
+                  <TableCell
+                    onClick={handleAddRow}
+                    colSpan={columns.length + 1}
+                    className="text-center py-4 cursor-pointer hover:bg-gray-100 font-medium text-blue-500"
+                  >
+                    팀원 추가
+                  </TableCell>
                 </TableRow>
-              ))
+              </>
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columns.length + 1}
                   className="h-24 text-center"
                 >
                   No results.
