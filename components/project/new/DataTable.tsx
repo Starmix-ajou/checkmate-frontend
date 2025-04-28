@@ -65,7 +65,7 @@ export function DataTable<TData extends TeamMember, TValue>({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 flex-1">
       <div className="rounded-md border">
         <Table>
           <TableHeader>
