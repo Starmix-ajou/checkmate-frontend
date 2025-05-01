@@ -14,7 +14,7 @@ type TaskProps = {
 export default function KanbanTask({
   id,
   title,
-  level,
+  level: initialLevel,
   duration,
   completed = false,
 }: TaskProps) {
@@ -29,6 +29,7 @@ export default function KanbanTask({
 
   const [isChecked, setIsChecked] = useState(completed)
   const [isHovered, setIsHovered] = useState(false)
+  const [level, setLevel] = useState<TaskProps['level']>(initialLevel)
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -39,6 +40,12 @@ export default function KanbanTask({
     Low: 'bg-[#E1FBD6] text-[#204206]',
     Medium: 'bg-[#FFF5E2] text-[#B46C00]',
     High: 'bg-[#FFE5E3] text-[#D91F11]',
+  }
+
+  const cycleLevel = () => {
+    const levels: TaskProps['level'][] = ['Low', 'Medium', 'High']
+    const nextIndex = (levels.indexOf(level) + 1) % levels.length
+    setLevel(levels[nextIndex])
   }
 
   return (
@@ -79,9 +86,10 @@ export default function KanbanTask({
         </span>
       </div>
 
-      {/* Level Badge */}
+      {/* Level Badge (clickable) */}
       <div
-        className={`mb-3 inline-block text-xs font-normal px-2 py-1 rounded-sm ${levelStyleMap[level]} mb-1`}
+        className={`mb-3 inline-block text-xs font-normal px-2 py-1 rounded-sm cursor-pointer ${levelStyleMap[level]} mb-1`}
+        onClick={cycleLevel}
       >
         {level}
       </div>
