@@ -9,6 +9,7 @@ import { phases } from './phases'
 
 export default function ProjectWizard() {
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState<number>(0)
+  const [projectDescription, setProjectDescription] = useState('')
 
   const handleNextPhase = () => {
     if (currentPhaseIndex < phases.length - 1) {
@@ -21,9 +22,19 @@ export default function ProjectWizard() {
   return (
     <div className="mx-auto p-6 rounded-lg space-y-6 max-w-5xl w-full">
       {currentPhase.type === 'form' ? (
-        <FormPhase phase={currentPhase} onNext={handleNextPhase} />
+        <FormPhase
+          phase={currentPhase}
+          onNext={(input: string) => {
+            setProjectDescription(input)
+            handleNextPhase()
+          }}
+        />
       ) : (
-        <ChatPhase phase={currentPhase} onNext={handleNextPhase} />
+        <ChatPhase
+          phase={currentPhase}
+          onNext={handleNextPhase}
+          formPhaseInput={projectDescription}
+        />
       )}
     </div>
   )

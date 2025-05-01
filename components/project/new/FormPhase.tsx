@@ -6,7 +6,7 @@ import { TypeAnimation } from 'react-type-animation'
 
 type FormPhaseProps = {
   phase: Phase
-  onNext: () => void
+  onNext: (input: string) => void
 }
 
 export default function FormPhase({ phase, onNext }: FormPhaseProps) {
@@ -15,7 +15,7 @@ export default function FormPhase({ phase, onNext }: FormPhaseProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (input.trim()) {
-      onNext()
+      onNext(input)
     }
   }
 

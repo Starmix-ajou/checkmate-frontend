@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -23,13 +22,11 @@ import { defaultColumn } from './columns'
 interface DataTableProps<TData extends TeamMember, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  onSave: (data: TData[]) => void
 }
 
 export function DataTable<TData extends TeamMember, TValue>({
   columns,
   data: initialData,
-  onSave,
 }: DataTableProps<TData, TValue>) {
   const [data, setData] = useState<TData[]>(initialData)
 
@@ -131,7 +128,6 @@ export function DataTable<TData extends TeamMember, TValue>({
           </TableBody>
         </Table>
       </div>
-      <Button onClick={() => onSave(data)}>저장</Button>
     </div>
   )
 }
