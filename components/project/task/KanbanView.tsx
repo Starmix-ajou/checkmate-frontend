@@ -37,7 +37,10 @@ export default function KanbanView() {
             title={
               <div className="flex items-center">
                 <Pencil size={14} color="#858380" />
-                <span className="ml-1">To Do</span>
+                <span className="ml-1 text-black-01 text-sm">To Do</span>
+                <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
+                  ({columns.todo.length})
+                </span>
               </div>
             }
             columnKey="todo"
@@ -48,7 +51,10 @@ export default function KanbanView() {
             title={
               <div className="flex items-center">
                 <Pickaxe size={14} color="#5093BC" />
-                <span className="ml-1">In Progress</span>
+                <span className="ml-1 text-black-01 text-sm">In Progress</span>
+                <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
+                  ({columns.inProgress.length})
+                </span>
               </div>
             }
             columnKey="inProgress"
@@ -59,7 +65,10 @@ export default function KanbanView() {
             title={
               <div className="flex items-center">
                 <Check size={14} color="#5C9771" />
-                <span className="ml-1">Done</span>
+                <span className="ml-1 text-black-01 text-sm">Done</span>
+                <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
+                  ({columns.done.length})
+                </span>
               </div>
             }
             columnKey="done"
