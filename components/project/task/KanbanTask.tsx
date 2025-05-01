@@ -28,7 +28,7 @@ export default function KanbanTask({
       {...attributes}
       {...listeners}
       style={style}
-      className={`bg-white text-black rounded-md shadow-md p-3 select-none cursor-pointer mb-2 ${
+      className={`bg-white text-black-01 rounded-md px-3 py-3.5 select-none cursor-pointer mb-2 border border-[#DCDCDC] ${
         isDragging ? 'opacity-30' : 'opacity-100'
       }`}
     >

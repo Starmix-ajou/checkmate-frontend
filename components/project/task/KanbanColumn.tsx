@@ -28,7 +28,9 @@ export default function KanbanColumn({
       ref={setNodeRef}
       className="w-1/3 min-h-[200px] m-0 flex flex-col gap-3"
     >
-      <div className={`${bg} p-4 rounded-md flex flex-col justify-between`}>
+      <div
+        className={`${bg} px-2 py-3.5 rounded-md flex flex-col justify-between`}
+      >
         <div>
           <h2 className="font-medium text-sm mb-3.5">{title}</h2>
           <SortableContext
