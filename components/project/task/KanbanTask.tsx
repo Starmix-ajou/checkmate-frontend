@@ -1,6 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useState } from 'react'
+import { EllipsisVertical } from 'lucide-react'
 
 type TaskProps = {
   id: string
@@ -27,6 +28,7 @@ export default function KanbanTask({
   } = useSortable({ id })
 
   const [isChecked, setIsChecked] = useState(completed)
+  const [isHovered, setIsHovered] = useState(false)
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -42,13 +44,24 @@ export default function KanbanTask({
   return (
     <div
       ref={setNodeRef}
-      {...attributes}
-      {...listeners}
       style={style}
-      className={`bg-white text-black-01 rounded-md px-3 py-3.5 select-none cursor-pointer mb-2 border border-[#DCDCDC] ${
+      {...attributes}
+      className={`relative bg-white text-black-01 rounded-md px-3 py-3.5 select-none mb-2 border border-[#DCDCDC] ${
         isDragging ? 'opacity-30' : 'opacity-100'
       }`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Drag Handle Icon */}
+      {isHovered && (
+        <div
+          {...listeners}
+          className="absolute top-4 right-2 cursor-grab text-gray-01 hover:text-black-01"
+        >
+          <EllipsisVertical size={18} />
+        </div>
+      )}
+
       {/* Title + Checkbox */}
       <div className="flex items-center mb-3">
         <input
