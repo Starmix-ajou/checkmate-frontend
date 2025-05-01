@@ -1,4 +1,3 @@
-// components/project/home/ProjectFilter.tsx
 import ProjectAdd from '@/components/project/home/ProjectAdd'
 import { Button } from '@/components/ui/button'
 
@@ -10,14 +9,17 @@ const ProjectFilter = ({ setFilter }: ProjectFilterProps) => {
   return (
     <div className="flex items-center justify-between mb-6">
       <div className="flex gap-4">
-        <Button onClick={() => setFilter('all')} variant="outline">
+        <Button onClick={() => setFilter('ACTIVE')} variant="outline">
           전체 프로젝트
         </Button>
-        <Button onClick={() => setFilter('ongoing')} variant="outline">
+        <Button onClick={() => setFilter('ACTIVE')} variant="outline">
           진행 중인 프로젝트
         </Button>
-        <Button onClick={() => setFilter('completed')} variant="outline">
+        <Button onClick={() => setFilter('ARCHIVED')} variant="outline">
           지난 프로젝트
+        </Button>
+        <Button onClick={() => setFilter('PENDING')} variant="outline">
+          초대받은 프로젝트
         </Button>
       </div>
 

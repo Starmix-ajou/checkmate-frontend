@@ -1,21 +1,24 @@
-'use client'
-
 import GoogleSignInButton from '@/components/GoogleSignInButton'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-export default function LoginPage() {
+const LoginText = () => (
+  <div className="text-2xl font-bold">
+    팀이 성장하는 순간,
+    <br />
+    checkmate가 함께합니다.
+  </div>
+)
+
+const LoginPage = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <Card className="w-full max-w-sm p-8 shadow-lg rounded-lg">
-        <CardHeader className="text-center mb-6">
-          <CardTitle className="text-2xl font-bold text-gray-700">
-            CheckMate
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+    <div className="flex min-h-screen items-center justify-center bg-white">
+      <div className="w-full max-w-sm p-8">
+        <div className="flex flex-col gap-6 text-center">
+          <LoginText />
           <GoogleSignInButton />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }
+
+export default LoginPage

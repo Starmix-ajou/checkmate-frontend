@@ -10,12 +10,15 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
+import { Position, TeamMember } from '@/types/NewProjectTeamMember'
 import { Phase } from '@/types/phase'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { ArrowUp, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
+import { DataTable } from './DataTable'
+import { columns } from './columns'
 
 type Message = {
   sender: 'user' | 'ai'
@@ -27,6 +30,16 @@ type ChatPhaseProps = {
   onNext: () => void
 }
 
+function getMemberData(): TeamMember[] {
+  return [
+    {
+      email: '',
+      positions: '' as Position,
+      stacks: [],
+    },
+  ]
+}
+
 export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
   const [messages, setMessages] = useState<Message[]>([
     { sender: 'ai', text: phase.question },
@@ -35,9 +48,15 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [file, setFile] = useState<File | null>(null)
   const [skipFile, setSkipFile] = useState(false)
+  const [tableData, setTableData] = useState<TeamMember[]>(getMemberData())
+
+  const handleSaveData = (savedData: TeamMember[]) => {
+    setTableData(savedData)
+    console.log('저장된 데이터:', savedData)
+  }
 
   const handleSendMessage = () => {
-    if (!input.trim() && !dateRange && !file && !skipFile) return
+    if (!input.trim() && !dateRange && !file && !skipFile && !tableData) return
 
     let messageText = input
     if (phase.inputType === 'dateRange' && dateRange) {
@@ -85,7 +104,9 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
         <Button
           onClick={handleSendMessage}
           className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-8 h-8 flex items-center justify-center"
-          disabled={!input.trim() && !dateRange && !file && !skipFile}
+          disabled={
+            !input.trim() && !dateRange && !file && !skipFile && !tableData
+          }
         >
           <ArrowUp className="h-6 w-6" />
         </Button>
@@ -102,6 +123,17 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
               onChange={(e) => setInput(e.target.value)}
               placeholder="숫자를 입력하세요"
               className="flex-1"
+            />
+            {renderSendButton()}
+          </div>
+        )
+      case 'table':
+        return (
+          <div className="relative flex-1 flex gap-2">
+            <DataTable
+              columns={columns}
+              data={tableData}
+              onSave={handleSaveData}
             />
             {renderSendButton()}
           </div>

@@ -32,6 +32,7 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@shadcn/ui": "^0.0.4",
     "@tanstack/react-table": "^8.21.3",
+    "@trivago/prettier-plugin-sort-imports": "^4.2.0",
     "@types/next-auth": "^3.13.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

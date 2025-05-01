@@ -1,29 +1,20 @@
-// components/project/home/ProjectList.tsx
 import ProjectCard from '@/components/project/home/ProjectCard'
+import { Project } from '@/types/project'
 
 type ProjectListProps = {
-  filter: string
-  projects: {
-    id: number
-    name: string
-    status: string
-    startDate: string
-    endDate: string
-  }[]
+  projects: Project[]
 }
 
-const ProjectList = ({ filter, projects }: ProjectListProps) => {
-  const filteredProjects = projects.filter(
-    (project) => filter === 'all' || project.status === filter
-  )
-
+const ProjectList = ({ projects }: ProjectListProps) => {
   return (
-    <div className="flex justify-around gap-6">
-      {filteredProjects.map((project) => (
+    <div className="flex justify-around gap-6 flex-wrap">
+      {projects.map((project) => (
         <ProjectCard
-          key={project.id}
-          id={project.id}
-          name={project.name}
+          key={project.projectId}
+          id={project.projectId}
+          position={project.profile.positions}
+          members={project.members}
+          title={project.projectTitle}
           startDate={project.startDate}
           endDate={project.endDate}
         />

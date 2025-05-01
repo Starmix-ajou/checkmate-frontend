@@ -1,5 +1,6 @@
 'use client'
 
+import GoogleIcon from '@/components/icons/GoogleIcon'
 import { Button } from '@/components/ui/button'
 import { signIn } from 'next-auth/react'
 
@@ -8,12 +9,8 @@ export default function GoogleSignInButton() {
     signIn('google', { callbackUrl: '/projects' })
   }
   return (
-    <Button
-      variant="outline"
-      size="lg"
-      className="w-full flex items-center justify-center gap-2 bg-blue-500 text-white hover:bg-blue-600 focus:ring-2 focus:ring-blue-500"
-      onClick={handleGoogleSignIn}
-    >
+    <Button variant="outline" size="lg" onClick={handleGoogleSignIn}>
+      <GoogleIcon className="w-5 h-5" />
       Sign in with Google
     </Button>
   )
