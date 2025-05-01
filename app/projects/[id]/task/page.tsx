@@ -20,7 +20,6 @@ const KanbanView = dynamic(
   }
 )
 
-// CalendarView는 SSR 문제 없으면 그대로 사용
 import CalendarView from '@/components/project/task/CalendarView'
 
 export default function TasksPage() {
@@ -107,7 +106,6 @@ export default function TasksPage() {
           </div>
         </div>
 
-        {/* Task View */}
         {isToggled ? <CalendarView /> : <KanbanView />}
       </div>
     </div>
