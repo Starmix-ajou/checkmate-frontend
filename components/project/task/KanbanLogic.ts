@@ -8,7 +8,10 @@ import {
 
 type Task = {
   id: string
-  content: string
+  title: string
+  level: 'Low' | 'Medium' | 'High'
+  duration: string
+  completed?: boolean
 }
 
 type ColumnType = 'todo' | 'inProgress' | 'done'
@@ -16,10 +19,27 @@ type ColumnType = 'todo' | 'inProgress' | 'done'
 export function KanbanLogic() {
   const [columns, setColumns] = useState<Record<ColumnType, Task[]>>({
     todo: [
-      { id: 'task-1', content: 'Task 1' },
-      { id: 'task-2', content: 'Task 2' },
+      {
+        id: 'task-1',
+        title: 'Task 1',
+        level: 'Low',
+        duration: '2025. 04. 01 ~ 2025. 04. 03',
+      },
+      {
+        id: 'task-2',
+        title: 'Task 2',
+        level: 'Medium',
+        duration: '2025. 04. 04 ~ 2025. 04. 06',
+      },
     ],
-    inProgress: [{ id: 'task-3', content: 'Task 3' }],
+    inProgress: [
+      {
+        id: 'task-3',
+        title: 'Task 3',
+        level: 'High',
+        duration: '2025. 04. 02 ~ 2025. 04. 05',
+      },
+    ],
     done: [],
   })
 

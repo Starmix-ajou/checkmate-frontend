@@ -79,8 +79,8 @@ export default function KanbanView() {
 
         <DragOverlay>
           {activeTask && (
-            <div className="bg-white text-black shadow-md p-3 select-none cursor-pointer">
-              {activeTask.content}
+            <div className="bg-white text-black-01 rounded-md px-3 py-3.5 select-none cursor-pointer mb-2 border border-[#DCDCDC]">
+              {activeTask.title}
             </div>
           )}
         </DragOverlay>

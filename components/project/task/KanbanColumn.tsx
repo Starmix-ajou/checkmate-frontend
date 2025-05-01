@@ -5,7 +5,10 @@ import KanbanTask from './KanbanTask'
 
 type Task = {
   id: string
-  content: string
+  title: string
+  level: 'Low' | 'Medium' | 'High'
+  duration: string
+  completed?: boolean
 }
 
 type ColumnType = 'todo' | 'inProgress' | 'done'
@@ -38,7 +41,14 @@ export default function KanbanColumn({
             strategy={rectSortingStrategy}
           >
             {tasks.map((task) => (
-              <KanbanTask key={task.id} id={task.id} content={task.content} />
+              <KanbanTask
+                key={task.id}
+                id={task.id}
+                title={task.title}
+                level={task.level}
+                duration={task.duration}
+                completed={task.completed}
+              />
             ))}
           </SortableContext>
         </div>
@@ -48,7 +58,10 @@ export default function KanbanColumn({
           onClick={() => {
             const newTask: Task = {
               id: `task-${Date.now()}`,
-              content: 'New Task',
+              title: 'New Task',
+              level: 'Medium',
+              duration: '2025. 04. 01 ~ 2025. 04. 03',
+              completed: false,
             }
             const event = new CustomEvent('kanban:add-task', {
               detail: { columnKey, newTask },
