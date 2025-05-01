@@ -1,0 +1,19 @@
+export type Message = {
+  sender: 'user' | 'ai'
+  text: string
+}
+
+export type Phase = {
+  id: number
+  title: string
+  question: string
+  type: 'form' | 'chat'
+  inputType?: 'text' | 'number' | 'date' | 'dateRange' | 'file' | 'table'
+}
+
+export type Feature = {
+  name: string
+  useCase: string | null
+  input: string | null
+  output: string | null
+}

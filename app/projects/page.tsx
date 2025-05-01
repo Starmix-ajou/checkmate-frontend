@@ -55,7 +55,7 @@ const mockProjects: Project[] = [
 
 const Home = () => {
   const user = useAuthStore((state) => state.user)
-  const [filter, setFilter] = useState('ALL')
+  const [filter, setFilter] = useState('')
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -67,15 +67,12 @@ const Home = () => {
     const fetchProjects = async () => {
       try {
         console.log(filter)
-        const response = await fetch(
-          `${API_BASE_URL}/project?status=${filter}`,
-          {
-            headers: {
-              Accept: '*/*',
-              Authorization: `Bearer ${user?.accessToken}`,
-            },
-          }
-        )
+        const response = await fetch(`${API_BASE_URL}/project`, {
+          headers: {
+            Accept: '*/*',
+            Authorization: `Bearer ${user?.accessToken}`,
+          },
+        })
 
         if (!response.ok) {
           throw new Error('프로젝트 불러오기 실패')

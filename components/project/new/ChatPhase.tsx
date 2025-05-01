@@ -1,5 +1,6 @@
+'use client'
+
 import { phases } from '@/components/project/new/phases'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { FileUpload } from '@/components/ui/file-upload'
@@ -10,37 +11,37 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/useAuthStore'
 import { Position, TeamMember } from '@/types/NewProjectTeamMember'
-import { Phase } from '@/types/phase'
+import { Feature, Message, Phase } from '@/types/project-creation'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
+import { EventSourcePolyfill } from 'event-source-polyfill'
 import { ArrowUp, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
 import { DataTable } from './DataTable'
 import { columns } from './columns'
 
-type Message = {
-  sender: 'user' | 'ai'
-  text: string
-}
-
 type ChatPhaseProps = {
   phase: Phase
   onNext: () => void
+  formPhaseInput: string
 }
 
-function getMemberData(): TeamMember[] {
-  return [
-    {
-      email: '',
-      positions: '' as Position,
-      stacks: [],
-    },
-  ]
+function getInitialMemberData(count: number = 1): TeamMember[] {
+  return Array.from({ length: count }, () => ({
+    email: '',
+    positions: '' as Position,
+    stacks: [],
+  }))
 }
 
-export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
+export default function ChatPhase({
+  phase,
+  onNext,
+  formPhaseInput,
+}: ChatPhaseProps) {
   const [messages, setMessages] = useState<Message[]>([
     { sender: 'ai', text: phase.question },
   ])
@@ -48,69 +49,191 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [file, setFile] = useState<File | null>(null)
   const [skipFile, setSkipFile] = useState(false)
-  const [tableData, setTableData] = useState<TeamMember[]>(getMemberData())
+  const [tableData, setTableData] = useState<TeamMember[]>([])
 
-  const handleSaveData = (savedData: TeamMember[]) => {
-    setTableData(savedData)
-    console.log('저장된 데이터:', savedData)
+  const [projectTitle, setProjectTitle] = useState('')
+  const [projectDescription, setProjectDescription] = useState(formPhaseInput)
+
+  const user = useAuthStore((state) => state.user)
+
+  const sendProjectDefinition = async () => {
+    if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
+
+    const members = tableData.map((member) => ({
+      email: member.email ? member.email : 'pjookim@ajou.ac.kr',
+      profile: {
+        stacks: member.stacks,
+        positions: [member.positions],
+      },
+    }))
+
+    const body = {
+      title: projectTitle,
+      description: projectDescription
+        ? projectDescription
+        : '스터디 그룹을 매칭하고 관리하는 서비스',
+      startDate: dateRange?.from?.toISOString().split('T')[0],
+      endDate: dateRange?.to?.toISOString().split('T')[0],
+      members,
+      definitionUrl: file
+        ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${file.name}`
+        : '',
+    }
+
+    console.log(body)
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/test/definition`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+          body: JSON.stringify(body),
+        }
+      )
+
+      if (!res.ok) throw new Error(`정의서 전송 실패: ${res.status}`)
+    } catch (error) {
+      console.error('정의서 전송 에러:', error)
+    }
   }
 
-  const handleSendMessage = () => {
+  const startSSE = () => {
+    const token = user?.accessToken
+    if (!token) return console.warn('JWT 토큰이 존재하지 않습니다.')
+
+    const eventSource = new EventSourcePolyfill(
+      `${process.env.NEXT_PUBLIC_API_URL}/sse/subscribe`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'text/event-stream',
+        },
+      }
+    )
+
+    eventSource.onopen = async () => {
+      console.log('SSE 연결 성공')
+      sendProjectDefinition()
+    }
+
+    eventSource.onmessage = (event) => {
+      console.log(event)
+      if (event.data) {
+        addMessage('ai', event.data)
+        setTimeout(onNext, 1000)
+        eventSource.close()
+      }
+    }
+
+    eventSource.addEventListener('create-feature-definition', (event) => {
+      if ('data' in event) {
+        const message = event as MessageEvent
+        try {
+          const parsed = JSON.parse(message.data)
+          console.log('SSE 수신 (create-feature-definition):', parsed)
+
+          const features: Feature[] = parsed?.suggestion?.features ?? []
+
+          if (features.length > 0) {
+            addMessage('ai', '기능 정의를 생성했습니다.')
+
+            features.forEach((feature, index) => {
+              const text = `
+    기능 ${index + 1}:
+    - 이름: ${feature.name}
+    - 사용 사례: ${feature.useCase ?? '없음'}
+    - 입력: ${feature.input ?? '없음'}
+    - 출력: ${feature.output ?? '없음'}
+              `.trim()
+
+              addMessage('ai', text)
+            })
+          }
+
+          setTimeout(() => {
+            eventSource.close()
+            onNext()
+          }, 1000)
+        } catch (error) {
+          console.error('SSE 데이터 파싱 오류:', error)
+        }
+      }
+    })
+
+    eventSource.onerror = (err) => {
+      console.error('SSE 연결 오류:', err)
+      eventSource.close()
+    }
+  }
+
+  const addMessage = (sender: 'user' | 'ai', text: string) => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        sender,
+        text,
+      },
+    ])
+  }
+
+  const handleSendMessage = async () => {
+    setTableData(tableData)
     if (!input.trim() && !dateRange && !file && !skipFile && !tableData) return
 
     let messageText = input
     if (phase.inputType === 'dateRange' && dateRange) {
       if (dateRange.to) {
-        messageText = `${format(dateRange.from!, 'PPP', { locale: ko })} ~ ${format(
-          dateRange.to,
-          'PPP',
-          { locale: ko }
-        )}`
+        messageText = `${format(dateRange.from!, 'PPP', { locale: ko })} ~ ${format(dateRange.to, 'PPP', { locale: ko })}`
       } else {
         messageText = format(dateRange.from!, 'PPP', { locale: ko })
       }
     } else if (phase.inputType === 'file') {
-      if (skipFile) {
-        messageText = '파일 업로드를 건너뜁니다.'
-      } else if (file) {
-        messageText = `파일 업로드: ${file.name}`
-      }
+      messageText = skipFile
+        ? '파일 업로드를 건너뜁니다.'
+        : `파일 업로드: ${file?.name}`
+    } else if (phase.inputType === 'number') {
+      setTableData(getInitialMemberData(Number(input)))
+      console.log(tableData)
     }
 
-    const userMessage: Message = { sender: 'user', text: messageText }
-    setMessages((prev) => [...prev, userMessage])
+    if (phase.id === 1) setProjectDescription(input)
+    if (phase.id === 2) setProjectTitle(input)
+
+    addMessage('user', messageText)
     setInput('')
-    setDateRange(undefined)
     setFile(null)
     setSkipFile(false)
 
-    setTimeout(() => {
-      const nextPhaseIndex = phases.findIndex((p) => p.id === phase.id) + 1
-      const nextQuestion =
-        phases[nextPhaseIndex]?.question || '마지막 질문입니다.'
+    const currentIndex = phases.findIndex((p) => p.id === phase.id)
+    const nextPhase = phases[currentIndex + 1]
 
-      const aiMessage: Message = {
-        sender: 'ai',
-        text: nextQuestion,
+    setTimeout(async () => {
+      addMessage('ai', nextPhase?.question || '로딩중')
+
+      if (!nextPhase || nextPhase.id > 6) {
+        await sendProjectDefinition()
+        startSSE()
+      } else {
+        setTimeout(onNext, 1000)
       }
-      setMessages((prev) => [...prev, aiMessage])
-      setTimeout(onNext, 1000)
     }, 1000)
   }
 
   const renderInput = () => {
     const renderSendButton = () => (
-      <div>
-        <Button
-          onClick={handleSendMessage}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-8 h-8 flex items-center justify-center"
-          disabled={
-            !input.trim() && !dateRange && !file && !skipFile && !tableData
-          }
-        >
-          <ArrowUp className="h-6 w-6" />
-        </Button>
-      </div>
+      <Button
+        onClick={handleSendMessage}
+        className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-8 h-8 flex items-center justify-center"
+        disabled={
+          !input.trim() && !dateRange && !file && !skipFile && !tableData
+        }
+      >
+        <ArrowUp className="h-6 w-6" />
+      </Button>
     )
 
     switch (phase.inputType) {
@@ -130,11 +253,7 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
       case 'table':
         return (
           <div className="relative flex-1 flex gap-2">
-            <DataTable
-              columns={columns}
-              data={tableData}
-              onSave={handleSaveData}
-            />
+            <DataTable columns={columns} data={tableData} />
             {renderSendButton()}
           </div>
         )
@@ -213,23 +332,18 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
 
   return (
     <div className="flex flex-col">
-      <div className="flex-1 space-y-4 pb-20">
+      <div className="flex-1 overflow-y-auto space-y-4 pb-60">
         {messages.map((msg, index) => (
           <div
             key={index}
             className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            {msg.sender === 'ai' && (
-              <Avatar className="w-8 h-8 mr-2">
-                <AvatarImage src="/bot-avatar.png" />
-                <AvatarFallback>AI</AvatarFallback>
-              </Avatar>
-            )}
+            {msg.sender === 'ai' && <></>}
             <div
-              className={`px-3 py-2 rounded-lg text-sm max-w-xs break-words ${
+              className={`px-3 py-2 rounded-lg text-md max-w-xs break-words ${
                 msg.sender === 'user'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-900'
+                  ? 'bg-[#795548] text-white'
+                  : 'bg-[#EFEAE8] text-gray-900'
               }`}
             >
               {msg.text}
@@ -239,7 +353,7 @@ export default function ChatPhase({ phase, onNext }: ChatPhaseProps) {
       </div>
 
       <div className="fixed bottom-0 left-0 w-full bg-white p-4 flex items-center gap-2">
-        <div className="w-full max-w-5xl mx-auto flex gap-2">
+        <div className="w-full max-w-4xl mx-auto flex gap-2">
           {renderInput()}
         </div>
       </div>
