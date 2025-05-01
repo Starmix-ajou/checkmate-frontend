@@ -101,7 +101,6 @@ export function KanbanLogic() {
     setActiveTask(null)
   }
 
-  // Listen for custom add-task events from KanbanColumn
   useEffect(() => {
     const handleAddTask = (e: Event) => {
       const { columnKey, newTask } = (e as CustomEvent).detail as {

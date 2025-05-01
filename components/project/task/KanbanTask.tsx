@@ -34,9 +34,9 @@ export default function KanbanTask({
   }
 
   const levelStyleMap: Record<TaskProps['level'], string> = {
-    Low: 'bg-green-100 text-green-800',
-    Medium: 'bg-yellow-100 text-yellow-800',
-    High: 'bg-red-100 text-red-800',
+    Low: 'bg-[#E1FBD6] text-[#204206]',
+    Medium: 'bg-[#FFF5E2] text-[#B46C00]',
+    High: 'bg-[#FFE5E3] text-[#D91F11]',
   }
 
   return (
@@ -50,16 +50,16 @@ export default function KanbanTask({
       }`}
     >
       {/* Title + Checkbox */}
-      <div className="flex items-start mb-2">
+      <div className="flex items-center mb-3">
         <input
           type="checkbox"
           checked={isChecked}
           onChange={() => setIsChecked(!isChecked)}
-          className="mr-2 mt-0.5 cursor-pointer"
+          className="cursor-pointer mr-1.5"
         />
         <span
-          className={`text-sm break-words ${
-            isChecked ? 'line-through text-gray-400' : ''
+          className={`text-black-01 text-base font-medium break-words ${
+            isChecked ? 'line-through text-gray-01' : ''
           }`}
         >
           {title}
@@ -68,13 +68,13 @@ export default function KanbanTask({
 
       {/* Level Badge */}
       <div
-        className={`inline-block text-xs font-medium px-2 py-0.5 rounded ${levelStyleMap[level]} mb-1`}
+        className={`mb-3 inline-block text-xs font-normal px-2 py-1 rounded-sm ${levelStyleMap[level]} mb-1`}
       >
         {level}
       </div>
 
       {/* Duration */}
-      <div className="text-xs text-gray-400">{duration}</div>
+      <div className="text-xs text-gray-01 font-medium">{duration}</div>
     </div>
   )
 }

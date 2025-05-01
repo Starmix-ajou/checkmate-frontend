@@ -32,7 +32,7 @@ export default function KanbanColumn({
       className="w-1/3 min-h-[200px] m-0 flex flex-col gap-3"
     >
       <div
-        className={`${bg} px-2 py-3.5 rounded-md flex flex-col justify-between`}
+        className={`${bg} p-[15px] rounded-md flex flex-col justify-between`}
       >
         <div>
           <h2 className="font-medium text-sm mb-3.5">{title}</h2>
@@ -69,7 +69,7 @@ export default function KanbanColumn({
             window.dispatchEvent(event)
           }}
         >
-          <Plus size={20} className="mr-1.5 text-inherit" />
+          <Plus size={20} className="font-medium mr-1.5 text-inherit" />
           Add
         </button>
       </div>

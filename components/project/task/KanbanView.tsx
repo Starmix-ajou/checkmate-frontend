@@ -37,7 +37,9 @@ export default function KanbanView() {
             title={
               <div className="flex items-center">
                 <Pencil size={14} color="#858380" />
-                <span className="ml-1 text-black-01 text-sm">To Do</span>
+                <span className="ml-1 text-black-01 text-sm font-medium">
+                  To Do
+                </span>
                 <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
                   ({columns.todo.length})
                 </span>
@@ -51,7 +53,9 @@ export default function KanbanView() {
             title={
               <div className="flex items-center">
                 <Pickaxe size={14} color="#5093BC" />
-                <span className="ml-1 text-black-01 text-sm">In Progress</span>
+                <span className="ml-1 text-black-01 text-sm font-medium">
+                  In Progress
+                </span>
                 <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
                   ({columns.inProgress.length})
                 </span>
@@ -65,7 +69,9 @@ export default function KanbanView() {
             title={
               <div className="flex items-center">
                 <Check size={14} color="#5C9771" />
-                <span className="ml-1 text-black-01 text-sm">Done</span>
+                <span className="ml-1 text-black-01 text-sm font-medium">
+                  Done
+                </span>
                 <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
                   ({columns.done.length})
                 </span>
@@ -79,7 +85,7 @@ export default function KanbanView() {
 
         <DragOverlay>
           {activeTask && (
-            <div className="bg-white text-black-01 rounded-md px-3 py-3.5 select-none cursor-pointer mb-2 border border-[#DCDCDC]">
+            <div className="bg-white text-base font-medium text-black-01 rounded-md px-3 py-3.5 select-none cursor-pointer mb-2 border border-[#DCDCDC]">
               {activeTask.title}
             </div>
           )}
