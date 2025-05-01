@@ -2,7 +2,7 @@
 
 import ChatPhase from '@/components/project/new/ChatPhase'
 import FormPhase from '@/components/project/new/FormPhase'
-import { Phase } from '@/types/phase'
+import { Phase } from '@/types/project-creation'
 import { useState } from 'react'
 
 import { phases } from './phases'
@@ -20,7 +20,7 @@ export default function ProjectWizard() {
   const currentPhase: Phase = phases[currentPhaseIndex]
 
   return (
-    <div className="mx-auto p-6 rounded-lg space-y-6 max-w-5xl w-full">
+    <div className="mx-auto p-6 rounded-lg space-y-6 max-w-4xl w-full">
       {currentPhase.type === 'form' ? (
         <FormPhase
           phase={currentPhase}

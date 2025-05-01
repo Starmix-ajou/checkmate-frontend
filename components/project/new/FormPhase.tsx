@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Phase } from '@/types/phase'
+import { Phase } from '@/types/project-creation'
 import { useState } from 'react'
 import { TypeAnimation } from 'react-type-animation'
 
