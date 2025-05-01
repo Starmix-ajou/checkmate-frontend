@@ -26,9 +26,16 @@ export default function RootLayout({
 }>) {
   return (
     <Providers>
-      <html lang="en">
+      <html lang="ko">
+        <head>
+          {/* Pretendard CDN 추가 */}
+          <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+          />
+        </head>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
         >
           {children}
         </body>

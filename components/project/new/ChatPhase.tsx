@@ -17,7 +17,6 @@ import { ko } from 'date-fns/locale'
 import { ArrowUp, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
-
 import { DataTable } from './DataTable'
 import { columns } from './columns'
 

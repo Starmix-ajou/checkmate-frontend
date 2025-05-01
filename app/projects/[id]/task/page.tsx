@@ -1,6 +1,5 @@
 'use client'
 
-// CalendarView는 SSR 문제 없으면 그대로 사용
 import CalendarView from '@/components/project/task/CalendarView'
 import {
   Breadcrumb,
