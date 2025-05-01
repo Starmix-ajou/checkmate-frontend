@@ -44,7 +44,7 @@ export default function KanbanColumn({
         </div>
 
         <button
-          className="flex items-center text-sm text-[#474747] mt-4 hover:text-black-01"
+          className="flex items-center text-sm text-[#474747] my-2 hover:text-black-01"
           onClick={() => {
             const newTask: Task = {
               id: `task-${Date.now()}`,
