@@ -1,6 +1,8 @@
 'use client'
 
-import CalendarView from '@/components/project/task/CalendarView'
+import { useParams } from 'next/navigation'
+import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,25 +11,17 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
-import {
-  CircleX,
-  Search,
-  SlidersHorizontal,
-  ToggleLeft,
-  ToggleRight,
-} from 'lucide-react'
-import dynamic from 'next/dynamic'
-import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import { SlidersHorizontal, Search, CircleX } from 'lucide-react'
 
-// KanbanView를 클라이언트 전용으로 동적 import
 const KanbanView = dynamic(
   () => import('@/components/project/task/KanbanView'),
   {
     ssr: false,
   }
 )
+
+// CalendarView는 SSR 문제 없으면 그대로 사용
+import CalendarView from '@/components/project/task/CalendarView'
 
 export default function TasksPage() {
   const { id } = useParams()
@@ -37,7 +31,6 @@ export default function TasksPage() {
   return (
     <div className="flex min-h-screen">
       <div className="flex-1 p-6">
-        {/* Breadcrumb */}
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -56,51 +49,61 @@ export default function TasksPage() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">프로젝트 - {id}</h1>
+        <div className="flex justify-between items-center mb-3 mt-2">
+          <h1 className="text-3xl font-bold gap-4 text-black-01">
+            프로젝트 - {id}
+          </h1>
         </div>
 
-        {/* Filter & Search */}
-        <div className="flex items-center gap-4 mb-4">
-          <Button
-            variant="default"
-            className="bg-black text-white flex items-center gap-2 rounded-3xl"
-          >
-            <SlidersHorizontal size={20} />
-            Filter
-          </Button>
-
-          <div className="flex items-center border-2 border-black rounded-lg px-3 py-2 w-80">
-            <Search size={16} className="text-black" />
-            <input
-              type="text"
-              className="flex-1 bg-transparent outline-none px-2 text-black"
-              placeholder="Search"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-            />
-            {searchText && (
-              <CircleX
-                size={16}
-                className="text-black cursor-pointer"
-                onClick={() => setSearchText('')}
-              />
-            )}
+        <div className="flex items-center mb-6">
+          <div className="gap-8 flex-1">
+            <button
+              className={`text-base font-medium mr-2 px-2 py-3.5 border-b-2 transition ${
+                isToggled
+                  ? 'text-gray-01 border-transparent'
+                  : 'text-black-01 border-black-01'
+              }`}
+              onClick={() => setIsToggled(false)}
+            >
+              칸반보드
+            </button>
+            <button
+              className={`text-base font-medium px-2 py-3.5 border-b-2 transition ${
+                isToggled
+                  ? 'text-black-01 border-black-01'
+                  : 'text-gray-01 border-transparent'
+              }`}
+              onClick={() => setIsToggled(true)}
+            >
+              캘린더
+            </button>
           </div>
 
-          {/* Toggle View */}
-          <div className="ml-6">
-            <button
-              onClick={() => setIsToggled(!isToggled)}
-              className="hover:opacity-80 transition"
-            >
-              {isToggled ? (
-                <ToggleRight size={48} className="text-black" />
-              ) : (
-                <ToggleLeft size={48} className="text-black" />
+          <div className="flex flex-row justify-end h-[36px]">
+            <div className="py-1.5 cursor-pointer mr-3 flex items-center">
+              <SlidersHorizontal
+                size={20}
+                className="text-gray-01 transition-colors hover:text-black-01 focus:text-black-01 active:text-black-01"
+              />
+            </div>
+
+            <div className="flex items-center border-1 border-[#F7F7F7] bg-[#F7F7F7] rounded-full px-3 py-2 w-64 relative">
+              <Search size={24} className="text-gray-01 shrink-0 mr-2" />
+              <input
+                type="text"
+                className="outline-none text-black-01 text-base font-medium placeholder-gray-01 placeholder-base w-full pr-8" // w-full과 pr-8을 추가해줍니다
+                placeholder="검색"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              {searchText && (
+                <CircleX
+                  size={16}
+                  className="text-gray-01 cursor-pointer shrink-0 absolute right-3" // absolute와 right-3을 추가하여 CircleX를 input의 오른쪽 끝에 위치시킵니다
+                  onClick={() => setSearchText('')}
+                />
               )}
-            </button>
+            </div>
           </div>
         </div>
 
