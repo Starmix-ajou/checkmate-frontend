@@ -1,7 +1,7 @@
 'use client'
 
-import { useParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
+import MeetingNotes from '@/components/project/meeting-notes/MeetingNotes'
+import MeetingNotesAdd from '@/components/project/meeting-notes/MeetingNotesAdd'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,10 +10,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { SlidersHorizontal, Search, CircleX } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { CircleX, Search, SlidersHorizontal } from 'lucide-react'
+import { useParams } from 'next/navigation'
 import { useState } from 'react'
-import MeetingNotes from '@/components/project/meeting-notes/MeetingNotes'
-import MeetingNotesAdd from '@/components/project/meeting-notes/MeetingNotesAdd'
 
 export default function MeetingNotesPage() {
   const { id } = useParams()

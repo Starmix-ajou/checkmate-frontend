@@ -1,9 +1,10 @@
 'use client'
 
 import { DndContext, DragOverlay } from '@dnd-kit/core'
-import { KanbanLogic } from './KanbanLogic'
+import { Check, Pencil, Pickaxe } from 'lucide-react'
+
 import KanbanColumn from './KanbanColumn'
-import { Pencil, Pickaxe, Check } from 'lucide-react'
+import { KanbanLogic } from './KanbanLogic'
 
 export default function KanbanView() {
   const {

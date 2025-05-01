@@ -1,7 +1,7 @@
 'use client'
 
-import { ReactNode } from 'react'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { ReactNode } from 'react'
 
 interface MainContentProps {
   children: ReactNode

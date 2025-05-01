@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react'
 import { BarTask } from '@/types/bar-task'
 import { GanttContentMoveAction } from '@/types/gantt-task-actions'
+import React, { useEffect, useRef, useState } from 'react'
+
 import { Bar } from './bar/bar'
 import { BarSmall } from './bar/bar-small'
 import { Milestone } from './milestone/milestone'

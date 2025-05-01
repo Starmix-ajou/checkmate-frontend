@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useState } from 'react'
 import { EllipsisVertical } from 'lucide-react'
+import { useState } from 'react'
 
 type TaskProps = {
   id: string

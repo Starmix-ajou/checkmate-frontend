@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
 import {
+  DragOverEvent,
+  MouseSensor,
   useSensor,
   useSensors,
-  MouseSensor,
-  DragOverEvent,
 } from '@dnd-kit/core'
+import { useEffect, useState } from 'react'
 
 type Task = {
   id: string

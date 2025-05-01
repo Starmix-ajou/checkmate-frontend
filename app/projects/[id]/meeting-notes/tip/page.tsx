@@ -1,5 +1,5 @@
-import { Room } from './Room'
 import { Editor } from './Editor'
+import { Room } from './Room'
 
 export default function Page() {
   return (

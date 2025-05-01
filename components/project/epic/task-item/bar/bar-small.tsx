@@ -1,8 +1,9 @@
-import React from 'react'
 import { getProgressPoint } from '@/helpers/bar-helper'
+import React from 'react'
+
+import { TaskItemProps } from '../task-item'
 import { BarDisplay } from './bar-display'
 import { BarProgressHandle } from './bar-progress-handle'
-import { TaskItemProps } from '../task-item'
 import styles from './bar.module.css'
 
 export const BarSmall: React.FC<TaskItemProps> = ({

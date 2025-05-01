@@ -1,6 +1,7 @@
-import { Plus } from 'lucide-react'
-import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { useDroppable } from '@dnd-kit/core'
+import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
+import { Plus } from 'lucide-react'
+
 import KanbanTask from './KanbanTask'
 
 type Task = {

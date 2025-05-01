@@ -1,8 +1,6 @@
 'use client'
 
-import { useParams } from 'next/navigation'
-import { useState } from 'react'
-import dynamic from 'next/dynamic'
+import CalendarView from '@/components/project/task/CalendarView'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,7 +9,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { SlidersHorizontal, Search, CircleX } from 'lucide-react'
+import { CircleX, Search, SlidersHorizontal } from 'lucide-react'
+import dynamic from 'next/dynamic'
+import { useParams } from 'next/navigation'
+import { useState } from 'react'
 
 const KanbanView = dynamic(
   () => import('@/components/project/task/KanbanView'),
@@ -19,8 +20,6 @@ const KanbanView = dynamic(
     ssr: false,
   }
 )
-
-import CalendarView from '@/components/project/task/CalendarView'
 
 export default function TasksPage() {
   const { id } = useParams()

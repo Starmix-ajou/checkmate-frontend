@@ -9,5 +9,9 @@ const config = {
   semi: false,
   singleQuote: true,
   endOfLine: 'lf',
+  plugins: ['@trivago/prettier-plugin-sort-imports'],
+  importOrder: ['^@core/(.*)$', '^@server/(.*)$', '^@ui/(.*)$', '^[./]'],
+  importOrderSeparation: true,
+  importOrderSortSpecifiers: true,
 }
 export default config

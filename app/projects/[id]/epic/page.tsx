@@ -1,10 +1,9 @@
 'use client'
 
-import { useState } from 'react'
 import { Gantt } from '@/components/project/epic/gantt/gantt'
-import { ViewMode, Task } from '@/types/public-types'
-
 import { allTasks } from '@/components/project/epic/sampleTasks'
+import { Task, ViewMode } from '@/types/public-types'
+import { useState } from 'react'
 
 export default function ProjectEpic() {
   const [tasks, setTasks] = useState(allTasks)

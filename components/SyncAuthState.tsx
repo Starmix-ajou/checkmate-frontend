@@ -1,7 +1,8 @@
 'use client'
-import { useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+
 import { useAuthStore } from '@/stores/useAuthStore'
+import { useSession } from 'next-auth/react'
+import { useEffect } from 'react'
 
 export default function SyncAuthState() {
   const { data: session } = useSession()

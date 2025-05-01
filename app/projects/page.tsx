@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import { ProjectFilter, ProjectList } from '@/components/project/home'
+import { useState } from 'react'
 
 const initialProjects = [
   {

@@ -1,7 +1,13 @@
 'use client'
 
-import { useParams, usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Sidebar,
   SidebarContent,
@@ -14,25 +20,18 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-
 import {
-  Home,
-  Play,
-  BookmarkCheck,
-  NotebookPen,
-  Settings,
   Bell,
+  BookmarkCheck,
   ChevronDown,
+  Home,
+  NotebookPen,
+  Play,
+  Settings,
   X,
 } from 'lucide-react'
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import { useParams, usePathname } from 'next/navigation'
+import { useState } from 'react'
 
 const projects = [
   { id: 1, name: 'CheckMate' },
