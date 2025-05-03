@@ -1,5 +1,3 @@
-'use client'
-
 import {
   Table,
   TableBody,
@@ -15,21 +13,20 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { useState } from 'react'
 
 import { defaultColumn } from './columns'
 
 interface DataTableProps<TData extends TeamMember, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  onDataChange: (data: TData[]) => void
 }
 
 export function DataTable<TData extends TeamMember, TValue>({
   columns,
-  data: initialData,
+  data,
+  onDataChange,
 }: DataTableProps<TData, TValue>) {
-  const [data, setData] = useState<TData[]>(initialData)
-
   const table = useReactTable<TeamMember>({
     data,
     columns: columns as ColumnDef<TeamMember>[],
@@ -37,12 +34,23 @@ export function DataTable<TData extends TeamMember, TValue>({
     getCoreRowModel: getCoreRowModel(),
     meta: {
       updateData: (rowIndex: number, columnId: string, value: unknown) => {
-        setData((old) =>
-          old.map((row, index) => {
+        onDataChange(
+          data.map((row, index) => {
             if (index === rowIndex) {
-              return {
-                ...row,
-                [columnId]: value,
+              if (columnId === 'stacks' || columnId === 'positions') {
+                return {
+                  ...row,
+                  profile: {
+                    ...row.profile,
+                    [columnId]: value,
+                  },
+                }
+              }
+              if (columnId === 'email') {
+                return {
+                  ...row,
+                  email: value as string,
+                }
               }
             }
             return row
@@ -53,12 +61,19 @@ export function DataTable<TData extends TeamMember, TValue>({
   })
 
   const handleAddRow = () => {
-    const emptyRow = {} as TData
-    setData((prev) => [...prev, emptyRow])
+    const emptyRow: TeamMember = {
+      email: '',
+      profile: {
+        stacks: [],
+        positions: [],
+        projectId: '',
+      },
+    }
+    onDataChange([...data, emptyRow as TData])
   }
 
   const handleDeleteRow = (index: number) => {
-    setData((prev) => prev.filter((_, i) => i !== index))
+    onDataChange(data.filter((_, i) => i !== index))
   }
 
   return (
