@@ -1,6 +1,13 @@
 export type Message = {
   sender: 'user' | 'ai'
   text: string
+  tableData?: {
+    features?: Feature[]
+    suggestions?: {
+      question: string
+      answers: string[]
+    }[]
+  }
 }
 
 export type Phase = {

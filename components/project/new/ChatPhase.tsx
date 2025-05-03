@@ -143,20 +143,12 @@ export default function ChatPhase({
           console.log('SSE 수신 (create-feature-definition):', parsed)
 
           const features: Feature[] = parsed?.suggestion?.features ?? []
+          const suggestions = parsed?.suggestion?.suggestions ?? []
 
-          if (features.length > 0) {
-            addMessage('ai', '기능 정의를 생성했습니다.')
-
-            features.forEach((feature, index) => {
-              const text = `
-    기능 ${index + 1}:
-    - 이름: ${feature.name}
-    - 사용 사례: ${feature.useCase ?? '없음'}
-    - 입력: ${feature.input ?? '없음'}
-    - 출력: ${feature.output ?? '없음'}
-              `.trim()
-
-              addMessage('ai', text)
+          if (features.length > 0 || suggestions.length > 0) {
+            addMessage('ai', '기능 정의와 제안을 생성했습니다.', {
+              features,
+              suggestions,
             })
           }
 
@@ -176,12 +168,13 @@ export default function ChatPhase({
     }
   }
 
-  const addMessage = (sender: 'user' | 'ai', text: string) => {
+  const addMessage = (sender: 'user' | 'ai', text: string, tableData?: Message['tableData']) => {
     setMessages((prev) => [
       ...prev,
       {
         sender,
         text,
+        tableData,
       },
     ])
   }
@@ -225,9 +218,73 @@ export default function ChatPhase({
         await sendProjectDefinition()
         startSSE()
       } else {
+        addMessage('ai', nextPhase.question)
         setTimeout(onNext, 1000)
       }
     }, 1000)
+  }
+
+  const renderMessage = (msg: Message) => {
+    if (msg.tableData) {
+      return (
+        <div className="w-full max-w-2xl">
+          {msg.tableData.features && (
+            <div className="mb-4">
+              <h3 className="font-semibold mb-2">기능 목록</h3>
+              <div className="border rounded-lg overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="px-4 py-2 text-left">기능명</th>
+                      <th className="px-4 py-2 text-left">사용 사례</th>
+                      <th className="px-4 py-2 text-left">입력</th>
+                      <th className="px-4 py-2 text-left">출력</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {msg.tableData.features.map((feature, index) => (
+                      <tr key={index} className="border-t">
+                        <td className="px-4 py-2">{feature.name}</td>
+                        <td className="px-4 py-2">{feature.useCase || '-'}</td>
+                        <td className="px-4 py-2">{feature.input || '-'}</td>
+                        <td className="px-4 py-2">{feature.output || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+          {msg.tableData.suggestions && (
+            <div>
+              <h3 className="font-semibold mb-2">제안</h3>
+              {msg.tableData.suggestions.map((suggestion, index) => (
+                <div key={index} className="mb-4">
+                  <p className="font-medium mb-1">{suggestion.question}</p>
+                  <ul className="list-disc pl-5">
+                    {suggestion.answers.map((answer, ansIndex) => (
+                      <li key={ansIndex}>{answer}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    return (
+      <div
+        className={`px-3 py-2 rounded-lg text-md max-w-xs break-words ${
+          msg.sender === 'user'
+            ? 'bg-[#795548] text-white'
+            : 'bg-[#EFEAE8] text-gray-900'
+        }`}
+      >
+        {msg.text}
+      </div>
+    )
   }
 
   const renderInput = () => {
@@ -349,16 +406,7 @@ export default function ChatPhase({
             key={index}
             className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            {msg.sender === 'ai' && <></>}
-            <div
-              className={`px-3 py-2 rounded-lg text-md max-w-xs break-words ${
-                msg.sender === 'user'
-                  ? 'bg-[#795548] text-white'
-                  : 'bg-[#EFEAE8] text-gray-900'
-              }`}
-            >
-              {msg.text}
-            </div>
+            {renderMessage(msg)}
           </div>
         ))}
       </div>
