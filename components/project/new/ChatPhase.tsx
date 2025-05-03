@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { Position, TeamMember } from '@/types/NewProjectTeamMember'
+import { TeamMember } from '@/types/NewProjectTeamMember'
 import { Feature, Message, Phase } from '@/types/project-creation'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
