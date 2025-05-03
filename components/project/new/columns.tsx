@@ -46,11 +46,12 @@ function EditableCell({ getValue, row, column, table }: EditableCellProps) {
           }
           styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
           options={ROLE_OPTIONS.filter(
-            (option) => !(value as Position[])?.includes(option.value as Position)
+            (option) =>
+              !(value as Position[])?.includes(option.value as Position)
           )}
           onChange={(option) => {
             if (!option) return
-            const currentValue = value as Position[] || []
+            const currentValue = (value as Position[]) || []
             const newValue = [...currentValue, option.value as Position]
             table.options.meta?.updateData(row.index, column.id, newValue)
           }}
@@ -95,7 +96,7 @@ function EditableCell({ getValue, row, column, table }: EditableCellProps) {
           )}
           onChange={(option) => {
             if (!option) return
-            const currentValue = value as Stack[] || []
+            const currentValue = (value as Stack[]) || []
             const newValue = [...currentValue, option.value as Stack]
             table.options.meta?.updateData(row.index, column.id, newValue)
           }}
