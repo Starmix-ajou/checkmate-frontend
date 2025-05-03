@@ -8,21 +8,25 @@ export enum Position {
 }
 
 export enum Stack {
-  NextJS = 'Next.js',
+  NextJS = 'NEXTJS',
   TypeScript = 'TypeScript',
-  React = 'React',
+  React = 'REACT',
   NodeJS = 'Node.js',
-  NestJS = 'NestJS',
+  NestJS = 'NESTJS',
   PostgreSQL = 'PostgreSQL',
   TailwindCSS = 'TailwindCSS',
   Figma = 'Figma',
   ReactNative = 'React Native',
+  Spring = 'SPRING',
   Swift = 'Swift',
   Kotlin = 'Kotlin',
 }
 
 export type TeamMember = {
   email: string
-  positions: Position
-  stacks: Stack[]
+  profile: {
+    stacks: Stack[]
+    positions: Position[]
+    projectId: string
+  }
 }

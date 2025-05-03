@@ -20,6 +20,7 @@ import { EventSourcePolyfill } from 'event-source-polyfill'
 import { ArrowUp, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
+
 import { DataTable } from './DataTable'
 import { columns } from './columns'
 
@@ -32,8 +33,11 @@ type ChatPhaseProps = {
 function getInitialMemberData(count: number = 1): TeamMember[] {
   return Array.from({ length: count }, () => ({
     email: '',
-    positions: '' as Position,
-    stacks: [],
+    profile: {
+      stacks: [],
+      positions: [],
+      projectId: '',
+    },
   }))
 }
 
@@ -62,8 +66,9 @@ export default function ChatPhase({
     const members = tableData.map((member) => ({
       email: member.email ? member.email : 'pjookim@ajou.ac.kr',
       profile: {
-        stacks: member.stacks,
-        positions: [member.positions],
+        stacks: member.profile.stacks,
+        positions: member.profile.positions,
+        projectId: member.profile.projectId,
       },
     }))
 
@@ -79,6 +84,7 @@ export default function ChatPhase({
         ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${file.name}`
         : '',
     }
+    console.log(tableData)
 
     console.log(body)
 
@@ -181,7 +187,6 @@ export default function ChatPhase({
   }
 
   const handleSendMessage = async () => {
-    setTableData(tableData)
     if (!input.trim() && !dateRange && !file && !skipFile && !tableData) return
 
     let messageText = input
@@ -196,8 +201,10 @@ export default function ChatPhase({
         ? '파일 업로드를 건너뜁니다.'
         : `파일 업로드: ${file?.name}`
     } else if (phase.inputType === 'number') {
-      setTableData(getInitialMemberData(Number(input)))
-      console.log(tableData)
+      const memberCount = Number(input)
+      if (!isNaN(memberCount) && memberCount > 0) {
+        setTableData(getInitialMemberData(memberCount))
+      }
     }
 
     if (phase.id === 1) setProjectDescription(input)
@@ -253,7 +260,11 @@ export default function ChatPhase({
       case 'table':
         return (
           <div className="relative flex-1 flex gap-2">
-            <DataTable columns={columns} data={tableData} />
+            <DataTable
+              data={tableData}
+              onDataChange={setTableData}
+              columns={columns}
+            />
             {renderSendButton()}
           </div>
         )
