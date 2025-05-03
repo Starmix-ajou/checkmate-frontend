@@ -20,7 +20,7 @@ export type Phase = {
 
 export type Feature = {
   name: string
-  useCase: string | null
-  input: string | null
-  output: string | null
+  useCase: string
+  input: string
+  output: string
 }
