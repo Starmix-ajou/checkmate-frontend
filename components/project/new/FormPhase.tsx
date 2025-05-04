@@ -20,7 +20,10 @@ export default function FormPhase({ phase, onNext }: FormPhaseProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 flex flex-col align-center h-full flex flex-col justify-center"
+    >
       <TypeAnimation
         sequence={[phase.question, 1000]}
         wrapper="p"
