@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -6,52 +7,44 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { TeamMember } from '@/types/NewProjectTeamMember'
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { Trash2 } from 'lucide-react'
 
-import { defaultColumn } from './columns'
-
-interface DataTableProps<TData extends TeamMember, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  onDataChange: (data: TData[]) => void
+interface GenericEditableTableProps<T> {
+  data: T[]
+  columns: ColumnDef<T>[]
+  onDataChange: (data: T[]) => void
+  addButtonText?: string
+  emptyStateText?: string
+  defaultRow?: T
 }
 
-export function DataTable<TData extends TeamMember, TValue>({
-  columns,
+export function GenericEditableTable<T>({
   data,
+  columns,
   onDataChange,
-}: DataTableProps<TData, TValue>) {
-  const table = useReactTable<TeamMember>({
+  addButtonText = '항목 추가',
+  emptyStateText = 'No results.',
+  defaultRow,
+}: GenericEditableTableProps<T>) {
+  const table = useReactTable<T>({
     data,
-    columns: columns as ColumnDef<TeamMember>[],
-    defaultColumn,
+    columns,
     getCoreRowModel: getCoreRowModel(),
     meta: {
       updateData: (rowIndex: number, columnId: string, value: unknown) => {
         onDataChange(
           data.map((row, index) => {
             if (index === rowIndex) {
-              if (columnId === 'stacks' || columnId === 'positions') {
-                return {
-                  ...row,
-                  profile: {
-                    ...row.profile,
-                    [columnId]: value,
-                  },
-                }
-              }
-              if (columnId === 'email') {
-                return {
-                  ...row,
-                  email: value as string,
-                }
-              }
+              return {
+                ...row,
+                [columnId]: value,
+              } as T
             }
             return row
           })
@@ -61,15 +54,9 @@ export function DataTable<TData extends TeamMember, TValue>({
   })
 
   const handleAddRow = () => {
-    const emptyRow: TeamMember = {
-      email: '',
-      profile: {
-        stacks: [],
-        positions: [],
-        projectId: '',
-      },
+    if (defaultRow) {
+      onDataChange([...data, defaultRow])
     }
-    onDataChange([...data, emptyRow as TData])
   }
 
   const handleDeleteRow = (index: number) => {
@@ -111,12 +98,13 @@ export function DataTable<TData extends TeamMember, TValue>({
                       </TableCell>
                     ))}
                     <TableCell className="text-center">
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => handleDeleteRow(row.index)}
-                        className="text-red-500 hover:text-red-700"
                       >
-                        x
-                      </button>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -126,7 +114,7 @@ export function DataTable<TData extends TeamMember, TValue>({
                     colSpan={columns.length + 1}
                     className="text-center py-4 cursor-pointer hover:bg-gray-100 font-medium text-blue-500"
                   >
-                    팀원 추가
+                    {addButtonText}
                   </TableCell>
                 </TableRow>
               </>
@@ -136,7 +124,7 @@ export function DataTable<TData extends TeamMember, TValue>({
                   colSpan={columns.length + 1}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {emptyStateText}
                 </TableCell>
               </TableRow>
             )}

@@ -10,14 +10,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { TeamMember } from '@/types/NewProjectTeamMember'
@@ -25,13 +17,12 @@ import { Feature, Message, Phase } from '@/types/project-creation'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { EventSourcePolyfill } from 'event-source-polyfill'
-import { ArrowUp, CalendarIcon, Trash2 } from 'lucide-react'
+import { ArrowUp, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
 
-import { DataTable } from './DataTable'
-import { featureColumns } from './FeatureTable'
-import { columns } from './columns'
+import { FeatureTable } from './FeatureTable'
+import { TeamMemberTable } from './TeamMemberTable'
 
 type ChatPhaseProps = {
   phase: Phase
@@ -39,19 +30,11 @@ type ChatPhaseProps = {
   formPhaseInput: string
 }
 
-type EditingCell = {
-  rowIndex: number
-  columnId: string | undefined
-} | null
-
 function getInitialMemberData(count: number = 1): TeamMember[] {
   return Array.from({ length: count }, () => ({
     email: '',
-    profile: {
-      stacks: [],
-      positions: [],
-      projectId: '',
-    },
+    stacks: [],
+    positions: [],
   }))
 }
 
@@ -68,7 +51,6 @@ export default function ChatPhase({
   const [file, setFile] = useState<File | null>(null)
   const [skipFile, setSkipFile] = useState(false)
   const [tableData, setTableData] = useState<TeamMember[]>([])
-  const [editingCell, setEditingCell] = useState<EditingCell>(null)
 
   const [projectTitle, setProjectTitle] = useState('')
   const [projectDescription, setProjectDescription] = useState(formPhaseInput)
@@ -81,9 +63,9 @@ export default function ChatPhase({
     const members = tableData.map((member) => ({
       email: member.email ? member.email : 'pjookim@ajou.ac.kr',
       profile: {
-        stacks: member.profile.stacks,
-        positions: member.profile.positions,
-        projectId: member.profile.projectId,
+        stacks: member.stacks,
+        positions: member.positions,
+        projectId: 'temp',
       },
     }))
 
@@ -249,148 +231,24 @@ export default function ChatPhase({
           {msg.tableData.features && (
             <div className="mb-4">
               <h3 className="font-semibold mb-2">기능 목록</h3>
-              <div className="border rounded-lg overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {featureColumns.map((column) => (
-                        <TableHead key={column.id}>
-                          {typeof column.header === 'string'
-                            ? column.header
-                            : '헤더'}
-                        </TableHead>
-                      ))}
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {msg.tableData.features.map((feature, index) => (
-                      <TableRow key={index}>
-                        {featureColumns.map((column) => (
-                          <TableCell
-                            key={column.id}
-                            className="cursor-pointer hover:bg-gray-50"
-                            onClick={() =>
-                              setEditingCell({
-                                rowIndex: index,
-                                columnId: column.id,
-                              })
-                            }
-                          >
-                            {editingCell?.rowIndex === index &&
-                            editingCell?.columnId === column.id ? (
-                              <Input
-                                value={
-                                  feature[column.id as keyof Feature] ?? ''
-                                }
-                                onChange={(e) => {
-                                  const newFeatures = [
-                                    ...msg.tableData!.features!,
-                                  ]
-                                  newFeatures[index] = {
-                                    ...newFeatures[index],
-                                    [column.id as keyof Feature]:
-                                      e.target.value,
-                                  }
-                                  setMessages((prev) =>
-                                    prev.map((m) =>
-                                      m === msg
-                                        ? {
-                                            ...m,
-                                            tableData: {
-                                              ...m.tableData!,
-                                              features: newFeatures,
-                                            },
-                                          }
-                                        : m
-                                    )
-                                  )
-                                }}
-                                onBlur={() => setEditingCell(null)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    setEditingCell(null)
-                                  }
-                                }}
-                                className="w-full"
-                                autoFocus
-                              />
-                            ) : (
-                              <div className="py-2">
-                                {feature[column.id as keyof Feature] || (
-                                  <span className="text-gray-400">
-                                    {typeof column.header === 'string'
-                                      ? column.header
-                                      : '입력'}{' '}
-                                    입력
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </TableCell>
-                        ))}
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              const newFeatures = [...msg.tableData!.features!]
-                              newFeatures.splice(index, 1)
-                              setMessages((prev) =>
-                                prev.map((m) =>
-                                  m === msg
-                                    ? {
-                                        ...m,
-                                        tableData: {
-                                          ...m.tableData!,
-                                          features: newFeatures,
-                                        },
-                                      }
-                                    : m
-                                )
-                              )
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    <TableRow>
-                      <TableCell
-                        colSpan={featureColumns.length + 1}
-                        className="text-center py-4 cursor-pointer hover:bg-gray-100 font-medium text-blue-500"
-                        onClick={() => {
-                          const newFeatures = [
-                            ...msg.tableData!.features!,
-                            {
-                              name: '',
-                              useCase: '',
-                              input: '',
-                              output: '',
+              <FeatureTable
+                data={msg.tableData.features}
+                onDataChange={(newFeatures) => {
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m === msg
+                        ? {
+                            ...m,
+                            tableData: {
+                              ...m.tableData!,
+                              features: newFeatures,
                             },
-                          ]
-                          setMessages((prev) =>
-                            prev.map((m) =>
-                              m === msg
-                                ? {
-                                    ...m,
-                                    tableData: {
-                                      ...m.tableData!,
-                                      features: newFeatures,
-                                    },
-                                  }
-                                : m
-                            )
-                          )
-                        }}
-                      >
-                        기능 추가
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
+                          }
+                        : m
+                    )
+                  )
+                }}
+              />
             </div>
           )}
           {msg.tableData.suggestions && (
@@ -455,11 +313,7 @@ export default function ChatPhase({
       case 'table':
         return (
           <div className="relative flex-1 flex gap-2">
-            <DataTable
-              data={tableData}
-              onDataChange={setTableData}
-              columns={columns}
-            />
+            <TeamMemberTable data={tableData} onDataChange={setTableData} />
             {renderSendButton()}
           </div>
         )

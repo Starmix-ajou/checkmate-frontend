@@ -1,29 +1,20 @@
-import { Feature } from '@/types/project-creation'
-import { ColumnDef } from '@tanstack/react-table'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Trash2 } from 'lucide-react'
+import { Feature } from '@/types/project-creation'
+import { CellContext, ColumnDef } from '@tanstack/react-table'
 
-interface EditableCellProps {
-  getValue: () => unknown
-  row: { index: number }
-  column: { id: string }
-  table: {
-    options: {
-      meta?: {
-        updateData: (rowIndex: number, columnId: string, value: unknown) => void
-      }
-    }
-  }
-}
+import { GenericEditableTable } from './GenericEditableTable'
 
-function EditableCell({ getValue, row, column, table }: EditableCellProps) {
+function EditableCell({
+  getValue,
+  row,
+  column,
+  table,
+}: CellContext<Feature, unknown>) {
   const value = getValue() as string
-
   return (
     <Input
       value={value || ''}
-      onChange={(e) =>
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
         table.options.meta?.updateData(row.index, column.id, e.target.value)
       }
       className="w-full"
@@ -32,15 +23,44 @@ function EditableCell({ getValue, row, column, table }: EditableCellProps) {
   )
 }
 
-const defaultColumn: Partial<ColumnDef<Feature>> = {
-  cell: (props) => <EditableCell {...props} />,
-}
-
 export const featureColumns: ColumnDef<Feature>[] = [
-  { id: 'name', accessorKey: 'name', header: '기능명' },
-  { id: 'useCase', accessorKey: 'useCase', header: '사용 사례' },
-  { id: 'input', accessorKey: 'input', header: '입력' },
-  { id: 'output', accessorKey: 'output', header: '출력' },
+  {
+    accessorKey: 'name',
+    header: '기능명',
+    cell: EditableCell,
+  },
+  {
+    accessorKey: 'useCase',
+    header: '사용 사례',
+    cell: EditableCell,
+  },
+  {
+    accessorKey: 'input',
+    header: '입력',
+    cell: EditableCell,
+  },
+  {
+    accessorKey: 'output',
+    header: '출력',
+    cell: EditableCell,
+  },
 ]
 
-export { defaultColumn } 
+export function FeatureTable({
+  data,
+  onDataChange,
+}: {
+  data: Feature[]
+  onDataChange: (data: Feature[]) => void
+}) {
+  return (
+    <GenericEditableTable
+      data={data}
+      columns={featureColumns}
+      onDataChange={onDataChange}
+      addButtonText="기능 추가"
+      emptyStateText="기능이 없습니다."
+      defaultRow={{ name: '', useCase: '', input: '', output: '' }}
+    />
+  )
+}

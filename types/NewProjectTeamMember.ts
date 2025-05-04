@@ -24,9 +24,6 @@ export enum Stack {
 
 export type TeamMember = {
   email: string
-  profile: {
-    stacks: Stack[]
-    positions: Position[]
-    projectId: string
-  }
+  stacks: Stack[]
+  positions: Position[]
 }
