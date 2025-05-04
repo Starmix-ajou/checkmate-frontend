@@ -26,7 +26,7 @@ export default function Navbar() {
   if (!user) return <p className="p-4 text-center">로그인이 필요합니다.</p>
 
   return (
-    <nav className="flex items-center justify-between p-4 border-b bg-white">
+    <nav className="flex fixed w-full top-0 h-16 items-center justify-between p-4 border-b bg-white">
       <div className="text-xl font-bold">CheckMate</div>
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-2">

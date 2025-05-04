@@ -8,7 +8,7 @@ export default function AccountLayout({
   return (
     <>
       <Navbar />
-      <main>{children}</main>
+      <main className="h-full pt-16">{children}</main>
     </>
   )
 }
