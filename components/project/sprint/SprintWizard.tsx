@@ -4,6 +4,9 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import {
   DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
   PointerSensor,
   closestCenter,
   useSensor,
@@ -18,6 +21,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import {
   ColumnDef,
+  Row,
   flexRender,
   getCoreRowModel,
   useReactTable,
@@ -59,16 +63,23 @@ const initialEpics: Epic[] = [
     title: '그룹 매칭 시스템',
     period: '04. 11 ~ 04. 20',
   },
+  {
+    id: 3,
+    title: '새로운 시스템',
+    period: '04. 21 ~ 04. 30',
+  },
 ]
 
 function SortableRow({
   row,
   children,
+  isDragging = false,
 }: {
-  row: any
+  row: Row<Epic>
   children: React.ReactNode
+  isDragging?: boolean
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
+  const { setNodeRef, transform, transition, attributes, listeners } =
     useSortable({
       id: row.original.id,
       animateLayoutChanges: () => false,
@@ -77,10 +88,17 @@ function SortableRow({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0 : 1,
   }
 
   return (
-    <TableRow ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <TableRow
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="h-12"
+    >
       {children}
     </TableRow>
   )
@@ -91,12 +109,24 @@ export default function SprintWizard() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
   const [epics, setEpics] = useState<Epic[]>(initialEpics)
   const sensors = useSensors(useSensor(PointerSensor))
+  const [activeId, setActiveId] = useState<number | null>(null)
+
+  const [activeItem, setActiveItem] = useState<Epic | null>(null)
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const id = event.active.id as number
+    setActiveId(id)
+    const item = epics.find((epic) => epic.id === id) || null
+    setActiveItem(item)
+  }
 
   const handleDeleteEpic = (index: number) => {
     setEpics((prev) => prev.filter((_, i) => i !== index))
   }
-  const handleDragEnd = (event: any) => {
+
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
+    setActiveId(null)
     if (active.id !== over?.id) {
       const oldIndex = epics.findIndex((epic) => epic.id === active.id)
       const newIndex = epics.findIndex((epic) => epic.id === over?.id)
@@ -252,6 +282,7 @@ export default function SprintWizard() {
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
               <SortableContext
@@ -260,21 +291,48 @@ export default function SprintWizard() {
               >
                 <Table>
                   <TableBody>
-                    {epicTable.getRowModel().rows.map((row) => (
-                      <SortableRow key={row.id} row={row}>
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id} className="text-left">
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </TableCell>
-                        ))}
-                      </SortableRow>
-                    ))}
+                    {epicTable.getRowModel().rows.map((row) => {
+                      return (
+                        <SortableRow
+                          key={row.original.id}
+                          row={row}
+                          isDragging={activeId === row.original.id}
+                        >
+                          {row.getVisibleCells().map((cell) => (
+                            <TableCell key={cell.id} className="text-left">
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+                            </TableCell>
+                          ))}
+                        </SortableRow>
+                      )
+                    })}
                   </TableBody>
                 </Table>
               </SortableContext>
+              <DragOverlay>
+                <Table>
+                  <TableBody>
+                    {activeItem && (
+                      <TableRow className="bg-white border border-gray-200 shadow-md h-12">
+                        <TableCell className="text-left" />
+                        <TableCell className="text-left">
+                          {activeItem.id}
+                        </TableCell>
+                        <TableCell className="text-left">
+                          {activeItem.title}
+                        </TableCell>
+                        <TableCell className="text-left">
+                          {activeItem.period}
+                        </TableCell>
+                        <TableCell className="text-left" />
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </DragOverlay>
             </DndContext>
           </div>
           <Button variant="cm" onClick={() => setStep(2)} className="mt-8">
