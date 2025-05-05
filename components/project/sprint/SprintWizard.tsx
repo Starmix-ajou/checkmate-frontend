@@ -3,11 +3,26 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { GripVertical, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 interface Task {
@@ -15,6 +30,12 @@ interface Task {
   title: string
   position: string
   selected: boolean
+}
+
+interface Epic {
+  id: number
+  title: string
+  period: string
 }
 
 const initialTasks: Task[] = [
@@ -27,9 +48,61 @@ const initialTasks: Task[] = [
   { id: 2, title: 'API 연동', position: '백엔드', selected: false },
 ]
 
+const initialEpics: Epic[] = [
+  {
+    id: 1,
+    title: '회원가입 및 로그인',
+    period: '04. 01 ~ 04. 10',
+  },
+  {
+    id: 2,
+    title: '그룹 매칭 시스템',
+    period: '04. 11 ~ 04. 20',
+  },
+]
+
+function SortableRow({
+  row,
+  children,
+}: {
+  row: any
+  children: React.ReactNode
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: row.original.id,
+      animateLayoutChanges: () => false,
+    })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <TableRow ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {children}
+    </TableRow>
+  )
+}
+
 export default function SprintWizard() {
   const [step, setStep] = useState(0)
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
+  const [epics, setEpics] = useState<Epic[]>(initialEpics)
+  const sensors = useSensors(useSensor(PointerSensor))
+
+  const handleDeleteEpic = (index: number) => {
+    setEpics((prev) => prev.filter((_, i) => i !== index))
+  }
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event
+    if (active.id !== over?.id) {
+      const oldIndex = epics.findIndex((epic) => epic.id === active.id)
+      const newIndex = epics.findIndex((epic) => epic.id === over?.id)
+      setEpics((items) => arrayMove(items, oldIndex, newIndex))
+    }
+  }
 
   const columns: ColumnDef<Task>[] = [
     {
@@ -60,9 +133,57 @@ export default function SprintWizard() {
     },
   ]
 
+  const epicColumns: ColumnDef<Epic>[] = [
+    {
+      id: 'drag',
+      header: () => null,
+      cell: () => (
+        <div className="cursor-move">
+          <GripVertical className="w-4 h-4 text-muted-foreground" />
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'id',
+      header: '에픽 번호',
+      cell: ({ row }) => <div>{row.index + 1}</div>,
+    },
+    {
+      accessorKey: 'title',
+      header: '에픽명',
+      cell: ({ row }) => (
+        <div className="font-medium">{row.original.title}</div>
+      ),
+    },
+    {
+      accessorKey: 'period',
+      header: '기간',
+      cell: ({ row }) => <div>{row.original.period}</div>,
+    },
+    {
+      id: 'delete',
+      header: () => null,
+      cell: ({ row }) => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleDeleteEpic(row.index)}
+        >
+          <Trash2 className="w-4 h-4 text-red-500" />
+        </Button>
+      ),
+    },
+  ]
+
   const table = useReactTable({
     data: tasks,
-    columns,
+    columns: columns,
+    getCoreRowModel: getCoreRowModel(),
+  })
+
+  const epicTable = useReactTable({
+    data: epics,
+    columns: epicColumns,
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -101,7 +222,7 @@ export default function SprintWizard() {
             <Table>
               <TableBody>
                 {table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow key={row.original.id}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="text-left">
                         {flexRender(
@@ -121,7 +242,46 @@ export default function SprintWizard() {
         </div>
       )}
 
-      {step === 1 && <div></div>}
+      {step === 1 && (
+        <div className="text-center">
+          <h2 className="text-3xl font-bold mb-8">스프린트 구성 완료!</h2>
+          <div className="text-lg text-gray-700 mb-4">
+            구성된 Epic을 수정할 수 있어요.
+          </div>
+          <div className="border-y">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={epics.map((e) => e.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <Table>
+                  <TableBody>
+                    {epicTable.getRowModel().rows.map((row) => (
+                      <SortableRow key={row.id} row={row}>
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id} className="text-left">
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        ))}
+                      </SortableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </SortableContext>
+            </DndContext>
+          </div>
+          <Button variant="cm" onClick={() => setStep(2)} className="mt-8">
+            다음
+          </Button>
+        </div>
+      )}
 
       {step === 2 && <div></div>}
 
