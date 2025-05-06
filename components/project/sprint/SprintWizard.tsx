@@ -176,7 +176,11 @@ export default function SprintWizard() {
     {
       accessorKey: 'id',
       header: '에픽 번호',
-      cell: ({ row }) => <div>{row.index + 1}</div>,
+      cell: ({ row }) => (
+        <Badge variant="secondary" className="text-xs px-2 py-1">
+          Epic {row.index + 1}
+        </Badge>
+      ),
     },
     {
       accessorKey: 'title',
@@ -317,17 +321,9 @@ export default function SprintWizard() {
                   <TableBody>
                     {activeItem && (
                       <TableRow className="bg-white border border-gray-200 shadow-md h-12">
-                        <TableCell className="text-left" />
-                        <TableCell className="text-left">
-                          {activeItem.id}
-                        </TableCell>
                         <TableCell className="text-left">
                           {activeItem.title}
                         </TableCell>
-                        <TableCell className="text-left">
-                          {activeItem.period}
-                        </TableCell>
-                        <TableCell className="text-left" />
                       </TableRow>
                     )}
                   </TableBody>
