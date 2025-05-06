@@ -29,7 +29,9 @@ import {
 import { GripVertical, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
-interface Task {
+import { DetailTaskTable } from './DetailTaskTable'
+
+interface IncompletedTask {
   id: number
   title: string
   position: string
@@ -40,9 +42,70 @@ interface Epic {
   id: number
   title: string
   period: string
+  task: TaskRow[]
 }
 
-const initialTasks: Task[] = [
+const initialEpics: Epic[] = [
+  {
+    id: 1,
+    title: '회원가입 및 로그인',
+    period: '04. 01 ~ 04. 10',
+    task: [
+      {
+        title: '이메일 회원가입 기능 구현',
+        position: 'Frontend',
+        assignee: '홍길동',
+      },
+      {
+        title: '소셜 로그인 백엔드 연동',
+        position: 'Backend',
+        assignee: '김영희',
+      },
+    ],
+  },
+  {
+    id: 2,
+    title: '그룹 매칭 시스템',
+    period: '04. 11 ~ 04. 20',
+    task: [
+      {
+        title: '매칭 알고리즘 설계',
+        position: 'Designer',
+        assignee: '이철수',
+      },
+      {
+        title: '매칭 결과 UI 구현',
+        position: 'Frontend',
+        assignee: '홍길동',
+      },
+    ],
+  },
+  {
+    id: 3,
+    title: '새로운 시스템',
+    period: '04. 21 ~ 04. 30',
+    task: [
+      {
+        title: '시스템 구조도 작성',
+        position: 'Backend',
+        assignee: '김영희',
+      },
+      {
+        title: '디자인 시안 제작',
+        position: 'Designer',
+        assignee: '이철수',
+      },
+    ],
+  },
+]
+
+interface TaskRow {
+  title: string
+  position: string
+  assignee: string
+}
+
+const initialIncompletedTasks: IncompletedTask[] = [
   {
     id: 1,
     title: '로그인 페이지 구현',
@@ -50,24 +113,6 @@ const initialTasks: Task[] = [
     selected: false,
   },
   { id: 2, title: 'API 연동', position: '백엔드', selected: false },
-]
-
-const initialEpics: Epic[] = [
-  {
-    id: 1,
-    title: '회원가입 및 로그인',
-    period: '04. 01 ~ 04. 10',
-  },
-  {
-    id: 2,
-    title: '그룹 매칭 시스템',
-    period: '04. 11 ~ 04. 20',
-  },
-  {
-    id: 3,
-    title: '새로운 시스템',
-    period: '04. 21 ~ 04. 30',
-  },
 ]
 
 function SortableRow({
@@ -106,7 +151,9 @@ function SortableRow({
 
 export default function SprintWizard() {
   const [step, setStep] = useState(0)
-  const [tasks, setTasks] = useState<Task[]>(initialTasks)
+  const [incompletedTasks, setIncompletedTasks] = useState<IncompletedTask[]>(
+    initialIncompletedTasks
+  )
   const [epics, setEpics] = useState<Epic[]>(initialEpics)
   const sensors = useSensors(useSensor(PointerSensor))
   const [activeId, setActiveId] = useState<number | null>(null)
@@ -134,7 +181,7 @@ export default function SprintWizard() {
     }
   }
 
-  const columns: ColumnDef<Task>[] = [
+  const incompletedTaskColumns: ColumnDef<IncompletedTask>[] = [
     {
       id: 'select',
       header: () => <input type="checkbox" disabled />,
@@ -209,9 +256,9 @@ export default function SprintWizard() {
     },
   ]
 
-  const table = useReactTable({
-    data: tasks,
-    columns: columns,
+  const incompletedTasksTable = useReactTable({
+    data: incompletedTasks,
+    columns: incompletedTaskColumns,
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -222,14 +269,22 @@ export default function SprintWizard() {
   })
 
   const handleSelect = (index: number) => {
-    setTasks((prevTasks) => {
-      const updated = [...prevTasks]
+    setIncompletedTasks((prevIncompletedTasks) => {
+      const updated = [...prevIncompletedTasks]
       updated[index] = {
         ...updated[index],
         selected: !updated[index].selected,
       }
       return updated
     })
+  }
+
+  const handleTaskDataChange = (epicId: number, newTasks: TaskRow[]) => {
+    setEpics((prev) =>
+      prev.map((epic) =>
+        epic.id === epicId ? { ...epic, task: newTasks } : epic
+      )
+    )
   }
 
   return (
@@ -255,7 +310,7 @@ export default function SprintWizard() {
           <div className="border-y">
             <Table>
               <TableBody>
-                {table.getRowModel().rows.map((row) => (
+                {incompletedTasksTable.getRowModel().rows.map((row) => (
                   <TableRow key={row.original.id}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="text-left">
@@ -337,7 +392,38 @@ export default function SprintWizard() {
         </div>
       )}
 
-      {step === 2 && <div></div>}
+      {step === 2 && (
+        <div className="text-center">
+          <h2 className="text-3xl font-bold mb-8">
+            세부 태스크를 입력해 주세요.
+          </h2>
+          <div className="space-y-8">
+            {epics.map((epic) => (
+              <div key={epic.id} className="space-y-4 p-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold">{epic.title}</h3>
+                  <span className="text-sm text-muted-foreground">
+                    {epic.period}
+                  </span>
+                </div>
+
+                <DetailTaskTable
+                  data={epic.task}
+                  onDataChange={(updatedTasks) =>
+                    handleTaskDataChange(epic.id, updatedTasks)
+                  }
+                />
+              </div>
+            ))}
+
+            <div className="text-center">
+              <Button variant="cm" onClick={() => setStep(3)} className="mt-8">
+                다음
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {step === 3 && <div></div>}
     </div>
