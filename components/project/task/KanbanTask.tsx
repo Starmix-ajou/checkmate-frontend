@@ -1,8 +1,17 @@
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { Task } from '@/types/userTask'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 import { GripVertical } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { DateRange, DayPicker } from 'react-day-picker'
+import 'react-day-picker/dist/style.css'
 
 type TaskProps = {
   taskId: string
@@ -18,8 +27,8 @@ export default function KanbanTask({
   taskId,
   title: initialTitle,
   priority: initialPriority,
-  startDate,
-  endDate,
+  startDate: initialStartDate,
+  endDate: initialEndDate,
   completed = false,
   onSelect,
 }: TaskProps) {
@@ -37,6 +46,9 @@ export default function KanbanTask({
   const [priority, setPriority] = useState<Task['priority']>(initialPriority)
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState(initialTitle)
+  const [startDate, setStartDate] = useState<Date>(new Date(initialStartDate))
+  const [endDate, setEndDate] = useState<Date>(new Date(initialEndDate))
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -107,12 +119,12 @@ export default function KanbanTask({
     setPriority(priorities[nextIndex])
   }
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
+  const handleDurationDoubleClick = () => {
+    setIsCalendarOpen(true)
+  }
+
+  const formatDate = (date: Date) => {
+    return format(date, 'yyyy.MM.dd', { locale: ko })
   }
 
   return (
@@ -173,9 +185,59 @@ export default function KanbanTask({
       </div>
 
       {/* Duration */}
-      <div className="text-xs text-gray-01 font-medium">
-        {formatDate(startDate)} ~ {formatDate(endDate)}
-      </div>
+      <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+        <PopoverTrigger asChild>
+          <div
+            className="text-xs text-gray-01 font-medium cursor-pointer hover:text-black-01"
+            onDoubleClick={handleDurationDoubleClick}
+          >
+            {formatDate(startDate)} ~ {formatDate(endDate)}
+          </div>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <DayPicker
+            mode="range"
+            selected={{ from: startDate, to: endDate }}
+            onSelect={(range: DateRange | undefined) => {
+              if (range?.from) {
+                setStartDate(range.from)
+                if (range.to) {
+                  setEndDate(range.to)
+                }
+              }
+            }}
+            locale={ko}
+            className="border rounded-md [&_.rdp-nav_button:hover]:opacity-100"
+            styles={{
+              months: {
+                display: 'flex',
+                flexDirection: 'column',
+              },
+              month: {
+                display: 'flex',
+                flexDirection: 'column',
+              },
+              caption: {
+                margin: 0,
+                padding: '0.5rem 0',
+              },
+              caption_label: {
+                fontSize: '0.875rem',
+                fontWeight: 500,
+              },
+              nav: {
+                marginLeft: 'auto',
+              },
+              nav_button: {
+                height: '28px',
+                width: '28px',
+                padding: 0,
+                opacity: 0.5,
+              },
+            }}
+          />
+        </PopoverContent>
+      </Popover>
     </div>
   )
 }
