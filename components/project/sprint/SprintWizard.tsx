@@ -30,6 +30,7 @@ import { GripVertical, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { DetailTaskTable } from './DetailTaskTable'
+import LoadingScreen from './LoadingScreen'
 import { SprintReviewTable } from './SprintReviewTable'
 
 interface IncompletedTask {
@@ -159,6 +160,7 @@ function SortableRow({
 
 export default function SprintWizard() {
   const [step, setStep] = useState(0)
+  const [loading, setLoading] = useState(false)
   const [incompletedTasks, setIncompletedTasks] = useState<IncompletedTask[]>(
     initialIncompletedTasks
   )
@@ -167,6 +169,32 @@ export default function SprintWizard() {
   const [activeId, setActiveId] = useState<number | null>(null)
 
   const [activeItem, setActiveItem] = useState<Epic | null>(null)
+
+  const loadingMessages = [
+    <>
+      프로젝트에 적합한
+      <br />
+      스프린트를 구성하고 있어요.
+    </>,
+    <>
+      피드백을 반영해서
+      <br />
+      스프린트를 구성하고 있어요.
+    </>,
+    <>
+      세부 태스크를 반영해서
+      <br />
+      스프린트를 구성하고 있어요.
+    </>,
+  ]
+
+  const goToNextStep = () => {
+    setLoading(true)
+    setTimeout(() => {
+      setLoading(false)
+      setStep((prev) => prev + 1)
+    }, 2000)
+  }
 
   const handleDragStart = (event: DragStartEvent) => {
     const id = event.active.id as number
@@ -296,7 +324,7 @@ export default function SprintWizard() {
   }
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl w-4xl mx-auto">
+    <div className="p-6 space-y-6 max-w-4xl w-full mx-auto">
       <div className="w-full flex space-x-2 justify-center mb-16">
         {[0, 1, 2, 3].map((s) => (
           <div
@@ -306,195 +334,201 @@ export default function SprintWizard() {
         ))}
       </div>
 
-      {step === 0 && (
-        <div className="text-center w-full">
-          <h2 className="text-3xl font-bold mb-8">
-            지난 스프린트에서 <br />
-            완료하지 않은 항목은 다음과 같아요.
-          </h2>
-          <div className="text-lg text-gray-700 mb-4">
-            이번 스프린트에서 고려할 항목을 선택해 주세요.
-          </div>
-          <div className="border-y">
-            <Table>
-              <TableBody>
-                {incompletedTasksTable.getRowModel().rows.map((row) => (
-                  <TableRow key={row.original.id}>
-                    {row.getVisibleCells().map((cell) => {
-                      const widthClass =
-                        {
-                          select: 'w-1/12',
-                          title: 'w-9/12',
-                          position: 'w-2/12',
-                        }[cell.column.id] ?? 'w-auto'
-
-                      return (
-                        <TableCell
-                          key={cell.id}
-                          className={`text-left ${widthClass}`}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      )
-                    })}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <Button variant="cm" onClick={() => setStep(1)} className="mt-8">
-            다음
-          </Button>
-        </div>
-      )}
-
-      {step === 1 && (
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-8">스프린트 구성 완료!</h2>
-          <div className="text-lg text-gray-700 mb-4">
-            구성된 Epic을 수정할 수 있어요.
-          </div>
-          <div className="border-y">
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={epics.map((e) => e.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <Table>
-                  <TableBody>
-                    {epicTable.getRowModel().rows.map((row) => {
-                      return (
-                        <SortableRow
-                          key={row.original.id}
-                          row={row}
-                          isDragging={activeId === row.original.id}
-                        >
-                          {row.getVisibleCells().map((cell) => {
-                            const widthClass =
-                              {
-                                drag: 'w-1/12',
-                                id: 'w-1/12',
-                                title: 'w-8/12',
-                                period: 'w-1/12',
-                                delete: 'w-1/12',
-                              }[cell.column.id] ?? 'w-auto'
-
-                            return (
-                              <TableCell
-                                key={cell.id}
-                                className={`text-left ${widthClass}`}
-                              >
-                                {flexRender(
-                                  cell.column.columnDef.cell,
-                                  cell.getContext()
-                                )}
-                              </TableCell>
-                            )
-                          })}
-                        </SortableRow>
-                      )
-                    })}
-                  </TableBody>
-                </Table>
-              </SortableContext>
-              <DragOverlay>
-                <Table>
-                  <TableBody>
-                    {activeItem && (
-                      <TableRow className="bg-white border border-gray-200 shadow-md h-12">
-                        <TableCell className="text-left">
-                          {activeItem.title}
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </DragOverlay>
-            </DndContext>
-          </div>
-          <Button variant="cm" onClick={() => setStep(2)} className="mt-8">
-            다음
-          </Button>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-8">
-            세부 태스크를 입력해 주세요.
-          </h2>
-          <div className="space-y-8">
-            {epics.map((epic) => (
-              <div key={epic.id} className="space-y-4 p-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-bold">{epic.title}</h3>
-                  <span className="text-sm text-muted-foreground">
-                    {epic.period}
-                  </span>
-                </div>
-
-                <DetailTaskTable
-                  data={epic.task}
-                  onDataChange={(updatedTasks) =>
-                    handleTaskDataChange(epic.id, updatedTasks)
-                  }
-                />
+      {loading ? (
+        <LoadingScreen message={loadingMessages[step]} />
+      ) : (
+        <>
+          {step === 0 && (
+            <div className="text-center w-full">
+              <h2 className="text-3xl font-bold mb-8">
+                지난 스프린트에서 <br />
+                완료하지 않은 항목은 다음과 같아요.
+              </h2>
+              <div className="text-lg text-gray-700 mb-4">
+                이번 스프린트에서 고려할 항목을 선택해 주세요.
               </div>
-            ))}
+              <div className="border-y">
+                <Table>
+                  <TableBody>
+                    {incompletedTasksTable.getRowModel().rows.map((row) => (
+                      <TableRow key={row.original.id}>
+                        {row.getVisibleCells().map((cell) => {
+                          const widthClass =
+                            {
+                              select: 'w-1/12',
+                              title: 'w-9/12',
+                              position: 'w-2/12',
+                            }[cell.column.id] ?? 'w-auto'
 
-            <div className="text-center">
-              <Button variant="cm" onClick={() => setStep(3)} className="mt-8">
+                          return (
+                            <TableCell
+                              key={cell.id}
+                              className={`text-left ${widthClass}`}
+                            >
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+                            </TableCell>
+                          )
+                        })}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <Button variant="cm" onClick={goToNextStep} className="mt-8">
                 다음
               </Button>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {step === 3 && (
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-8">
-            스프린트 구성이 완료되었어요.
-            <br />
-            최종 검토해 주세요.
-          </h2>
-          <div className="space-y-8">
-            {epics.map((epic) => (
-              <div key={epic.id} className="space-y-4 p-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-sm">
-                      Epic {epic.id}
-                    </Badge>
-                    <h3 className="text-xl font-bold">{epic.title}</h3>
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {epic.period}
-                  </span>
-                </div>
-
-                <SprintReviewTable data={epic.task} />
+          {step === 1 && (
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-8">스프린트 구성 완료!</h2>
+              <div className="text-lg text-gray-700 mb-4">
+                구성된 Epic을 수정할 수 있어요.
               </div>
-            ))}
+              <div className="border-y">
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={epics.map((e) => e.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <Table>
+                      <TableBody>
+                        {epicTable.getRowModel().rows.map((row) => {
+                          return (
+                            <SortableRow
+                              key={row.original.id}
+                              row={row}
+                              isDragging={activeId === row.original.id}
+                            >
+                              {row.getVisibleCells().map((cell) => {
+                                const widthClass =
+                                  {
+                                    drag: 'w-1/12',
+                                    id: 'w-1/12',
+                                    title: 'w-8/12',
+                                    period: 'w-1/12',
+                                    delete: 'w-1/12',
+                                  }[cell.column.id] ?? 'w-auto'
 
-            <div className="text-center flex gap-2 justify-center">
-              <Button variant="cmoutline" className="mt-8">
-                수정
-              </Button>
-              <Button variant="cm" className="mt-8">
-                완료
+                                return (
+                                  <TableCell
+                                    key={cell.id}
+                                    className={`text-left ${widthClass}`}
+                                  >
+                                    {flexRender(
+                                      cell.column.columnDef.cell,
+                                      cell.getContext()
+                                    )}
+                                  </TableCell>
+                                )
+                              })}
+                            </SortableRow>
+                          )
+                        })}
+                      </TableBody>
+                    </Table>
+                  </SortableContext>
+                  <DragOverlay>
+                    <Table>
+                      <TableBody>
+                        {activeItem && (
+                          <TableRow className="bg-white border border-gray-200 shadow-md h-12">
+                            <TableCell className="text-left">
+                              {activeItem.title}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </DragOverlay>
+                </DndContext>
+              </div>
+              <Button variant="cm" onClick={goToNextStep} className="mt-8">
+                다음
               </Button>
             </div>
-          </div>
-        </div>
+          )}
+
+          {step === 2 && (
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-8">
+                세부 태스크를 입력해 주세요.
+              </h2>
+              <div className="space-y-8">
+                {epics.map((epic) => (
+                  <div key={epic.id} className="space-y-4 p-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-xl font-bold">{epic.title}</h3>
+                      <span className="text-sm text-muted-foreground">
+                        {epic.period}
+                      </span>
+                    </div>
+
+                    <DetailTaskTable
+                      data={epic.task}
+                      onDataChange={(updatedTasks) =>
+                        handleTaskDataChange(epic.id, updatedTasks)
+                      }
+                    />
+                  </div>
+                ))}
+
+                <div className="text-center">
+                  <Button variant="cm" onClick={goToNextStep} className="mt-8">
+                    다음
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-8">
+                스프린트 구성이 완료되었어요.
+                <br />
+                최종 검토해 주세요.
+              </h2>
+              <div className="space-y-8">
+                {epics.map((epic) => (
+                  <div key={epic.id} className="space-y-4 p-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-sm">
+                          Epic {epic.id}
+                        </Badge>
+                        <h3 className="text-xl font-bold">{epic.title}</h3>
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        {epic.period}
+                      </span>
+                    </div>
+
+                    <SprintReviewTable data={epic.task} />
+                  </div>
+                ))}
+
+                <div className="text-center flex gap-2 justify-center">
+                  <Button variant="cmoutline" className="mt-8">
+                    수정
+                  </Button>
+                  <Button variant="cm" className="mt-8">
+                    완료
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
