@@ -68,7 +68,7 @@ export function EditableTable<T>({
   return (
     <div className="space-y-4 flex-1">
       <div className="">
-        <Table className="table-fixed">
+        <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -91,14 +91,27 @@ export function EditableTable<T>({
               <>
                 {table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
+                    {row.getVisibleCells().map((cell) => {
+                      const widthClass =
+                        {
+                          title: 'w-6/12',
+                          position: 'w-3/12',
+                          assignee: 'w-2/12',
+                          delete: 'w-1/12',
+                        }[cell.column.id] ?? 'w-auto'
+
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          className={`text-left ${widthClass}`}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      )
+                    })}
                     <TableCell className="text-center">
                       <Button
                         variant="ghost"

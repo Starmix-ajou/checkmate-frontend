@@ -53,11 +53,27 @@ export function ReadOnlyTable<T>({
           {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="text-left">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row.getVisibleCells().map((cell) => {
+                  const widthClass =
+                    {
+                      title: 'w-6/12',
+                      position: 'w-2/12',
+                      assignee: 'w-2/12',
+                      period: 'w-2/12',
+                    }[cell.column.id] ?? 'w-auto'
+
+                  return (
+                    <TableCell
+                      key={cell.id}
+                      className={`text-left ${widthClass}`}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  )
+                })}
               </TableRow>
             ))
           ) : (
