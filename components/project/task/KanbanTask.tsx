@@ -45,6 +45,10 @@ export default function KanbanTask({
     HIGH: 'bg-[#FFE5E3] text-[#D91F11]',
   }
 
+  const formatPriority = (priority: Task['priority']) => {
+    return priority.charAt(0) + priority.slice(1).toLowerCase()
+  }
+
   const cyclePriority = () => {
     const priorities: Task['priority'][] = ['LOW', 'MEDIUM', 'HIGH']
     const nextIndex = (priorities.indexOf(priority) + 1) % priorities.length
@@ -102,7 +106,7 @@ export default function KanbanTask({
         className={`mb-3 inline-block text-xs font-normal px-2 py-1 rounded-sm cursor-pointer ${priorityStyleMap[priority]} mb-1`}
         onClick={cyclePriority}
       >
-        {priority}
+        {formatPriority(priority)}
       </div>
 
       {/* Duration */}
