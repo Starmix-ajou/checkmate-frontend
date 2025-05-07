@@ -2,7 +2,7 @@ import { Task } from '@/types/userTask'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type TaskProps = {
   taskId: string
@@ -16,7 +16,7 @@ type TaskProps = {
 
 export default function KanbanTask({
   taskId,
-  title,
+  title: initialTitle,
   priority: initialPriority,
   startDate,
   endDate,
@@ -35,6 +35,9 @@ export default function KanbanTask({
   const [isChecked, setIsChecked] = useState(completed)
   const [isHovered, setIsHovered] = useState(false)
   const [priority, setPriority] = useState<Task['priority']>(initialPriority)
+  const [isEditing, setIsEditing] = useState(false)
+  const [title, setTitle] = useState(initialTitle)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const handleUncheck = (e: Event) => {
@@ -50,6 +53,38 @@ export default function KanbanTask({
       window.removeEventListener('kanban:uncheck-task', handleUncheck)
     }
   }, [taskId, onSelect])
+
+  const handleDoubleClick = () => {
+    setIsEditing(true)
+
+    setTimeout(() => {
+      inputRef.current?.focus()
+      inputRef.current?.select()
+    }, 0)
+  }
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value)
+  }
+
+  const handleTitleBlur = () => {
+    setIsEditing(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      setIsEditing(false)
+    } else if (e.key === 'Escape') {
+      setIsEditing(false)
+      setTitle(initialTitle)
+    }
+  }
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newChecked = e.target.checked
+    setIsChecked(newChecked)
+    onSelect(newChecked)
+  }
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -78,12 +113,6 @@ export default function KanbanTask({
       month: '2-digit',
       day: '2-digit',
     })
-  }
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newChecked = e.target.checked
-    setIsChecked(newChecked)
-    onSelect(newChecked)
   }
 
   return (
@@ -115,9 +144,24 @@ export default function KanbanTask({
           onChange={handleCheckboxChange}
           className="cursor-pointer mr-1.5 w-[16px] h-[16px]"
         />
-        <span className="text-black-01 text-base font-medium break-words">
-          {title}
-        </span>
+        {isEditing ? (
+          <input
+            ref={inputRef}
+            type="text"
+            value={title}
+            onChange={handleTitleChange}
+            onBlur={handleTitleBlur}
+            onKeyDown={handleKeyDown}
+            className="text-black-01 text-base font-medium bg-transparent border-b-2 border-gray-01 focus:outline-none focus:border-gray-01 w-[calc(100%-50px)]"
+          />
+        ) : (
+          <span
+            className="text-black-01 text-base font-medium break-words cursor-text"
+            onDoubleClick={handleDoubleClick}
+          >
+            {title}
+          </span>
+        )}
       </div>
 
       {/* Priority Badge (clickable) */}
