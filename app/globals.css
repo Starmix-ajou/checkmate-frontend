@@ -47,6 +47,10 @@
   --color-cm-100: oklch(0.85 0.0146 39.41);
   --color-cm-900: oklch(0.3 0.0358 30.2);
   --color-cm-light: oklch(0.94 0.0061 43.33);
+  --color-cm-green-light: oklch(0.98 0.0067 145.52);
+  --color-cm-green: oklch(0.63 0.0848 154.89);
+  --color-cm-gray-light: oklch(0.98 0.0013 106.42);
+  --color-cm-gray: oklch(0.61 0.0051 78.29);
 }
 
 :root {
