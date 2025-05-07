@@ -320,14 +320,26 @@ export default function SprintWizard() {
               <TableBody>
                 {incompletedTasksTable.getRowModel().rows.map((row) => (
                   <TableRow key={row.original.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="text-left">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
+                    {row.getVisibleCells().map((cell) => {
+                      const widthClass =
+                        {
+                          select: 'w-1/12',
+                          title: 'w-9/12',
+                          position: 'w-2/12',
+                        }[cell.column.id] ?? 'w-auto'
+
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          className={`text-left ${widthClass}`}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      )
+                    })}
                   </TableRow>
                 ))}
               </TableBody>
@@ -365,14 +377,28 @@ export default function SprintWizard() {
                           row={row}
                           isDragging={activeId === row.original.id}
                         >
-                          {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id} className="text-left">
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
-                            </TableCell>
-                          ))}
+                          {row.getVisibleCells().map((cell) => {
+                            const widthClass =
+                              {
+                                drag: 'w-1/12',
+                                id: 'w-1/12',
+                                title: 'w-8/12',
+                                period: 'w-1/12',
+                                delete: 'w-1/12',
+                              }[cell.column.id] ?? 'w-auto'
+
+                            return (
+                              <TableCell
+                                key={cell.id}
+                                className={`text-left ${widthClass}`}
+                              >
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </TableCell>
+                            )
+                          })}
                         </SortableRow>
                       )
                     })}
@@ -459,7 +485,7 @@ export default function SprintWizard() {
               </div>
             ))}
 
-            <div className="text-center">
+            <div className="text-center flex gap-2 justify-center">
               <Button variant="outline" className="mt-8">
                 수정
               </Button>
