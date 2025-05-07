@@ -1,21 +1,24 @@
+import { Task } from '@/types/userTask'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { EllipsisVertical } from 'lucide-react'
 import { useState } from 'react'
 
 type TaskProps = {
-  id: string
+  taskId: string
   title: string
-  level: 'Low' | 'Medium' | 'High'
-  duration: string
+  priority: Task['priority']
+  startDate: string
+  endDate: string
   completed?: boolean
 }
 
 export default function KanbanTask({
-  id,
+  taskId,
   title,
-  level: initialLevel,
-  duration,
+  priority: initialPriority,
+  startDate,
+  endDate,
   completed = false,
 }: TaskProps) {
   const {
@@ -25,27 +28,35 @@ export default function KanbanTask({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id })
+  } = useSortable({ id: taskId })
 
   const [isChecked, setIsChecked] = useState(completed)
   const [isHovered, setIsHovered] = useState(false)
-  const [level, setLevel] = useState<TaskProps['level']>(initialLevel)
+  const [priority, setPriority] = useState<Task['priority']>(initialPriority)
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   }
 
-  const levelStyleMap: Record<TaskProps['level'], string> = {
-    Low: 'bg-[#E1FBD6] text-[#204206]',
-    Medium: 'bg-[#FFF5E2] text-[#B46C00]',
-    High: 'bg-[#FFE5E3] text-[#D91F11]',
+  const priorityStyleMap: Record<Task['priority'], string> = {
+    LOW: 'bg-[#E1FBD6] text-[#204206]',
+    MEDIUM: 'bg-[#FFF5E2] text-[#B46C00]',
+    HIGH: 'bg-[#FFE5E3] text-[#D91F11]',
   }
 
-  const cycleLevel = () => {
-    const levels: TaskProps['level'][] = ['Low', 'Medium', 'High']
-    const nextIndex = (levels.indexOf(level) + 1) % levels.length
-    setLevel(levels[nextIndex])
+  const cyclePriority = () => {
+    const priorities: Task['priority'][] = ['LOW', 'MEDIUM', 'HIGH']
+    const nextIndex = (priorities.indexOf(priority) + 1) % priorities.length
+    setPriority(priorities[nextIndex])
+  }
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
   }
 
   return (
@@ -86,16 +97,18 @@ export default function KanbanTask({
         </span>
       </div>
 
-      {/* Level Badge (clickable) */}
+      {/* Priority Badge (clickable) */}
       <div
-        className={`mb-3 inline-block text-xs font-normal px-2 py-1 rounded-sm cursor-pointer ${levelStyleMap[level]} mb-1`}
-        onClick={cycleLevel}
+        className={`mb-3 inline-block text-xs font-normal px-2 py-1 rounded-sm cursor-pointer ${priorityStyleMap[priority]} mb-1`}
+        onClick={cyclePriority}
       >
-        {level}
+        {priority}
       </div>
 
       {/* Duration */}
-      <div className="text-xs text-gray-01 font-medium">{duration}</div>
+      <div className="text-xs text-gray-01 font-medium">
+        {formatDate(startDate)} ~ {formatDate(endDate)}
+      </div>
     </div>
   )
 }

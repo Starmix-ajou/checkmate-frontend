@@ -1,3 +1,5 @@
+import { useAuthStore } from '@/stores/useAuthStore'
+import { ColumnType, Task } from '@/types/userTask'
 import {
   DragOverEvent,
   MouseSensor,
@@ -6,50 +8,111 @@ import {
 } from '@dnd-kit/core'
 import { useEffect, useState } from 'react'
 
-type Task = {
-  id: string
-  title: string
-  level: 'Low' | 'Medium' | 'High'
-  duration: string
-  completed?: boolean
-}
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
-type ColumnType = 'todo' | 'inProgress' | 'done'
+// API 엔드포인트 상수
+const API_ENDPOINTS = {
+  TASKS: `${API_BASE_URL}/task`,
+} as const
 
 export function KanbanLogic() {
+  const user = useAuthStore((state) => state.user)
   const [columns, setColumns] = useState<Record<ColumnType, Task[]>>({
-    todo: [
-      {
-        id: 'task-1',
-        title: 'Task 1',
-        level: 'Low',
-        duration: '2025. 04. 01 ~ 2025. 04. 03',
-      },
-      {
-        id: 'task-2',
-        title: 'Task 2',
-        level: 'Medium',
-        duration: '2025. 04. 04 ~ 2025. 04. 06',
-      },
-    ],
-    inProgress: [
-      {
-        id: 'task-3',
-        title: 'Task 3',
-        level: 'High',
-        duration: '2025. 04. 02 ~ 2025. 04. 05',
-      },
-    ],
+    todo: [],
+    inProgress: [],
     done: [],
   })
-
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const sensors = useSensors(useSensor(MouseSensor))
+
+  // tasks 데이터 가져오기
+  useEffect(() => {
+    if (!user?.accessToken) {
+      console.log('인증 토큰이 없습니다.')
+      setLoading(false)
+      return
+    }
+
+    const fetchTasks = async () => {
+      try {
+        setError(null)
+
+        const response = await fetch(API_ENDPOINTS.TASKS, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+          credentials: 'include',
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null)
+          throw new Error(
+            errorData?.message || `HTTP error! status: ${response.status}`
+          )
+        }
+
+        const tasks: Task[] = await response.json()
+
+        if (!Array.isArray(tasks)) {
+          throw new Error('서버로부터 받은 데이터가 배열이 아닙니다.')
+        }
+
+        // 태스크를 상태에 따라 분류
+        const newColumns: Record<ColumnType, Task[]> = {
+          todo: [],
+          inProgress: [],
+          done: [],
+        }
+
+        tasks.forEach((task) => {
+          if (!task.status) {
+            console.warn('태스크에 status가 없습니다:', task)
+            newColumns.todo.push(task)
+            return
+          }
+
+          switch (task.status) {
+            case 'BACKLOG':
+            case 'TODO':
+              newColumns.todo.push(task)
+              break
+            case 'IN_PROGRESS':
+              newColumns.inProgress.push(task)
+              break
+            case 'DONE':
+              newColumns.done.push(task)
+              break
+            default:
+              console.warn('알 수 없는 태스크 상태:', task.status)
+              newColumns.todo.push(task)
+          }
+        })
+
+        setColumns(newColumns)
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : '알 수 없는 오류가 발생했습니다.'
+        console.error('태스크 불러오기 실패:', error)
+        setError(errorMessage)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTasks()
+  }, [user?.accessToken])
 
   const findColumn = (taskId: string): ColumnType | null => {
     return (
       (Object.keys(columns) as ColumnType[]).find((key) =>
-        columns[key].some((task) => task.id === taskId)
+        columns[key].some((task) => task.taskId === taskId)
       ) || null
     )
   }
@@ -73,8 +136,8 @@ export function KanbanLogic() {
     const fromTasks = [...columns[fromColumn]]
     const toTasks = [...columns[toColumn]]
 
-    const fromIndex = fromTasks.findIndex((task) => task.id === activeId)
-    const toIndex = toTasks.findIndex((task) => task.id === overId)
+    const fromIndex = fromTasks.findIndex((task) => task.taskId === activeId)
+    const toIndex = toTasks.findIndex((task) => task.taskId === overId)
 
     if (fromColumn === toColumn) {
       const updated = [...toTasks]
@@ -94,6 +157,17 @@ export function KanbanLogic() {
         [fromColumn]: fromTasks,
         [toColumn]: toTasks,
       }))
+
+      // TODO: 상태 업데이트 API 엔드포인트가 준비되면 구현
+      console.log('태스크 상태 업데이트 필요:', {
+        taskId: moved.taskId,
+        newStatus:
+          toColumn === 'todo'
+            ? 'TODO'
+            : toColumn === 'inProgress'
+              ? 'IN_PROGRESS'
+              : 'DONE',
+      })
     }
   }
 
@@ -126,5 +200,7 @@ export function KanbanLogic() {
     sensors,
     handleDragOver,
     handleDragEnd,
+    loading,
+    error,
   }
 }

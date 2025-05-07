@@ -3,6 +3,8 @@
 import { DndContext, DragOverlay } from '@dnd-kit/core'
 import { Check, Pencil, Pickaxe } from 'lucide-react'
 
+// import LoadingCheckMate from '@/components/LoadingCheckMate'
+
 import KanbanColumn from './KanbanColumn'
 import { KanbanLogic } from './KanbanLogic'
 
@@ -14,7 +16,27 @@ export default function KanbanView() {
     sensors,
     handleDragOver,
     handleDragEnd,
+    error,
   } = KanbanLogic()
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100vh-200px)]">
+        <div className="text-red-500 text-center">
+          <p className="text-lg font-medium mb-2">오류가 발생했습니다</p>
+          <p className="text-sm">{error}</p>
+        </div>
+      </div>
+    )
+  }
+
+  // if (loading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-[calc(100vh-200px)]">
+  //       <LoadingCheckMate size={64} loading={loading} />
+  //     </div>
+  //   )
+  // }
 
   return (
     <div className="text-[#121212]">
@@ -25,7 +47,7 @@ export default function KanbanView() {
         onDragStart={({ active }) => {
           const activeId = active.id.toString()
           for (const column of Object.values(columns)) {
-            const task = column.find((t) => t.id === activeId)
+            const task = column.find((t) => t.taskId === activeId)
             if (task) {
               setActiveTask(task)
               break

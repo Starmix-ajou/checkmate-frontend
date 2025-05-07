@@ -1,18 +1,9 @@
+import { ColumnType, Task } from '@/types/userTask'
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { Plus } from 'lucide-react'
 
 import KanbanTask from './KanbanTask'
-
-type Task = {
-  id: string
-  title: string
-  level: 'Low' | 'Medium' | 'High'
-  duration: string
-  completed?: boolean
-}
-
-type ColumnType = 'todo' | 'inProgress' | 'done'
 
 export default function KanbanColumn({
   title,
@@ -38,16 +29,17 @@ export default function KanbanColumn({
         <div>
           <h2 className="font-medium text-sm mb-3.5">{title}</h2>
           <SortableContext
-            items={tasks.map((task) => task.id)}
+            items={tasks.map((task) => task.taskId)}
             strategy={rectSortingStrategy}
           >
             {tasks.map((task) => (
               <KanbanTask
-                key={task.id}
-                id={task.id}
+                key={task.taskId}
+                taskId={task.taskId}
                 title={task.title}
-                level={task.level}
-                duration={task.duration}
+                priority={task.priority}
+                startDate={task.startDate}
+                endDate={task.endDate}
                 completed={task.completed}
               />
             ))}
@@ -58,10 +50,27 @@ export default function KanbanColumn({
           className="flex items-center text-sm text-[#474747] my-2 hover:text-black-01"
           onClick={() => {
             const newTask: Task = {
-              id: `task-${Date.now()}`,
+              taskId: `task-${Date.now()}`,
               title: 'New Task',
-              level: 'Medium',
-              duration: '2025. 04. 01 ~ 2025. 04. 03',
+              description: '',
+              status: 'TODO',
+              assignee: {
+                userId: '',
+                name: '',
+                email: '',
+                profileImageUrl: '',
+                profiles: [],
+                role: '',
+              },
+              startDate: new Date().toISOString().split('T')[0],
+              endDate: new Date().toISOString().split('T')[0],
+              priority: 'MEDIUM',
+              epic: {
+                epicId: '',
+                title: '',
+                description: '',
+                projectId: '',
+              },
               completed: false,
             }
             const event = new CustomEvent('kanban:add-task', {
