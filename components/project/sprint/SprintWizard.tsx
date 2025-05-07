@@ -30,6 +30,7 @@ import { GripVertical, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { DetailTaskTable } from './DetailTaskTable'
+import { SprintReviewTable } from './SprintReviewTable'
 
 interface IncompletedTask {
   id: number
@@ -54,12 +55,14 @@ const initialEpics: Epic[] = [
       {
         title: '이메일 회원가입 기능 구현',
         position: 'Frontend',
-        assignee: '홍길동',
+        assignee: '한도연',
+        period: '04. 01 ~ 04. 02',
       },
       {
         title: '소셜 로그인 백엔드 연동',
         position: 'Backend',
-        assignee: '김영희',
+        assignee: '조성연',
+        period: '04. 01 ~ 04. 02',
       },
     ],
   },
@@ -70,13 +73,15 @@ const initialEpics: Epic[] = [
     task: [
       {
         title: '매칭 알고리즘 설계',
-        position: 'Designer',
-        assignee: '이철수',
+        position: 'AI',
+        assignee: '박승연',
+        period: '04. 01 ~ 04. 02',
       },
       {
         title: '매칭 결과 UI 구현',
         position: 'Frontend',
-        assignee: '홍길동',
+        assignee: '김평주',
+        period: '04. 01 ~ 04. 02',
       },
     ],
   },
@@ -88,12 +93,14 @@ const initialEpics: Epic[] = [
       {
         title: '시스템 구조도 작성',
         position: 'Backend',
-        assignee: '김영희',
+        assignee: '조성연',
+        period: '04. 01 ~ 04. 02',
       },
       {
         title: '디자인 시안 제작',
-        position: 'Designer',
-        assignee: '이철수',
+        position: 'AI',
+        assignee: '박승연',
+        period: '04. 01 ~ 04. 02',
       },
     ],
   },
@@ -103,6 +110,7 @@ interface TaskRow {
   title: string
   position: string
   assignee: string
+  period: string
 }
 
 const initialIncompletedTasks: IncompletedTask[] = [
@@ -288,8 +296,8 @@ export default function SprintWizard() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex space-x-2 justify-center mb-16">
+    <div className="p-6 space-y-6 max-w-4xl w-4xl mx-auto">
+      <div className="w-full flex space-x-2 justify-center mb-16">
         {[0, 1, 2, 3].map((s) => (
           <div
             key={s}
@@ -299,7 +307,7 @@ export default function SprintWizard() {
       </div>
 
       {step === 0 && (
-        <div className="text-center">
+        <div className="text-center w-full">
           <h2 className="text-3xl font-bold mb-8">
             지난 스프린트에서 <br />
             완료하지 않은 항목은 다음과 같아요.
@@ -425,7 +433,43 @@ export default function SprintWizard() {
         </div>
       )}
 
-      {step === 3 && <div></div>}
+      {step === 3 && (
+        <div className="text-center">
+          <h2 className="text-3xl font-bold mb-8">
+            스프린트 구성이 완료되었어요.
+            <br />
+            최종 검토해 주세요.
+          </h2>
+          <div className="space-y-8">
+            {epics.map((epic) => (
+              <div key={epic.id} className="space-y-4 p-4">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-sm">
+                      Epic {epic.id}
+                    </Badge>
+                    <h3 className="text-xl font-bold">{epic.title}</h3>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {epic.period}
+                  </span>
+                </div>
+
+                <SprintReviewTable data={epic.task} />
+              </div>
+            ))}
+
+            <div className="text-center">
+              <Button variant="outline" className="mt-8">
+                수정
+              </Button>
+              <Button variant="cm" className="mt-8">
+                완료
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
