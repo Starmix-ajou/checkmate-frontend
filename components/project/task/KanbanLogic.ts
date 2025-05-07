@@ -175,23 +175,134 @@ export function KanbanLogic() {
     setActiveTask(null)
   }
 
-  useEffect(() => {
-    const handleAddTask = (e: Event) => {
-      const { columnKey, newTask } = (e as CustomEvent).detail as {
-        columnKey: ColumnType
-        newTask: Task
+  const createTask = async (taskData: {
+    title: string
+    description: string
+    status: 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'DONE'
+    assigneeEmail: string
+    startDate: string
+    endDate: string
+    priority: 'LOW' | 'MEDIUM' | 'HIGH'
+    epicId: string
+  }): Promise<Task> => {
+    if (!user?.accessToken) {
+      throw new Error('인증 토큰이 없습니다.')
+    }
+
+    try {
+      console.log('태스크 생성 요청 데이터:', taskData)
+      const response = await fetch(API_ENDPOINTS.TASKS, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+        credentials: 'include',
+        body: JSON.stringify(taskData),
+      })
+
+      console.log('서버 응답 상태:', response.status)
+      console.log(
+        '서버 응답 헤더:',
+        Object.fromEntries(response.headers.entries())
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(
+          errorData?.message || `HTTP error! status: ${response.status}`
+        )
       }
-      setColumns((prev) => ({
-        ...prev,
-        [columnKey]: [...prev[columnKey], newTask],
-      }))
+
+      // 서버 응답이 없는 경우 클라이언트에서 임시 태스크 생성
+      const newTask: Task = {
+        taskId: `task-${Date.now()}`,
+        title: taskData.title,
+        description: taskData.description,
+        status: taskData.status,
+        assignee: {
+          userId: '',
+          name: '',
+          email: taskData.assigneeEmail,
+          profileImageUrl: '',
+          profiles: [],
+          role: '',
+        },
+        startDate: taskData.startDate,
+        endDate: taskData.endDate,
+        priority: taskData.priority,
+        epic: {
+          epicId: taskData.epicId,
+          title: '',
+          description: '',
+          projectId: '',
+        },
+        completed: false,
+      }
+
+      console.log('새 태스크 생성 성공:', newTask)
+
+      // 새 태스크를 적절한 컬럼에 추가
+      setColumns((prev) => {
+        const newColumns = { ...prev }
+        const columnKey =
+          newTask.status === 'IN_PROGRESS'
+            ? 'inProgress'
+            : newTask.status === 'DONE'
+              ? 'done'
+              : 'todo'
+        newColumns[columnKey] = [...newColumns[columnKey], newTask]
+        return newColumns
+      })
+
+      return newTask
+    } catch (error) {
+      console.error('태스크 생성 실패:', error)
+      throw error
+    }
+  }
+
+  useEffect(() => {
+    const handleAddTask = async (e: Event) => {
+      const { columnKey } = (e as CustomEvent).detail as {
+        columnKey: ColumnType
+      }
+
+      try {
+        const today = new Date().toISOString().split('T')[0]
+        const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split('T')[0]
+
+        // columnKey에 따라 초기 상태 설정
+        const initialStatus =
+          columnKey === 'inProgress'
+            ? 'IN_PROGRESS'
+            : columnKey === 'done'
+              ? 'DONE'
+              : 'BACKLOG'
+
+        await createTask({
+          title: 'New Task',
+          description: '',
+          status: initialStatus,
+          assigneeEmail: user?.email || '',
+          startDate: today,
+          endDate: nextWeek,
+          priority: 'MEDIUM',
+          epicId: '681b655c1706bf2324042897', // 임시로 고정된 epicId 사용
+        })
+      } catch (error) {
+        console.error('태스크 생성 실패:', error)
+      }
     }
 
     window.addEventListener('kanban:add-task', handleAddTask)
     return () => {
       window.removeEventListener('kanban:add-task', handleAddTask)
     }
-  }, [])
+  }, [user?.email, createTask])
 
   return {
     columns,
