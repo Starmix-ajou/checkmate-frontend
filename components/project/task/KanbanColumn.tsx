@@ -5,17 +5,21 @@ import { Plus } from 'lucide-react'
 
 import KanbanTask from './KanbanTask'
 
+type KanbanColumnProps = {
+  title: React.ReactNode
+  columnKey: ColumnType
+  bg: string
+  tasks: Task[]
+  onTaskSelect: (taskId: string, isSelected: boolean) => void
+}
+
 export default function KanbanColumn({
   title,
   columnKey,
   bg,
   tasks,
-}: {
-  title: React.ReactNode
-  columnKey: ColumnType
-  bg: string
-  tasks: Task[]
-}) {
+  onTaskSelect,
+}: KanbanColumnProps) {
   const { setNodeRef } = useDroppable({ id: columnKey })
 
   return (
@@ -41,6 +45,7 @@ export default function KanbanColumn({
                 startDate={task.startDate}
                 endDate={task.endDate}
                 completed={task.completed}
+                onSelect={(isSelected) => onTaskSelect(task.taskId, isSelected)}
               />
             ))}
           </SortableContext>
@@ -49,32 +54,8 @@ export default function KanbanColumn({
         <button
           className="flex items-center text-sm text-[#474747] my-2 hover:text-black-01"
           onClick={() => {
-            const newTask: Task = {
-              taskId: `task-${Date.now()}`,
-              title: 'New Task',
-              description: '',
-              status: 'TODO',
-              assignee: {
-                userId: '',
-                name: '',
-                email: '',
-                profileImageUrl: '',
-                profiles: [],
-                role: '',
-              },
-              startDate: new Date().toISOString().split('T')[0],
-              endDate: new Date().toISOString().split('T')[0],
-              priority: 'MEDIUM',
-              epic: {
-                epicId: '',
-                title: '',
-                description: '',
-                projectId: '',
-              },
-              completed: false,
-            }
             const event = new CustomEvent('kanban:add-task', {
-              detail: { columnKey, newTask },
+              detail: { columnKey },
             })
             window.dispatchEvent(event)
           }}

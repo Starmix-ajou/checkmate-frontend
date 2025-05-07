@@ -2,7 +2,7 @@ import { Task } from '@/types/userTask'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type TaskProps = {
   taskId: string
@@ -11,6 +11,7 @@ type TaskProps = {
   startDate: string
   endDate: string
   completed?: boolean
+  onSelect: (isSelected: boolean) => void
 }
 
 export default function KanbanTask({
@@ -20,6 +21,7 @@ export default function KanbanTask({
   startDate,
   endDate,
   completed = false,
+  onSelect,
 }: TaskProps) {
   const {
     attributes,
@@ -33,6 +35,21 @@ export default function KanbanTask({
   const [isChecked, setIsChecked] = useState(completed)
   const [isHovered, setIsHovered] = useState(false)
   const [priority, setPriority] = useState<Task['priority']>(initialPriority)
+
+  useEffect(() => {
+    const handleUncheck = (e: Event) => {
+      const { taskId: uncheckTaskId } = (e as CustomEvent).detail
+      if (uncheckTaskId === taskId) {
+        setIsChecked(false)
+        onSelect(false)
+      }
+    }
+
+    window.addEventListener('kanban:uncheck-task', handleUncheck)
+    return () => {
+      window.removeEventListener('kanban:uncheck-task', handleUncheck)
+    }
+  }, [taskId, onSelect])
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -63,6 +80,12 @@ export default function KanbanTask({
     })
   }
 
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newChecked = e.target.checked
+    setIsChecked(newChecked)
+    onSelect(newChecked)
+  }
+
   return (
     <div
       ref={setNodeRef}
@@ -89,14 +112,10 @@ export default function KanbanTask({
         <input
           type="checkbox"
           checked={isChecked}
-          onChange={() => setIsChecked(!isChecked)}
-          className="cursor-pointer mr-1.5"
+          onChange={handleCheckboxChange}
+          className="cursor-pointer mr-1.5 w-[16px] h-[16px]"
         />
-        <span
-          className={`text-black-01 text-base font-medium break-words ${
-            isChecked ? 'line-through text-gray-01' : ''
-          }`}
-        >
+        <span className="text-black-01 text-base font-medium break-words">
           {title}
         </span>
       </div>

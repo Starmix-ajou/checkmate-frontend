@@ -1,7 +1,8 @@
 'use client'
 
 import { DndContext, DragOverlay } from '@dnd-kit/core'
-import { Check, Pencil, Pickaxe } from 'lucide-react'
+import { Check, Pencil, Pickaxe, X } from 'lucide-react'
+import { useState } from 'react'
 
 // import LoadingCheckMate from '@/components/LoadingCheckMate'
 
@@ -18,6 +19,35 @@ export default function KanbanView() {
     handleDragEnd,
     error,
   } = KanbanLogic()
+
+  const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set())
+
+  const handleTaskSelect = (taskId: string, isSelected: boolean) => {
+    setSelectedTasks((prev) => {
+      const newSelected = new Set(prev)
+      if (isSelected) {
+        newSelected.add(taskId)
+      } else {
+        newSelected.delete(taskId)
+      }
+      return newSelected
+    })
+  }
+
+  const handleClearSelection = () => {
+    // 모든 컬럼의 태스크를 순회하면서 체크박스 해제
+    Object.values(columns).forEach((columnTasks) => {
+      columnTasks.forEach((task) => {
+        if (selectedTasks.has(task.taskId)) {
+          const event = new CustomEvent('kanban:uncheck-task', {
+            detail: { taskId: task.taskId },
+          })
+          window.dispatchEvent(event)
+        }
+      })
+    })
+    setSelectedTasks(new Set())
+  }
 
   if (error) {
     return (
@@ -55,7 +85,7 @@ export default function KanbanView() {
           }
         }}
       >
-        <div className="flex gap-3">
+        <div className="flex gap-3 relative">
           <KanbanColumn
             title={
               <div className="flex items-center">
@@ -71,6 +101,7 @@ export default function KanbanView() {
             columnKey="todo"
             bg="bg-[#F8F8F7] rounded-none"
             tasks={columns.todo}
+            onTaskSelect={handleTaskSelect}
           />
           <KanbanColumn
             title={
@@ -87,6 +118,7 @@ export default function KanbanView() {
             columnKey="inProgress"
             bg="bg-[#F3F9FC] rounded-none"
             tasks={columns.inProgress}
+            onTaskSelect={handleTaskSelect}
           />
           <KanbanColumn
             title={
@@ -103,7 +135,22 @@ export default function KanbanView() {
             columnKey="done"
             bg="bg-[#F6FAF6] rounded-none"
             tasks={columns.done}
+            onTaskSelect={handleTaskSelect}
           />
+
+          {selectedTasks.size > 0 && (
+            <div className="fixed bottom-6 right-6 w-[240px] h-[40px] bg-[#FFE5E3] border border-[#FFE5E3] rounded-full flex items-center justify-between px-4 py-2">
+              <span className="text-[#D91F11] text-base font-medium">
+                {selectedTasks.size}개 선택됨
+              </span>
+              <button
+                onClick={handleClearSelection}
+                className="w-5 h-5 flex items-center justify-center text-[#D91F11] hover:bg-[#FFD4D1] rounded-full transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          )}
         </div>
 
         <DragOverlay>
