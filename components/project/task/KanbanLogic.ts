@@ -35,6 +35,8 @@ export function KanbanLogic() {
       return
     }
 
+    console.log(user.accessToken)
+
     const fetchTasks = async () => {
       try {
         setError(null)
@@ -117,6 +119,56 @@ export function KanbanLogic() {
     )
   }
 
+  const updateTask = async (
+    taskId: string,
+    taskData: {
+      title: string
+      description: string
+      status: 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'DONE'
+      assigneeEmail: string
+      startDate: string
+      endDate: string
+      priority: 'LOW' | 'MEDIUM' | 'HIGH'
+      epicId: string
+    }
+  ): Promise<void> => {
+    if (!user?.accessToken) {
+      throw new Error('인증 토큰이 없습니다.')
+    }
+
+    try {
+      console.log('태스크 수정 요청 데이터:', { taskId, ...taskData })
+      const response = await fetch(`${API_ENDPOINTS.TASKS}/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+        credentials: 'include',
+        body: JSON.stringify(taskData),
+      })
+
+      console.log('서버 응답 상태:', response.status)
+      console.log(
+        '서버 응답 헤더:',
+        Object.fromEntries(response.headers.entries())
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(
+          errorData?.message || `HTTP error! status: ${response.status}`
+        )
+      }
+
+      console.log('태스크 수정 성공')
+    } catch (error) {
+      console.error('태스크 수정 실패:', error)
+      throw error
+    }
+  }
+
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
@@ -158,15 +210,32 @@ export function KanbanLogic() {
         [toColumn]: toTasks,
       }))
 
-      // TODO: 상태 업데이트 API 엔드포인트가 준비되면 구현
-      console.log('태스크 상태 업데이트 필요:', {
-        taskId: moved.taskId,
-        newStatus:
-          toColumn === 'todo'
-            ? 'TODO'
-            : toColumn === 'inProgress'
-              ? 'IN_PROGRESS'
-              : 'DONE',
+      // 태스크 상태 업데이트
+      const newStatus =
+        toColumn === 'todo'
+          ? 'BACKLOG'
+          : toColumn === 'inProgress'
+            ? 'IN_PROGRESS'
+            : 'DONE'
+
+      updateTask(moved.taskId, {
+        title: moved.title,
+        description: moved.description,
+        status: newStatus,
+        assigneeEmail: user?.email || '',
+        startDate: moved.startDate,
+        endDate: moved.endDate,
+        priority: moved.priority,
+        epicId: '681b655c1706bf2324042897',
+        // epicId: moved.epic.epicId, // 임시로 고정된 epicId 사용
+      }).catch((error) => {
+        console.error('태스크 상태 업데이트 실패:', error)
+        // 실패 시 원래 상태로 되돌림
+        setColumns((prev) => ({
+          ...prev,
+          [fromColumn]: [...fromTasks, moved],
+          [toColumn]: toTasks.filter((task) => task.taskId !== moved.taskId),
+        }))
       })
     }
   }
@@ -201,6 +270,7 @@ export function KanbanLogic() {
         credentials: 'include',
         body: JSON.stringify(taskData),
       })
+      console.log(user.accessToken)
 
       console.log('서버 응답 상태:', response.status)
       console.log(

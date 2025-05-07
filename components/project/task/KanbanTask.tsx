@@ -1,7 +1,7 @@
 import { Task } from '@/types/userTask'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { EllipsisVertical } from 'lucide-react'
+import { GripVertical } from 'lucide-react'
 import { useState } from 'react'
 
 type TaskProps = {
@@ -76,7 +76,7 @@ export default function KanbanTask({
           {...listeners}
           className="absolute top-4 right-2 cursor-grab text-gray-01 hover:text-black-01"
         >
-          <EllipsisVertical size={18} />
+          <GripVertical size={18} />
         </div>
       )}
 
