@@ -16,12 +16,14 @@ interface TaskRow {
   title: string
   position: string
   assignee: string
+  period: string
 }
 
 const DEFAULT_ROW: TaskRow = {
   title: '',
   position: '',
   assignee: '',
+  period: '',
 }
 
 declare module '@tanstack/react-table' {
@@ -37,13 +39,14 @@ declare module '@tanstack/react-table' {
 const POSITION_OPTIONS = [
   { value: 'Frontend', label: 'Frontend' },
   { value: 'Backend', label: 'Backend' },
-  { value: 'Designer', label: 'Designer' },
+  { value: 'AI', label: 'AI' },
 ]
 
 const ASSIGNEE_OPTIONS = [
-  { value: '홍길동', label: '홍길동' },
-  { value: '김영희', label: '김영희' },
-  { value: '이철수', label: '이철수' },
+  { value: '김평주', label: '김평주' },
+  { value: '한도연', label: '한도연' },
+  { value: '조성연', label: '조성연' },
+  { value: '박승연', label: '박승연' },
 ]
 
 function EditableCell({
@@ -75,7 +78,7 @@ function EditableCell({
                   'px-2 py-1 text-sm',
                   opt.value === 'Frontend' && 'bg-orange-100 text-orange-600',
                   opt.value === 'Backend' && 'bg-blue-100 text-blue-600',
-                  opt.value === 'Designer' && 'bg-pink-100 text-pink-600'
+                  opt.value === 'AI' && 'bg-pink-100 text-pink-600'
                 )}
               >
                 {opt.label}

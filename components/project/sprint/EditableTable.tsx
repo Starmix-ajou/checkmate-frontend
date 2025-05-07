@@ -19,6 +19,7 @@ interface EditableTableProps<T> {
   data: T[]
   columns: ColumnDef<T>[]
   onDataChange: (data: T[]) => void
+  canAddRow?: boolean
   addButtonText?: string
   emptyStateText?: string
   defaultRow?: T
@@ -28,6 +29,7 @@ export function EditableTable<T>({
   data,
   columns,
   onDataChange,
+  canAddRow = true,
   addButtonText = '항목 추가',
   emptyStateText = 'No results.',
   defaultRow,
@@ -66,7 +68,7 @@ export function EditableTable<T>({
   return (
     <div className="space-y-4 flex-1">
       <div className="">
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -108,15 +110,17 @@ export function EditableTable<T>({
                     </TableCell>
                   </TableRow>
                 ))}
-                <TableRow>
-                  <TableCell
-                    onClick={handleAddRow}
-                    colSpan={columns.length + 1}
-                    className="text-left py-4 cursor-pointer hover:bg-gray-100 font-medium"
-                  >
-                    {addButtonText}
-                  </TableCell>
-                </TableRow>
+                {canAddRow && (
+                  <TableRow>
+                    <TableCell
+                      onClick={handleAddRow}
+                      colSpan={columns.length + 1}
+                      className="text-left py-4 cursor-pointer hover:bg-gray-100 font-medium"
+                    >
+                      {addButtonText}
+                    </TableCell>
+                  </TableRow>
+                )}
               </>
             ) : (
               <TableRow>
