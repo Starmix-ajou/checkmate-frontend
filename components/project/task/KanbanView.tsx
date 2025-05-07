@@ -1,7 +1,7 @@
 'use client'
 
 import { DndContext, DragOverlay } from '@dnd-kit/core'
-import { Check, Pencil, Pickaxe, X } from 'lucide-react'
+import { Check, Pencil, Pickaxe, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 
 // import LoadingCheckMate from '@/components/LoadingCheckMate'
@@ -18,6 +18,7 @@ export default function KanbanView() {
     handleDragOver,
     handleDragEnd,
     error,
+    setColumns,
   } = KanbanLogic()
 
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set())
@@ -45,6 +46,20 @@ export default function KanbanView() {
           window.dispatchEvent(event)
         }
       })
+    })
+    setSelectedTasks(new Set())
+  }
+
+  const handleDeleteSelectedTasks = () => {
+    // 모든 컬럼의 태스크를 순회하면서 선택된 태스크 삭제
+    Object.entries(columns).forEach(([columnKey, columnTasks]) => {
+      const remainingTasks = columnTasks.filter(
+        (task) => !selectedTasks.has(task.taskId)
+      )
+      setColumns((prev) => ({
+        ...prev,
+        [columnKey]: remainingTasks,
+      }))
     })
     setSelectedTasks(new Set())
   }
@@ -143,12 +158,20 @@ export default function KanbanView() {
               <span className="text-[#D91F11] text-base font-medium">
                 {selectedTasks.size}개 선택됨
               </span>
-              <button
-                onClick={handleClearSelection}
-                className="w-5 h-5 flex items-center justify-center text-[#D91F11] hover:bg-[#FFD4D1] rounded-full transition-colors"
-              >
-                <X size={20} />
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleDeleteSelectedTasks}
+                  className="w-5 h-5 flex items-center justify-center text-[#D91F11]"
+                >
+                  <Trash2 size={20} />
+                </button>
+                <button
+                  onClick={handleClearSelection}
+                  className="w-5 h-5 flex items-center justify-center text-[#D91F11]"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
           )}
         </div>

@@ -383,5 +383,6 @@ export function KanbanLogic() {
     handleDragEnd,
     loading,
     error,
+    setColumns,
   }
 }
