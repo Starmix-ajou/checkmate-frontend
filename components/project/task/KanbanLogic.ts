@@ -374,6 +374,43 @@ export function KanbanLogic() {
     }
   }, [user?.email, createTask])
 
+  const deleteTask = async (taskId: string): Promise<void> => {
+    if (!user?.accessToken) {
+      throw new Error('인증 토큰이 없습니다.')
+    }
+
+    try {
+      console.log('태스크 삭제 요청:', taskId)
+      const response = await fetch(`${API_ENDPOINTS.TASKS}/${taskId}`, {
+        method: 'DELETE',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+        credentials: 'include',
+      })
+
+      console.log('서버 응답 상태:', response.status)
+      console.log(
+        '서버 응답 헤더:',
+        Object.fromEntries(response.headers.entries())
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(
+          errorData?.message || `HTTP error! status: ${response.status}`
+        )
+      }
+
+      console.log('태스크 삭제 성공:', taskId)
+    } catch (error) {
+      console.error('태스크 삭제 실패:', error)
+      throw error
+    }
+  }
+
   return {
     columns,
     activeTask,
@@ -384,5 +421,6 @@ export function KanbanLogic() {
     loading,
     error,
     setColumns,
+    deleteTask,
   }
 }

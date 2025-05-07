@@ -19,9 +19,11 @@ export default function KanbanView() {
     handleDragEnd,
     error,
     setColumns,
+    deleteTask,
   } = KanbanLogic()
 
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set())
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleTaskSelect = (taskId: string, isSelected: boolean) => {
     setSelectedTasks((prev) => {
@@ -50,18 +52,32 @@ export default function KanbanView() {
     setSelectedTasks(new Set())
   }
 
-  const handleDeleteSelectedTasks = () => {
-    // 모든 컬럼의 태스크를 순회하면서 선택된 태스크 삭제
-    Object.entries(columns).forEach(([columnKey, columnTasks]) => {
-      const remainingTasks = columnTasks.filter(
-        (task) => !selectedTasks.has(task.taskId)
+  const handleDeleteSelectedTasks = async () => {
+    try {
+      setIsDeleting(true)
+      // 선택된 모든 태스크에 대해 삭제 API 호출
+      const deletePromises = Array.from(selectedTasks).map((taskId) =>
+        deleteTask(taskId)
       )
-      setColumns((prev) => ({
-        ...prev,
-        [columnKey]: remainingTasks,
-      }))
-    })
-    setSelectedTasks(new Set())
+      await Promise.all(deletePromises)
+
+      // 모든 컬럼의 태스크를 순회하면서 선택된 태스크 삭제
+      Object.entries(columns).forEach(([columnKey, columnTasks]) => {
+        const remainingTasks = columnTasks.filter(
+          (task) => !selectedTasks.has(task.taskId)
+        )
+        setColumns((prev) => ({
+          ...prev,
+          [columnKey]: remainingTasks,
+        }))
+      })
+      setSelectedTasks(new Set())
+    } catch (error) {
+      console.error('태스크 삭제 중 오류 발생:', error)
+      // TODO: 에러 처리 UI 추가
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   if (error) {
@@ -161,7 +177,8 @@ export default function KanbanView() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleDeleteSelectedTasks}
-                  className="w-5 h-5 flex items-center justify-center text-[#D91F11]"
+                  disabled={isDeleting}
+                  className="w-5 h-5 flex items-center justify-center text-[#D91F11] disabled:opacity-50"
                 >
                   <Trash2 size={20} />
                 </button>
