@@ -486,7 +486,7 @@ export default function SprintWizard() {
             ))}
 
             <div className="text-center flex gap-2 justify-center">
-              <Button variant="outline" className="mt-8">
+              <Button variant="cmoutline" className="mt-8">
                 수정
               </Button>
               <Button variant="cm" className="mt-8">
