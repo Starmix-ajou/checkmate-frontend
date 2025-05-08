@@ -5,9 +5,9 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Task } from '@/types/userTask'
-import * as Dialog from '@radix-ui/react-dialog'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
+import { X } from 'lucide-react'
 import { useState } from 'react'
 import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
@@ -90,15 +90,21 @@ export default function TaskModal({
   if (!isOpen) return null
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={onClose}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50" />
-        <Dialog.Content className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] bg-white rounded-lg p-6 w-[90vw] max-w-3xl max-h-[85vh] overflow-y-auto">
-          <Dialog.Title className="text-xl font-semibold mb-4">
-            태스크 상세
-          </Dialog.Title>
+    <>
+      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+      <div className="fixed top-0 right-0 h-full w-[500px] bg-white shadow-lg overflow-y-auto">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">태스크 상세</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full"
+            >
+              <X size={20} />
+            </button>
+          </div>
 
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4">
             {/* 제목 */}
             <div>
               <h3 className="text-sm font-medium text-gray-500 mb-2">Title</h3>
@@ -238,15 +244,15 @@ export default function TaskModal({
               />
             </div>
 
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 mt-4">
               <Button variant="outline" onClick={onClose}>
                 취소
               </Button>
               <Button onClick={handleSave}>수정 완료</Button>
             </div>
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+        </div>
+      </div>
+    </>
   )
 }
