@@ -1,6 +1,5 @@
 'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -20,6 +19,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { useProjectStore } from '@/stores/useProjectStore'
 import {
   Bell,
   BookmarkCheck,
@@ -30,16 +32,16 @@ import {
   Settings,
   X,
 } from 'lucide-react'
+import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-const projects = [
-  { id: 1, name: 'CheckMate' },
-  { id: 2, name: 'DevSync' },
-  { id: 3, name: 'AgileFlow' },
-]
+interface Notification {
+  id: number
+  text: string
+}
 
-const notifications = [
+const notifications: Notification[] = [
   { id: 1, text: '새로운 태스크가 할당되었습니다.' },
   { id: 2, text: '스프린트 일정이 변경되었습니다.' },
   { id: 3, text: '코드 리뷰 요청이 있습니다.' },
@@ -48,6 +50,14 @@ const notifications = [
 export default function ProjectSidebar() {
   const { id } = useParams()
   const pathname = usePathname()
+  const user = useAuthStore((state) => state.user)
+  const { projects, loading, fetchProjects } = useProjectStore()
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+
+  useEffect(() => {
+    if (!user?.accessToken) return
+    fetchProjects(user.accessToken)
+  }, [user?.accessToken, fetchProjects])
 
   const items = [
     { title: 'Overview', url: `/projects/${id}/overview`, icon: Home },
@@ -64,24 +74,40 @@ export default function ProjectSidebar() {
       icon: Settings,
     },
   ]
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+
+  const currentProject = projects.find(
+    (project) => project.project.projectId === id
+  )
+  const currentUserRole = currentProject?.members.find(
+    (member) => member.email === user?.email
+  )?.role
 
   return (
     <Sidebar className="mt-12">
-      <SidebarHeader className="flex p-4 border-b">
+      <SidebarHeader className="flex p-2 border-b">
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className="flex grow items-center gap-2 cursor-pointer p-2 hover:bg-gray-100 rounded-lg transition">
-                <Avatar className="w-9 h-9">
-                  <AvatarImage src="/avatar1.png" />
-                  <AvatarFallback>김</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col grow">
-                  <span className="text-sm font-medium">김평주</span>
-                  <span className="text-xs text-gray-500">FE Developer</span>
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-500" />
+              <div className="flex grow items-center gap-2 cursor-pointer p-2 hover:bg-cm-light rounded-lg transition">
+                {loading || !user ? (
+                  <>
+                    <div className="flex flex-col grow gap-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                    <Skeleton className="w-4 h-4" />
+                  </>
+                ) : (
+                  <>
+                    <div className="flex flex-col grow">
+                      <span className="text-sm font-medium">{user.name}</span>
+                      <span className="text-xs text-gray-500">
+                        {currentUserRole}
+                      </span>
+                    </div>
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  </>
+                )}
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className="w-full">
@@ -91,13 +117,22 @@ export default function ProjectSidebar() {
               <div className="px-2 text-xs font-semibold text-gray-500">
                 내 프로젝트
               </div>
-              {projects.map((project) => (
-                <DropdownMenuItem key={project.id} asChild>
-                  <a href={`/projects/${project.id}`} className="w-full">
-                    {project.name}
-                  </a>
-                </DropdownMenuItem>
-              ))}
+              {loading
+                ? Array.from({ length: 3 }).map((_, index) => (
+                    <DropdownMenuItem key={index}>
+                      <Skeleton className="h-4 w-full" />
+                    </DropdownMenuItem>
+                  ))
+                : projects.map((project) => (
+                    <DropdownMenuItem key={project.project.projectId} asChild>
+                      <Link
+                        href={`/projects/${project.project.projectId}/overview`}
+                        className="w-full"
+                      >
+                        {project.project.title}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
             </DropdownMenuContent>
           </DropdownMenu>
           <Button
@@ -145,7 +180,7 @@ export default function ProjectSidebar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <a
+                      <Link
                         href={item.url}
                         className={`flex items-center gap-2 p-2 transition ${
                           isActive
@@ -155,7 +190,7 @@ export default function ProjectSidebar() {
                       >
                         <item.icon />
                         <span>{item.title}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )
