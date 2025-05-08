@@ -74,7 +74,7 @@ export function KanbanLogic() {
             console.warn('태스크에 status가 없습니다:', task)
             newColumns.todo.push({
               ...task,
-              status: 'BACKLOG',
+              status: 'TODO',
             })
             return
           }
@@ -85,7 +85,6 @@ export function KanbanLogic() {
           }
 
           switch (task.status) {
-            case 'BACKLOG':
             case 'TODO':
               newColumns.todo.push(taskWithStatus)
               break
@@ -99,7 +98,7 @@ export function KanbanLogic() {
               console.warn('알 수 없는 태스크 상태:', task.status)
               newColumns.todo.push({
                 ...task,
-                status: 'BACKLOG',
+                status: 'TODO',
               })
           }
         })
@@ -133,7 +132,7 @@ export function KanbanLogic() {
     taskData: Partial<{
       title: string
       description: string
-      status: 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'DONE'
+      status: 'TODO' | 'IN_PROGRESS' | 'DONE'
       assigneeEmail: string
       startDate: string
       endDate: string
@@ -171,6 +170,39 @@ export function KanbanLogic() {
       }
 
       console.log('태스크 수정 성공')
+
+      // 서버 업데이트 성공 후 로컬 상태 즉시 업데이트
+      setColumns((prev) => {
+        const newColumns = { ...prev }
+
+        // 모든 컬럼에서 태스크 찾기
+        const allTasks = Object.values(newColumns).flat()
+        const task = allTasks.find((t) => t.taskId === taskId)
+
+        if (!task) return prev
+
+        // 새로운 상태에 따라 태스크 이동
+        const newStatus = taskData.status || task.status
+        const newColumn =
+          newStatus === 'IN_PROGRESS'
+            ? 'inProgress'
+            : newStatus === 'DONE'
+              ? 'done'
+              : 'todo'
+
+        // 모든 컬럼에서 태스크 제거
+        Object.keys(newColumns).forEach((key) => {
+          newColumns[key as ColumnType] = newColumns[key as ColumnType].filter(
+            (t) => t.taskId !== taskId
+          )
+        })
+
+        // 새로운 컬럼에 업데이트된 태스크 추가
+        const updatedTask = { ...task, ...taskData }
+        newColumns[newColumn] = [...newColumns[newColumn], updatedTask]
+
+        return newColumns
+      })
     } catch (error) {
       console.error('태스크 수정 실패:', error)
       throw error
@@ -182,7 +214,7 @@ export function KanbanLogic() {
     data: Partial<{
       title?: string
       description?: string
-      status?: 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'DONE'
+      status?: 'TODO' | 'IN_PROGRESS' | 'DONE'
       assigneeEmail?: string
       startDate?: string
       endDate?: string
@@ -286,7 +318,7 @@ export function KanbanLogic() {
       // 태스크 상태 업데이트
       const newStatus =
         toColumn === 'todo'
-          ? 'BACKLOG'
+          ? 'TODO'
           : toColumn === 'inProgress'
             ? 'IN_PROGRESS'
             : 'DONE'
@@ -298,8 +330,8 @@ export function KanbanLogic() {
         assigneeEmail: user?.email || '',
         startDate: moved.startDate,
         endDate: moved.endDate,
-        priority: moved.priority || 'MEDIUM', // 기존 값 또는 기본값 사용
-        epicId: '681b655c1706bf2324042897', // 임시로 고정된 epicId 사용
+        priority: moved.priority || 'MEDIUM',
+        epicId: '681b655c1706bf2324042897',
       }).catch((error) => {
         console.error('태스크 상태 업데이트 실패:', error)
         // 실패 시 원래 상태로 되돌림
@@ -320,7 +352,7 @@ export function KanbanLogic() {
     async (taskData: {
       title: string
       description: string
-      status: 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'DONE'
+      status: 'TODO' | 'IN_PROGRESS' | 'DONE'
       assigneeEmail: string
       startDate: string
       endDate: string
@@ -423,7 +455,7 @@ export function KanbanLogic() {
             ? 'IN_PROGRESS'
             : columnKey === 'done'
               ? 'DONE'
-              : 'BACKLOG'
+              : 'TODO'
 
         await createTask({
           title: 'New Task',
@@ -433,7 +465,7 @@ export function KanbanLogic() {
           startDate: today,
           endDate: nextWeek,
           priority: 'MEDIUM',
-          epicId: '681b655c1706bf2324042897', // 임시로 고정된 epicId 사용
+          epicId: '681b655c1706bf2324042897',
         })
       } catch (error) {
         console.error('태스크 생성 실패:', error)

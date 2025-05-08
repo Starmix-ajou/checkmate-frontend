@@ -1,5 +1,6 @@
 'use client'
 
+import { Task } from '@/types/userTask'
 import { DndContext, DragOverlay } from '@dnd-kit/core'
 import { Check, Pencil, Pickaxe, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
@@ -8,6 +9,7 @@ import { useState } from 'react'
 
 import KanbanColumn from './KanbanColumn'
 import { KanbanLogic } from './KanbanLogic'
+import TaskModal from './TaskModal'
 
 export default function KanbanView() {
   const {
@@ -20,11 +22,14 @@ export default function KanbanView() {
     error,
     setColumns,
     deleteTask,
-    handleTaskUpdate,
+    handleTaskUpdate: updateTaskOnServer,
   } = KanbanLogic()
 
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set())
   const [isDeleting, setIsDeleting] = useState(false)
+  const [selectedTaskForModal, setSelectedTaskForModal] = useState<Task | null>(
+    null
+  )
 
   const handleTaskSelect = (taskId: string, isSelected: boolean) => {
     setSelectedTasks((prev) => {
@@ -81,6 +86,52 @@ export default function KanbanView() {
     }
   }
 
+  const handleTaskClick = (task: Task) => {
+    setSelectedTaskForModal(task)
+  }
+
+  const handleModalClose = () => {
+    setSelectedTaskForModal(null)
+  }
+
+  const updateTaskAndState = async (
+    taskId: string,
+    data: Partial<{
+      title: string
+      description: string
+      status: 'TODO' | 'IN_PROGRESS' | 'DONE'
+      assigneeEmail: string
+      startDate: string
+      endDate: string
+      priority: 'LOW' | 'MEDIUM' | 'HIGH'
+      epicId: string
+    }>
+  ) => {
+    try {
+      // 서버에 업데이트 요청
+      await updateTaskOnServer(taskId, data)
+
+      // 로컬 상태 업데이트
+      setColumns((prev) => {
+        const newColumns = { ...prev }
+        Object.keys(newColumns).forEach((key) => {
+          const columnKey = key as keyof typeof newColumns
+          newColumns[columnKey] = newColumns[columnKey].map((task) =>
+            task.taskId === taskId ? { ...task, ...data } : task
+          )
+        })
+        return newColumns
+      })
+
+      // 모달에 표시된 태스크도 업데이트
+      if (selectedTaskForModal?.taskId === taskId) {
+        setSelectedTaskForModal((prev) => (prev ? { ...prev, ...data } : null))
+      }
+    } catch (error) {
+      console.error('태스크 업데이트 실패:', error)
+    }
+  }
+
   if (error) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-200px)]">
@@ -134,7 +185,8 @@ export default function KanbanView() {
             bg="bg-[#F8F8F7] rounded-none"
             tasks={columns.todo}
             onTaskSelect={handleTaskSelect}
-            onTaskUpdate={handleTaskUpdate}
+            onTaskUpdate={updateTaskAndState}
+            onTaskClick={handleTaskClick}
           />
           <KanbanColumn
             title={
@@ -152,7 +204,8 @@ export default function KanbanView() {
             bg="bg-[#F3F9FC] rounded-none"
             tasks={columns.inProgress}
             onTaskSelect={handleTaskSelect}
-            onTaskUpdate={handleTaskUpdate}
+            onTaskUpdate={updateTaskAndState}
+            onTaskClick={handleTaskClick}
           />
           <KanbanColumn
             title={
@@ -170,7 +223,8 @@ export default function KanbanView() {
             bg="bg-[#F6FAF6] rounded-none"
             tasks={columns.done}
             onTaskSelect={handleTaskSelect}
-            onTaskUpdate={handleTaskUpdate}
+            onTaskUpdate={updateTaskAndState}
+            onTaskClick={handleTaskClick}
           />
 
           {selectedTasks.size > 0 && (
@@ -205,6 +259,15 @@ export default function KanbanView() {
           )}
         </DragOverlay>
       </DndContext>
+
+      {selectedTaskForModal && (
+        <TaskModal
+          isOpen={true}
+          onClose={handleModalClose}
+          task={selectedTaskForModal}
+          onUpdate={updateTaskAndState}
+        />
+      )}
     </div>
   )
 }
