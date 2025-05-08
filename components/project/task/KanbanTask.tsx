@@ -59,6 +59,7 @@ export default function KanbanTask({
 
   const [isChecked, setIsChecked] = useState(completed)
   const [isHovered, setIsHovered] = useState(false)
+  const [isTitleHovered, setIsTitleHovered] = useState(false)
   const [priority, setPriority] = useState<Task['priority']>(initialPriority)
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState(initialTitle)
@@ -161,7 +162,17 @@ export default function KanbanTask({
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onDoubleClick={onTaskClick}
+      onClick={(e) => {
+        const target = e.target as HTMLElement
+        if (
+          !target.closest('input') &&
+          !target.closest('.priority-badge') &&
+          !target.closest('.duration-text') &&
+          !target.closest('.task-title')
+        ) {
+          onTaskClick()
+        }
+      }}
     >
       {/* Drag Handle Icon */}
       {isHovered && (
@@ -193,8 +204,21 @@ export default function KanbanTask({
           />
         ) : (
           <span
-            className="text-black-01 text-base font-medium break-words cursor-text"
-            onDoubleClick={handleDoubleClick}
+            className="text-black-01 text-base font-medium break-words cursor-text hover:text-gray-01 transition-colors task-title"
+            onMouseEnter={() => setIsTitleHovered(true)}
+            onMouseLeave={() => setIsTitleHovered(false)}
+            onDoubleClick={(e) => {
+              if (isTitleHovered) {
+                e.stopPropagation()
+                handleDoubleClick()
+              }
+            }}
+            onClick={(e) => {
+              if (!isTitleHovered) {
+                e.stopPropagation()
+                onTaskClick()
+              }
+            }}
           >
             {title}
           </span>
@@ -203,7 +227,7 @@ export default function KanbanTask({
 
       {/* Priority Badge (clickable) */}
       <div
-        className={`mb-3 inline-block text-xs font-normal px-2 py-1 rounded-sm cursor-pointer ${priorityStyleMap[priority]} mb-1`}
+        className={`mb-3 inline-block text-xs font-normal px-2 py-1 rounded-sm cursor-pointer ${priorityStyleMap[priority]} mb-1 priority-badge`}
         onClick={cyclePriority}
       >
         {formatPriority(priority)}
@@ -213,7 +237,7 @@ export default function KanbanTask({
       <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
         <PopoverTrigger asChild>
           <div
-            className="text-xs text-gray-01 font-medium cursor-pointer hover:text-black-01"
+            className="text-xs text-gray-01 font-medium cursor-pointer hover:text-black-01 duration-text"
             onDoubleClick={handleDurationDoubleClick}
           >
             {formatDate(startDate)} ~ {formatDate(endDate)}
