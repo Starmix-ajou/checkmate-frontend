@@ -15,8 +15,10 @@ export type Member = {
 
 export type Project = {
   projectId: string
+  projectTitle: string
   title: string
   description: string
+  profile: Profile
   startDate: string
   endDate: string
   members: Member[]
