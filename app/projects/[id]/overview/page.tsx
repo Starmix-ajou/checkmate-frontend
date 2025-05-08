@@ -1,9 +1,9 @@
 'use client'
 
 import LoadingCheckMate from '@/components/LoadingCheckMate'
-import AvatarGroup from '@/components/project/overview/AvatarGroup'
 import DailyScrumCard from '@/components/project/overview/DailyScrumCard'
 import MyTaskCard from '@/components/project/overview/MyTaskCard'
+import ProjectHeader from '@/components/project/overview/ProjectHeader'
 import ScheduleCard from '@/components/project/overview/ScheduleCard'
 import SprintPeriodCard from '@/components/project/overview/SprintPeriodCard'
 import StatusCard from '@/components/project/overview/StatusCard'
@@ -15,7 +15,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Project } from '@/types/project'
@@ -73,12 +72,6 @@ export default function ProjectOverview() {
     { title: 'SW 캡스톤디자인 수업', time: '16:30 to 17:45' },
   ]
 
-  const teamMembers =
-    project?.members.map((member) => ({
-      name: member.name,
-      src: member.profileImageUrl,
-    })) || []
-
   return (
     <>
       <LoadingCheckMate size={64} loading={loading} />
@@ -100,25 +93,8 @@ export default function ProjectOverview() {
             </BreadcrumbList>
           </Breadcrumb>
 
-          <div className="flex justify-between items-center mb-6">
-            {loading ? (
-              <>
-                <Skeleton className="h-8 w-[200px]" />
-                <div className="flex items-center gap-4">
-                  <Skeleton className="h-10 w-[100px]" />
-                  <Skeleton className="h-10 w-[120px] rounded-full" />
-                </div>
-              </>
-            ) : (
-              <>
-                <h1 className="text-3xl font-bold">{project?.title}</h1>
-                <div className="flex items-center gap-4">
-                  <AvatarGroup users={teamMembers} />
-                  <Button variant="outline">멤버 추가</Button>
-                </div>
-              </>
-            )}
-          </div>
+          <ProjectHeader project={project} loading={loading} />
+
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <DailyScrumCard />
             <SprintPeriodCard />
