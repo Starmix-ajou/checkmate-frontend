@@ -20,6 +20,7 @@ export default function KanbanView() {
     error,
     setColumns,
     deleteTask,
+    handleTaskUpdate,
   } = KanbanLogic()
 
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set())
@@ -133,6 +134,7 @@ export default function KanbanView() {
             bg="bg-[#F8F8F7] rounded-none"
             tasks={columns.todo}
             onTaskSelect={handleTaskSelect}
+            onTaskUpdate={handleTaskUpdate}
           />
           <KanbanColumn
             title={
@@ -150,6 +152,7 @@ export default function KanbanView() {
             bg="bg-[#F3F9FC] rounded-none"
             tasks={columns.inProgress}
             onTaskSelect={handleTaskSelect}
+            onTaskUpdate={handleTaskUpdate}
           />
           <KanbanColumn
             title={
@@ -167,6 +170,7 @@ export default function KanbanView() {
             bg="bg-[#F6FAF6] rounded-none"
             tasks={columns.done}
             onTaskSelect={handleTaskSelect}
+            onTaskUpdate={handleTaskUpdate}
           />
 
           {selectedTasks.size > 0 && (

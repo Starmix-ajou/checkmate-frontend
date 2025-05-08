@@ -35,8 +35,6 @@ export function KanbanLogic() {
       return
     }
 
-    console.log(user.accessToken)
-
     const fetchTasks = async () => {
       try {
         setError(null)
@@ -74,24 +72,35 @@ export function KanbanLogic() {
         tasks.forEach((task) => {
           if (!task.status) {
             console.warn('태스크에 status가 없습니다:', task)
-            newColumns.todo.push(task)
+            newColumns.todo.push({
+              ...task,
+              status: 'BACKLOG',
+            })
             return
+          }
+
+          const taskWithStatus = {
+            ...task,
+            status: task.status,
           }
 
           switch (task.status) {
             case 'BACKLOG':
             case 'TODO':
-              newColumns.todo.push(task)
+              newColumns.todo.push(taskWithStatus)
               break
             case 'IN_PROGRESS':
-              newColumns.inProgress.push(task)
+              newColumns.inProgress.push(taskWithStatus)
               break
             case 'DONE':
-              newColumns.done.push(task)
+              newColumns.done.push(taskWithStatus)
               break
             default:
               console.warn('알 수 없는 태스크 상태:', task.status)
-              newColumns.todo.push(task)
+              newColumns.todo.push({
+                ...task,
+                status: 'BACKLOG',
+              })
           }
         })
 
@@ -121,7 +130,7 @@ export function KanbanLogic() {
 
   const updateTask = async (
     taskId: string,
-    taskData: {
+    taskData: Partial<{
       title: string
       description: string
       status: 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'DONE'
@@ -130,7 +139,7 @@ export function KanbanLogic() {
       endDate: string
       priority: 'LOW' | 'MEDIUM' | 'HIGH'
       epicId: string
-    }
+    }>
   ): Promise<void> => {
     if (!user?.accessToken) {
       throw new Error('인증 토큰이 없습니다.')
@@ -149,7 +158,6 @@ export function KanbanLogic() {
         body: JSON.stringify(taskData),
       })
 
-      console.log('서버 응답 상태:', response.status)
       console.log(
         '서버 응답 헤더:',
         Object.fromEntries(response.headers.entries())
@@ -166,6 +174,71 @@ export function KanbanLogic() {
     } catch (error) {
       console.error('태스크 수정 실패:', error)
       throw error
+    }
+  }
+
+  const handleTaskUpdate = async (
+    taskId: string,
+    data: Partial<{
+      title?: string
+      description?: string
+      status?: 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'DONE'
+      assigneeEmail?: string
+      startDate?: string
+      endDate?: string
+      priority?: 'LOW' | 'MEDIUM' | 'HIGH'
+      epicId?: string
+    }>
+  ) => {
+    const task = Object.values(columns)
+      .flat()
+      .find((t) => t.taskId === taskId)
+
+    if (!task) {
+      console.error('태스크를 찾을 수 없습니다:', taskId)
+      return
+    }
+
+    try {
+      // 날짜를 로컬 시간대로 처리
+      const formatDateToLocal = (dateStr: string) => {
+        const date = new Date(dateStr)
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+      }
+
+      const updateData = {
+        title: data.title || task.title,
+        description: data.description || task.description,
+        status: data.status || task.status,
+        assigneeEmail: data.assigneeEmail || user?.email || '',
+        startDate: data.startDate
+          ? formatDateToLocal(data.startDate)
+          : formatDateToLocal(task.startDate),
+        endDate: data.endDate
+          ? formatDateToLocal(data.endDate)
+          : formatDateToLocal(task.endDate),
+        priority: data.priority || task.priority || 'MEDIUM',
+        epicId: data.epicId || '681b655c1706bf2324042897',
+      }
+
+      await updateTask(taskId, updateData)
+
+      // 성공적으로 업데이트된 후 로컬 상태도 업데이트
+      setColumns((prev) => {
+        const newColumns = { ...prev }
+        Object.keys(newColumns).forEach((key) => {
+          const columnKey = key as ColumnType
+          newColumns[columnKey] = newColumns[columnKey].map((t) =>
+            t.taskId === taskId ? { ...t, ...updateData } : t
+          )
+        })
+        return newColumns
+      })
+    } catch (error) {
+      console.error('태스크 업데이트 실패:', error)
     }
   }
 
@@ -225,9 +298,8 @@ export function KanbanLogic() {
         assigneeEmail: user?.email || '',
         startDate: moved.startDate,
         endDate: moved.endDate,
-        priority: moved.priority,
-        epicId: '681b655c1706bf2324042897',
-        // epicId: moved.epic.epicId, // 임시로 고정된 epicId 사용
+        priority: moved.priority || 'MEDIUM', // 기존 값 또는 기본값 사용
+        epicId: '681b655c1706bf2324042897', // 임시로 고정된 epicId 사용
       }).catch((error) => {
         console.error('태스크 상태 업데이트 실패:', error)
         // 실패 시 원래 상태로 되돌림
@@ -268,11 +340,12 @@ export function KanbanLogic() {
           Authorization: `Bearer ${user.accessToken}`,
         },
         credentials: 'include',
-        body: JSON.stringify(taskData),
+        body: JSON.stringify({
+          ...taskData,
+          priority: taskData.priority || 'MEDIUM', // 기본값 설정
+        }),
       })
-      console.log(user.accessToken)
 
-      console.log('서버 응답 상태:', response.status)
       console.log(
         '서버 응답 헤더:',
         Object.fromEntries(response.headers.entries())
@@ -333,46 +406,49 @@ export function KanbanLogic() {
     }
   }
 
+  const handleAddTask = async (columnKey: ColumnType) => {
+    try {
+      const today = new Date().toISOString().split('T')[0]
+      const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0]
+
+      // columnKey에 따라 초기 상태 설정
+      const initialStatus =
+        columnKey === 'inProgress'
+          ? 'IN_PROGRESS'
+          : columnKey === 'done'
+            ? 'DONE'
+            : 'BACKLOG'
+
+      await createTask({
+        title: 'New Task',
+        description: '',
+        status: initialStatus,
+        assigneeEmail: user?.email || '',
+        startDate: today,
+        endDate: nextWeek,
+        priority: 'MEDIUM',
+        epicId: '681b655c1706bf2324042897', // 임시로 고정된 epicId 사용
+      })
+    } catch (error) {
+      console.error('태스크 생성 실패:', error)
+    }
+  }
+
   useEffect(() => {
-    const handleAddTask = async (e: Event) => {
+    const handleAddTaskEvent = (e: Event) => {
       const { columnKey } = (e as CustomEvent).detail as {
         columnKey: ColumnType
       }
-
-      try {
-        const today = new Date().toISOString().split('T')[0]
-        const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split('T')[0]
-
-        // columnKey에 따라 초기 상태 설정
-        const initialStatus =
-          columnKey === 'inProgress'
-            ? 'IN_PROGRESS'
-            : columnKey === 'done'
-              ? 'DONE'
-              : 'BACKLOG'
-
-        await createTask({
-          title: 'New Task',
-          description: '',
-          status: initialStatus,
-          assigneeEmail: user?.email || '',
-          startDate: today,
-          endDate: nextWeek,
-          priority: 'MEDIUM',
-          epicId: '681b655c1706bf2324042897', // 임시로 고정된 epicId 사용
-        })
-      } catch (error) {
-        console.error('태스크 생성 실패:', error)
-      }
+      handleAddTask(columnKey)
     }
 
-    window.addEventListener('kanban:add-task', handleAddTask)
+    window.addEventListener('kanban:add-task', handleAddTaskEvent)
     return () => {
-      window.removeEventListener('kanban:add-task', handleAddTask)
+      window.removeEventListener('kanban:add-task', handleAddTaskEvent)
     }
-  }, [user?.email, createTask])
+  }, [user?.email])
 
   const deleteTask = async (taskId: string): Promise<void> => {
     if (!user?.accessToken) {
@@ -391,7 +467,6 @@ export function KanbanLogic() {
         credentials: 'include',
       })
 
-      console.log('서버 응답 상태:', response.status)
       console.log(
         '서버 응답 헤더:',
         Object.fromEntries(response.headers.entries())
@@ -413,13 +488,15 @@ export function KanbanLogic() {
 
   return {
     columns,
+    loading,
+    error,
     activeTask,
     setActiveTask,
     sensors,
     handleDragOver,
     handleDragEnd,
-    loading,
-    error,
+    handleAddTask,
+    handleTaskUpdate,
     setColumns,
     deleteTask,
   }

@@ -21,6 +21,19 @@ type TaskProps = {
   endDate: string
   completed?: boolean
   onSelect: (isSelected: boolean) => void
+  onUpdate?: (
+    taskId: string,
+    data: Partial<{
+      title?: string
+      description?: string
+      status?: 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'DONE'
+      assigneeEmail?: string
+      startDate?: string
+      endDate?: string
+      priority?: 'LOW' | 'MEDIUM' | 'HIGH'
+      epicId?: string
+    }>
+  ) => void
 }
 
 export default function KanbanTask({
@@ -31,6 +44,7 @@ export default function KanbanTask({
   endDate: initialEndDate,
   completed = false,
   onSelect,
+  onUpdate,
 }: TaskProps) {
   const {
     attributes,
@@ -81,11 +95,17 @@ export default function KanbanTask({
 
   const handleTitleBlur = () => {
     setIsEditing(false)
+    if (title !== initialTitle) {
+      onUpdate?.(taskId, { title })
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       setIsEditing(false)
+      if (title !== initialTitle) {
+        onUpdate?.(taskId, { title })
+      }
     } else if (e.key === 'Escape') {
       setIsEditing(false)
       setTitle(initialTitle)
@@ -116,7 +136,9 @@ export default function KanbanTask({
   const cyclePriority = () => {
     const priorities: Task['priority'][] = ['LOW', 'MEDIUM', 'HIGH']
     const nextIndex = (priorities.indexOf(priority) + 1) % priorities.length
-    setPriority(priorities[nextIndex])
+    const newPriority = priorities[nextIndex]
+    setPriority(newPriority)
+    onUpdate?.(taskId, { priority: newPriority })
   }
 
   const handleDurationDoubleClick = () => {
@@ -203,6 +225,10 @@ export default function KanbanTask({
                 setStartDate(range.from)
                 if (range.to) {
                   setEndDate(range.to)
+                  onUpdate?.(taskId, {
+                    startDate: range.from.toISOString(),
+                    endDate: range.to.toISOString(),
+                  })
                 }
               }
             }}

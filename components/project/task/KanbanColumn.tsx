@@ -11,6 +11,10 @@ type KanbanColumnProps = {
   bg: string
   tasks: Task[]
   onTaskSelect: (taskId: string, isSelected: boolean) => void
+  onTaskUpdate?: (
+    taskId: string,
+    data: { priority?: Task['priority']; startDate?: string; endDate?: string }
+  ) => void
 }
 
 export default function KanbanColumn({
@@ -19,6 +23,7 @@ export default function KanbanColumn({
   bg,
   tasks,
   onTaskSelect,
+  onTaskUpdate,
 }: KanbanColumnProps) {
   const { setNodeRef } = useDroppable({ id: columnKey })
 
@@ -46,6 +51,7 @@ export default function KanbanColumn({
                 endDate={task.endDate}
                 completed={task.completed}
                 onSelect={(isSelected) => onTaskSelect(task.taskId, isSelected)}
+                onUpdate={onTaskUpdate}
               />
             ))}
           </SortableContext>
