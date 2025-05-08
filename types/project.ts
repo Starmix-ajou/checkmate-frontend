@@ -15,9 +15,8 @@ export type Member = {
 
 export type Project = {
   projectId: string
-  projectTitle: string
-  projectImageUrl: string
-  profile: Profile
+  title: string
+  description: string
   startDate: string
   endDate: string
   members: Member[]
