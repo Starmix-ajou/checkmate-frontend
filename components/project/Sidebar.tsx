@@ -67,9 +67,8 @@ export default function ProjectSidebar() {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
 
   return (
-    <Sidebar>
+    <Sidebar className="mt-12">
       <SidebarHeader className="flex p-4 border-b">
-        <div className="text-lg font-bold">CheckMate</div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -148,10 +147,10 @@ export default function ProjectSidebar() {
                     <SidebarMenuButton asChild>
                       <a
                         href={item.url}
-                        className={`flex items-center gap-2 p-2 rounded-md transition ${
+                        className={`flex items-center gap-2 p-2 transition ${
                           isActive
-                            ? 'font-bold text-black bg-neutral-100'
-                            : 'text-neutral-600 hover:text-black hover:bg-neutral-100'
+                            ? 'font-bold text-black bg-cm-light'
+                            : 'text-neutral-600 hover:text-black'
                         }`}
                       >
                         <item.icon />
