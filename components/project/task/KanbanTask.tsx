@@ -10,7 +10,7 @@ import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { GripVertical } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { DateRange, DayPicker } from 'react-day-picker'
+import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 
 type TaskProps = {
@@ -19,7 +19,6 @@ type TaskProps = {
   priority: Task['priority']
   startDate: string
   endDate: string
-  completed?: boolean
   onSelect: (isSelected: boolean) => void
   onUpdate?: (
     taskId: string,
@@ -34,6 +33,7 @@ type TaskProps = {
       epicId?: string
     }>
   ) => void
+  onTaskClick: () => void
 }
 
 export default function KanbanTask({
@@ -42,9 +42,9 @@ export default function KanbanTask({
   priority: initialPriority,
   startDate: initialStartDate,
   endDate: initialEndDate,
-  completed = false,
   onSelect,
   onUpdate,
+  onTaskClick,
 }: TaskProps) {
   const {
     attributes,
@@ -55,8 +55,9 @@ export default function KanbanTask({
     isDragging,
   } = useSortable({ id: taskId })
 
-  const [isChecked, setIsChecked] = useState(completed)
+  const [isChecked, setIsChecked] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
+  const [isTitleHovered, setIsTitleHovered] = useState(false)
   const [priority, setPriority] = useState<Task['priority']>(initialPriority)
   const [isEditing, setIsEditing] = useState(false)
   const [title, setTitle] = useState(initialTitle)
@@ -159,6 +160,17 @@ export default function KanbanTask({
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={(e) => {
+        const target = e.target as HTMLElement
+        if (
+          !target.closest('input') &&
+          !target.closest('.priority-badge') &&
+          !target.closest('.duration-text') &&
+          !target.closest('.task-title')
+        ) {
+          onTaskClick()
+        }
+      }}
     >
       {/* Drag Handle Icon */}
       {isHovered && (
@@ -190,8 +202,21 @@ export default function KanbanTask({
           />
         ) : (
           <span
-            className="text-black-01 text-base font-medium break-words cursor-text"
-            onDoubleClick={handleDoubleClick}
+            className="text-black-01 text-base font-medium break-words cursor-text hover:text-gray-01 transition-colors task-title"
+            onMouseEnter={() => setIsTitleHovered(true)}
+            onMouseLeave={() => setIsTitleHovered(false)}
+            onDoubleClick={(e) => {
+              if (isTitleHovered) {
+                e.stopPropagation()
+                handleDoubleClick()
+              }
+            }}
+            onClick={(e) => {
+              if (!isTitleHovered) {
+                e.stopPropagation()
+                onTaskClick()
+              }
+            }}
           >
             {title}
           </span>
@@ -200,7 +225,7 @@ export default function KanbanTask({
 
       {/* Priority Badge (clickable) */}
       <div
-        className={`mb-3 inline-block text-xs font-normal px-2 py-1 rounded-sm cursor-pointer ${priorityStyleMap[priority]} mb-1`}
+        className={`mb-3 inline-block text-xs font-normal px-2 py-1 rounded-sm cursor-pointer ${priorityStyleMap[priority]} mb-1 priority-badge`}
         onClick={cyclePriority}
       >
         {formatPriority(priority)}
@@ -210,7 +235,7 @@ export default function KanbanTask({
       <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
         <PopoverTrigger asChild>
           <div
-            className="text-xs text-gray-01 font-medium cursor-pointer hover:text-black-01"
+            className="text-xs text-gray-01 font-medium cursor-pointer hover:text-black-01 duration-text"
             onDoubleClick={handleDurationDoubleClick}
           >
             {formatDate(startDate)} ~ {formatDate(endDate)}
@@ -220,7 +245,7 @@ export default function KanbanTask({
           <DayPicker
             mode="range"
             selected={{ from: startDate, to: endDate }}
-            onSelect={(range: DateRange | undefined) => {
+            onSelect={(range) => {
               if (range?.from) {
                 setStartDate(range.from)
                 if (range.to) {
@@ -233,32 +258,55 @@ export default function KanbanTask({
               }
             }}
             locale={ko}
-            className="border rounded-md [&_.rdp-nav_button:hover]:opacity-100"
+            captionLayout="label"
+            classNames={{
+              caption: 'flex justify-between items-center px-4 py-2',
+              nav: 'flex items-center justify-between w-full flex items-center px-4',
+              nav_button: 'text-gray-500 hover:text-black transition-colors',
+              caption_label:
+                'text-center font-semibold text-base w-full flex items-center justify-center text-black-01',
+              table: 'w-full border-collapse mt-4',
+              head_row:
+                'flex justify-between text-center text-gray-500 text-xs',
+              head_cell: 'w-full',
+              weekday:
+                'text-black-01 [&:first-child]:text-[#D91F11] [&:last-child]:text-[#D91F11]',
+            }}
+            modifiers={{
+              weekend: (date: Date) =>
+                date.getDay() === 0 || date.getDay() === 6,
+            }}
+            modifiersStyles={{
+              weekend: { color: '#D91F11' },
+            }}
+            formatters={{
+              formatCaption: (date) => format(date, 'yyyy. MM'),
+              formatWeekdayName: (weekday) => {
+                const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+                return weekdays[weekday.getDay()]
+              },
+            }}
             styles={{
               months: {
                 display: 'flex',
                 flexDirection: 'column',
               },
-              month: {
-                display: 'flex',
-                flexDirection: 'column',
-              },
               caption: {
-                margin: 0,
-                padding: '0.5rem 0',
-              },
-              caption_label: {
-                fontSize: '0.875rem',
-                fontWeight: 500,
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
               },
               nav: {
-                marginLeft: 'auto',
+                position: 'static',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
               },
               nav_button: {
-                height: '28px',
                 width: '28px',
-                padding: 0,
-                opacity: 0.5,
+                height: '28px',
               },
             }}
           />

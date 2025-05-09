@@ -15,6 +15,7 @@ type KanbanColumnProps = {
     taskId: string,
     data: { priority?: Task['priority']; startDate?: string; endDate?: string }
   ) => void
+  onTaskClick: (task: Task) => void
 }
 
 export default function KanbanColumn({
@@ -24,6 +25,7 @@ export default function KanbanColumn({
   tasks,
   onTaskSelect,
   onTaskUpdate,
+  onTaskClick,
 }: KanbanColumnProps) {
   const { setNodeRef } = useDroppable({ id: columnKey })
 
@@ -49,9 +51,9 @@ export default function KanbanColumn({
                 priority={task.priority}
                 startDate={task.startDate}
                 endDate={task.endDate}
-                completed={task.completed}
                 onSelect={(isSelected) => onTaskSelect(task.taskId, isSelected)}
                 onUpdate={onTaskUpdate}
+                onTaskClick={() => onTaskClick(task)}
               />
             ))}
           </SortableContext>

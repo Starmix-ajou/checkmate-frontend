@@ -1,8 +1,8 @@
 export type Task = {
   taskId: string
   title: string
-  description: string
-  status: 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'DONE'
+  description?: string
+  status: 'TODO' | 'IN_PROGRESS' | 'DONE'
   assignee: {
     userId: string
     name: string
@@ -24,7 +24,6 @@ export type Task = {
     description: string
     projectId: string
   }
-  completed?: boolean
 }
 
 export type ColumnType = 'todo' | 'inProgress' | 'done'
