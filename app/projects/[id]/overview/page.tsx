@@ -96,7 +96,7 @@ export default function ProjectOverview() {
           <ProjectHeader project={project} loading={loading} />
 
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <DailyScrumCard />
+            <DailyScrumCard projectId={id as string} />
             <SprintPeriodCard />
             <StatusCard />
             <MyTaskCard tasks={tasks} />
