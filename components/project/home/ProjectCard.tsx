@@ -3,6 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Member, Profile } from '@/types/project'
 import { Calendar, Heart, Users } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
@@ -13,6 +14,7 @@ type ProjectCardProps = {
   title: string
   startDate: string
   endDate: string
+  imageUrl: string
 }
 
 const ProjectCard = ({
@@ -22,6 +24,7 @@ const ProjectCard = ({
   title,
   startDate,
   endDate,
+  imageUrl,
 }: ProjectCardProps) => {
   const [isFavorited, setIsFavorited] = useState(false)
   const [today, setToday] = useState<Date | null>(null)
@@ -54,7 +57,17 @@ const ProjectCard = ({
       <Link href={`/projects/${id}/overview`}>
         <Card className="w-full h-full cursor-pointer hover:shadow-lg transition-all ease-in-out duration-300 transform hover:scale-105">
           <CardContent className="flex items-center justify-center h-full bg-gray-200 rounded-2xl overflow-hidden">
-            <span className="text-gray-500">image</span>
+            {imageUrl ? (
+              <Image
+                src={imageUrl}
+                alt={title}
+                width={360}
+                height={200}
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <span className="text-gray-500">image</span>
+            )}
           </CardContent>
         </Card>
       </Link>

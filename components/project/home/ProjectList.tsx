@@ -1,8 +1,8 @@
 import ProjectCard from '@/components/project/home/ProjectCard'
-import { Project } from '@/types/project'
+import { ProjectListItem } from '@/types/project'
 
 type ProjectListProps = {
-  projects: Project[]
+  projects: ProjectListItem[]
 }
 
 const ProjectList = ({ projects }: ProjectListProps) => {
@@ -10,13 +10,14 @@ const ProjectList = ({ projects }: ProjectListProps) => {
     <div className="flex justify-around gap-6 flex-wrap">
       {projects.map((project) => (
         <ProjectCard
-          key={project.projectId}
-          id={project.projectId}
+          key={project.project.projectId}
+          id={project.project.projectId}
           position={project.profile.positions}
           members={project.members}
-          title={project.projectTitle}
+          title={project.project.title}
           startDate={project.startDate}
           endDate={project.endDate}
+          imageUrl={project.project.imageUrl}
         />
       ))}
     </div>

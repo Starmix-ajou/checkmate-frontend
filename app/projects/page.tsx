@@ -3,7 +3,7 @@
 import LoadingCheckMate from '@/components/LoadingCheckMate'
 import { ProjectFilter, ProjectList } from '@/components/project/home'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { Project } from '@/types/project'
+import { ProjectListItem } from '@/types/project'
 import { signOut } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 
@@ -13,7 +13,7 @@ const LOADING_TIMEOUT = 10000
 const Home = () => {
   const user = useAuthStore((state) => state.user)
   const [filter, setFilter] = useState('')
-  const [projects, setProjects] = useState<Project[]>([])
+  const [projects, setProjects] = useState<ProjectListItem[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const Home = () => {
           throw new Error('프로젝트 불러오기 실패')
         }
 
-        const data: Project[] = await response.json()
+        const data: ProjectListItem[] = await response.json()
 
         setProjects(data)
       } catch (error) {
