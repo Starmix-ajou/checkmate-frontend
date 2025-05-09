@@ -3,8 +3,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { UserIcon } from 'lucide-react'
+import { Pencil, Trash2, UserIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Select from 'react-select'
 
@@ -59,7 +60,8 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
-  const [selectedMemberTasks, setSelectedMemberTasks] = useState<{
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [pendingChanges, setPendingChanges] = useState<{
     todoTasks: Task[]
     doneTasks: Task[]
   }>({ todoTasks: [], doneTasks: [] })
@@ -154,60 +156,99 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
   }, [projectId, user?.accessToken])
 
   useEffect(() => {
-    if (!selectedMemberId || !dailyScrum) {
-      setSelectedMemberTasks({ todoTasks: [], doneTasks: [] })
+    if (isEditMode && dailyScrum) {
+      const todoTasks = dailyScrum.todoTasks.filter(
+        (task) => task.assignee.email === selectedMemberId
+      )
+      const doneTasks = dailyScrum.doneTasks.filter(
+        (task) => task.assignee.email === selectedMemberId
+      )
+      setPendingChanges({ todoTasks, doneTasks })
+    }
+  }, [isEditMode, dailyScrum, selectedMemberId])
+
+  const getAvailableTasksForDropdown = (currentTaskId: string) => {
+    const selectedTaskIds = new Set([
+      ...pendingChanges.todoTasks.map((task) => task.taskId),
+      ...pendingChanges.doneTasks.map((task) => task.taskId),
+    ])
+
+    selectedTaskIds.delete(currentTaskId)
+
+    return tasks.filter(
+      (task) =>
+        task.assignee.email === selectedMemberId &&
+        !selectedTaskIds.has(task.taskId)
+    )
+  }
+
+  const handleTaskChange = (taskId: string, newTask: Task) => {
+    const isTaskAlreadySelected = [
+      ...pendingChanges.todoTasks,
+      ...pendingChanges.doneTasks,
+    ].some((task) => task.taskId === newTask.taskId && task.taskId !== taskId)
+
+    if (isTaskAlreadySelected) {
+      setError('이미 선택된 태스크입니다.')
       return
     }
 
-    const todoTasks = dailyScrum.todoTasks.filter(
-      (task) => task.assignee.email === selectedMemberId
-    )
-    const doneTasks = dailyScrum.doneTasks.filter(
-      (task) => task.assignee.email === selectedMemberId
-    )
+    setPendingChanges((prev) => ({
+      ...prev,
+      todoTasks: prev.todoTasks.map((task) =>
+        task.taskId === taskId ? newTask : task
+      ),
+      doneTasks: prev.doneTasks.map((task) =>
+        task.taskId === taskId ? newTask : task
+      ),
+    }))
+  }
 
-    setSelectedMemberTasks({ todoTasks, doneTasks })
-  }, [selectedMemberId, dailyScrum])
-
-  const handleAddTask = async (category: Category) => {
+  const handleAddTask = (category: Category) => {
     if (!selectedTask) {
       setError('태스크를 선택해주세요.')
       return
     }
 
+    const isTaskAlreadySelected = [
+      ...pendingChanges.todoTasks,
+      ...pendingChanges.doneTasks,
+    ].some((task) => task.taskId === selectedTask.taskId)
+
+    if (isTaskAlreadySelected) {
+      setError('이미 선택된 태스크입니다.')
+      return
+    }
+
+    setPendingChanges((prev) => ({
+      ...prev,
+      [category === 'Done' ? 'doneTasks' : 'todoTasks']: [
+        ...prev[category === 'Done' ? 'doneTasks' : 'todoTasks'],
+        selectedTask,
+      ],
+    }))
+    setSelectedTask(null)
+    setIsAdding({ Done: false, TODO: false })
+  }
+
+  const handleRemoveTask = (taskId: string, category: Category) => {
+    setPendingChanges((prev) => ({
+      ...prev,
+      [category === 'Done' ? 'doneTasks' : 'todoTasks']: prev[
+        category === 'Done' ? 'doneTasks' : 'todoTasks'
+      ].filter((task) => task.taskId !== taskId),
+    }))
+  }
+
+  const handleSaveChanges = async () => {
     if (!user?.accessToken) {
       setError('로그인이 필요합니다.')
       return
     }
 
-    const isTaskAlreadyExists =
-      dailyScrum?.todoTasks.some((t) => t.taskId === selectedTask.taskId) ||
-      dailyScrum?.doneTasks.some((t) => t.taskId === selectedTask.taskId)
-
-    if (isTaskAlreadyExists) {
-      setError('이미 추가된 태스크입니다.')
-      return
-    }
-
     try {
-      const currentUserTodoTasks =
-        dailyScrum?.todoTasks.filter(
-          (task) => task.assignee.email === selectedMemberId
-        ) || []
-      const currentUserDoneTasks =
-        dailyScrum?.doneTasks.filter(
-          (task) => task.assignee.email === selectedMemberId
-        ) || []
-
-      const todoTaskIds =
-        category === 'TODO'
-          ? [...currentUserTodoTasks.map((t) => t.taskId), selectedTask.taskId]
-          : currentUserTodoTasks.map((t) => t.taskId)
-
-      const doneTaskIds =
-        category === 'Done'
-          ? [...currentUserDoneTasks.map((t) => t.taskId), selectedTask.taskId]
-          : currentUserDoneTasks.map((t) => t.taskId)
+      const todoTaskIds = pendingChanges.todoTasks.map((t) => t.taskId)
+      const doneTaskIds = pendingChanges.doneTasks.map((t) => t.taskId)
 
       const response = await fetch(
         `${API_BASE_URL}/daily-scrum?projectId=${projectId}`,
@@ -233,20 +274,79 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
 
       const data = await response.json()
       setDailyScrum(data)
-      setSelectedTask(null)
-      setIsAdding({ Done: false, TODO: false })
+      setIsEditMode(false)
       setError(null)
     } catch (err) {
-      console.error('태스크 추가 에러:', err)
+      console.error('태스크 저장 에러:', err)
       setError(
         err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.'
       )
     }
   }
 
-  if (loading) return <div>로딩 중...</div>
-  if (error) return <div>에러: {error}</div>
-  if (!dailyScrum) return <div>데일리 스크럼 데이터가 없습니다.</div>
+  const handleCancelEdit = () => {
+    setIsEditMode(false)
+    setSelectedTask(null)
+    setIsAdding({ Done: false, TODO: false })
+  }
+
+  const renderSkeleton = () => (
+    <Card className="col-span-2 row-span-2">
+      <CardHeader>
+        <Skeleton className="h-6 w-32" />
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-[1fr_2fr_2fr] gap-2 items-start">
+          <div className="grid grid-cols-2 gap-2">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            ))}
+          </div>
+          {[1, 2].map((i) => (
+            <div key={i} className="px-2">
+              <Skeleton className="h-6 w-full mb-2" />
+              <div className="flex flex-col gap-2">
+                {[1, 2, 3].map((j) => (
+                  <Skeleton key={j} className="h-10 w-full" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  )
+
+  if (loading) return renderSkeleton()
+  if (error) {
+    return (
+      <Card className="col-span-2 row-span-2">
+        <CardHeader>
+          <CardTitle>데일리 스크럼</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-sm text-red-500">{error}</div>
+        </CardContent>
+      </Card>
+    )
+  }
+  if (!dailyScrum) {
+    return (
+      <Card className="col-span-2 row-span-2">
+        <CardHeader>
+          <CardTitle>데일리 스크럼</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-sm text-gray-500">
+            오늘의 데일리 스크럼을 시작해보세요.
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   const rawMembers = [
     ...dailyScrum.todoTasks.map((task) => task.assignee),
@@ -270,30 +370,22 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
     return 0
   })
 
-  const filteredTasks = (category: Category) => {
-    if (!selectedMemberId) return []
-    return category === 'Done'
-      ? selectedMemberTasks.doneTasks
-      : selectedMemberTasks.todoTasks
-  }
-
-  const existingTaskIds = new Set([
-    ...selectedMemberTasks.todoTasks.map((t) => t.taskId),
-    ...selectedMemberTasks.doneTasks.map((t) => t.taskId),
-  ])
-
-  const availableTasks = tasks.filter(
-    (task) =>
-      !existingTaskIds.has(task.taskId) &&
-      task.assignee.email === selectedMemberId
-  )
-
   const isCurrentUserSelected = () => selectedMemberId === user?.email
 
   return (
     <Card className="col-span-2 row-span-2">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>데일리 스크럼</CardTitle>
+        {isEditMode && (
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handleSaveChanges}>
+              완료
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleCancelEdit}>
+              취소
+            </Button>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-[1fr_2fr_2fr] gap-2 items-start">
@@ -304,6 +396,10 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
                 <button
                   key={member.email}
                   onClick={() => {
+                    if (isEditMode) {
+                      setError('편집 중에는 다른 멤버를 선택할 수 없습니다.')
+                      return
+                    }
                     setSelectedMemberId(member.email)
                     setSelectedTask(null)
                     setIsAdding({ Done: false, TODO: false })
@@ -343,18 +439,64 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
                 {category === 'Done' ? '어제 한 일' : '오늘 할 일'}
               </div>
               <div className="mt-2 flex flex-col gap-2">
-                {filteredTasks(category).map((task) => (
-                  <Card
-                    key={task.taskId}
-                    className="text-sm px-2 py-2 shadow-none rounded-md"
-                  >
-                    {task.title}
-                  </Card>
-                ))}
+                {(isEditMode ? pendingChanges : dailyScrum)[
+                  category === 'Done' ? 'doneTasks' : 'todoTasks'
+                ]
+                  .filter((task) => task.assignee.email === selectedMemberId)
+                  .map((task) => (
+                    <Card
+                      key={task.taskId}
+                      className="text-sm px-2 py-2 shadow-none rounded-md relative group"
+                    >
+                      <div className="flex justify-between items-center">
+                        {isEditMode ? (
+                          <Select
+                            options={getAvailableTasksForDropdown(task.taskId)}
+                            getOptionLabel={(option) => option.title}
+                            getOptionValue={(option) => option.taskId}
+                            value={task}
+                            onChange={(newValue) =>
+                              newValue &&
+                              handleTaskChange(task.taskId, newValue)
+                            }
+                            placeholder="태스크 선택"
+                            className="text-sm w-full"
+                            menuPortalTarget={document.body}
+                            styles={{
+                              menuPortal: (base) => ({
+                                ...base,
+                                zIndex: 9999,
+                              }),
+                            }}
+                          />
+                        ) : (
+                          <span>{task.title}</span>
+                        )}
+                        {isCurrentUserSelected() && (
+                          <button
+                            onClick={() => {
+                              if (!isEditMode) {
+                                setIsEditMode(true)
+                              } else {
+                                handleRemoveTask(task.taskId, category)
+                              }
+                            }}
+                            className="text-gray-500 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            {isEditMode ? (
+                              <Trash2 className="w-4 h-4" />
+                            ) : (
+                              <Pencil className="w-4 h-4" />
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </Card>
+                  ))}
                 {isAdding[category] && isCurrentUserSelected() ? (
                   <div className="flex flex-col gap-2 mt-1">
                     <Select
-                      options={availableTasks}
+                      options={getAvailableTasksForDropdown('new')}
                       getOptionLabel={(option) => option.title}
                       getOptionValue={(option) => option.taskId}
                       value={selectedTask}
@@ -387,9 +529,12 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
                   </div>
                 ) : isCurrentUserSelected() ? (
                   <button
-                    onClick={() =>
+                    onClick={() => {
+                      if (!isEditMode) {
+                        setIsEditMode(true)
+                      }
                       setIsAdding((prev) => ({ ...prev, [category]: true }))
-                    }
+                    }}
                     className="text-sm text-gray-500 hover:underline text-left"
                   >
                     + Add
