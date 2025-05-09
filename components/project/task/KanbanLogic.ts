@@ -10,12 +10,14 @@ import { useCallback, useEffect, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
+const EPICCUSTOM = '681b7cb51706bf23240428a3'
+
 // API 엔드포인트 상수
 const API_ENDPOINTS = {
   TASKS: `${API_BASE_URL}/task`,
 } as const
 
-export function KanbanLogic() {
+export function KanbanLogic(projectId: string) {
   const user = useAuthStore((state) => state.user)
   const [columns, setColumns] = useState<Record<ColumnType, Task[]>>({
     todo: [],
@@ -39,15 +41,18 @@ export function KanbanLogic() {
       try {
         setError(null)
 
-        const response = await fetch(API_ENDPOINTS.TASKS, {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.accessToken}`,
-          },
-          credentials: 'include',
-        })
+        const response = await fetch(
+          `${API_ENDPOINTS.TASKS}?projectId=${projectId}`,
+          {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${user.accessToken}`,
+            },
+            credentials: 'include',
+          }
+        )
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => null)
@@ -117,7 +122,7 @@ export function KanbanLogic() {
     }
 
     fetchTasks()
-  }, [user?.accessToken])
+  }, [user?.accessToken, projectId])
 
   const findColumn = (taskId: string): ColumnType | null => {
     return (
@@ -253,7 +258,7 @@ export function KanbanLogic() {
           ? formatDateToLocal(data.endDate)
           : formatDateToLocal(task.endDate),
         priority: data.priority || task.priority || 'MEDIUM',
-        epicId: data.epicId || '681b655c1706bf2324042897',
+        epicId: data.epicId || EPICCUSTOM,
       }
 
       await updateTask(taskId, updateData)
@@ -331,7 +336,7 @@ export function KanbanLogic() {
         startDate: moved.startDate,
         endDate: moved.endDate,
         priority: moved.priority || 'MEDIUM',
-        epicId: '681b655c1706bf2324042897',
+        epicId: EPICCUSTOM,
       }).catch((error) => {
         console.error('태스크 상태 업데이트 실패:', error)
         // 실패 시 원래 상태로 되돌림
@@ -414,7 +419,6 @@ export function KanbanLogic() {
             description: '',
             projectId: '',
           },
-          completed: false,
         }
 
         console.log('새 태스크 생성 성공:', newTask)
@@ -465,7 +469,7 @@ export function KanbanLogic() {
           startDate: today,
           endDate: nextWeek,
           priority: 'MEDIUM',
-          epicId: '681b655c1706bf2324042897',
+          epicId: EPICCUSTOM,
         })
       } catch (error) {
         console.error('태스크 생성 실패:', error)

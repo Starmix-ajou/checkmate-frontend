@@ -24,7 +24,6 @@ export type Task = {
     description: string
     projectId: string
   }
-  completed: boolean
 }
 
 export type ColumnType = 'todo' | 'inProgress' | 'done'

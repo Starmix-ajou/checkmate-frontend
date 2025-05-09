@@ -1,8 +1,8 @@
 'use client'
 
-import { useParams } from 'next/navigation'
-import { useState } from 'react'
-import dynamic from 'next/dynamic'
+// CalendarView는 SSR 문제 없으면 그대로 사용
+import CalendarView from '@/components/project/task/CalendarView'
+import KanbanView from '@/components/project/task/KanbanView'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,20 +11,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { SlidersHorizontal, Search, CircleX } from 'lucide-react'
-
-const KanbanView = dynamic(
-  () => import('@/components/project/task/KanbanView'),
-  {
-    ssr: false,
-  }
-)
-
-// CalendarView는 SSR 문제 없으면 그대로 사용
-import CalendarView from '@/components/project/task/CalendarView'
+import { CircleX, Search, SlidersHorizontal } from 'lucide-react'
+import { useParams } from 'next/navigation'
+import { useState } from 'react'
 
 export default function TasksPage() {
   const { id } = useParams()
+  const projectId = id as string
   const [searchText, setSearchText] = useState('')
   const [isToggled, setIsToggled] = useState(false)
 
@@ -108,7 +101,7 @@ export default function TasksPage() {
         </div>
 
         {/* Task View */}
-        {isToggled ? <CalendarView /> : <KanbanView />}
+        {isToggled ? <CalendarView /> : <KanbanView projectId={projectId} />}
       </div>
     </div>
   )

@@ -11,7 +11,7 @@ import KanbanColumn from './KanbanColumn'
 import { KanbanLogic } from './KanbanLogic'
 import TaskModal from './TaskModal'
 
-export default function KanbanView() {
+export default function KanbanView({ projectId }: { projectId: string }) {
   const {
     columns,
     activeTask,
@@ -23,7 +23,7 @@ export default function KanbanView() {
     setColumns,
     deleteTask,
     handleTaskUpdate: updateTaskOnServer,
-  } = KanbanLogic()
+  } = KanbanLogic(projectId)
 
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set())
   const [isDeleting, setIsDeleting] = useState(false)

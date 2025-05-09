@@ -19,7 +19,6 @@ type TaskProps = {
   priority: Task['priority']
   startDate: string
   endDate: string
-  completed?: boolean
   onSelect: (isSelected: boolean) => void
   onUpdate?: (
     taskId: string,
@@ -43,7 +42,6 @@ export default function KanbanTask({
   priority: initialPriority,
   startDate: initialStartDate,
   endDate: initialEndDate,
-  completed = false,
   onSelect,
   onUpdate,
   onTaskClick,
@@ -57,7 +55,7 @@ export default function KanbanTask({
     isDragging,
   } = useSortable({ id: taskId })
 
-  const [isChecked, setIsChecked] = useState(completed)
+  const [isChecked, setIsChecked] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [isTitleHovered, setIsTitleHovered] = useState(false)
   const [priority, setPriority] = useState<Task['priority']>(initialPriority)
