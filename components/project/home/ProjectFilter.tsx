@@ -1,8 +1,9 @@
 import ProjectAdd from '@/components/project/home/ProjectAdd'
 import { Button } from '@/components/ui/button'
+import { ProjectStatus } from '@/types/project'
 
 type ProjectFilterProps = {
-  setFilter: (filter: string) => void
+  setFilter: (filter: ProjectStatus) => void
 }
 
 const ProjectFilter = ({ setFilter }: ProjectFilterProps) => {

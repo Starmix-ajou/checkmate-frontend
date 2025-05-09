@@ -3,7 +3,7 @@
 import LoadingCheckMate from '@/components/LoadingCheckMate'
 import { ProjectFilter, ProjectList } from '@/components/project/home'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { ProjectListItem } from '@/types/project'
+import { ProjectListItem, ProjectStatus } from '@/types/project'
 import { signOut } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 
@@ -12,7 +12,7 @@ const LOADING_TIMEOUT = 10000
 
 const Home = () => {
   const user = useAuthStore((state) => state.user)
-  const [filter, setFilter] = useState('')
+  const [filter, setFilter] = useState<ProjectStatus>('')
   const [projects, setProjects] = useState<ProjectListItem[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -30,8 +30,12 @@ const Home = () => {
 
     const fetchProjects = async () => {
       try {
-        console.log(filter)
-        const response = await fetch(`${API_BASE_URL}/project`, {
+        const queryParams = new URLSearchParams()
+        if (filter) {
+          queryParams.append('status', filter)
+        }
+
+        const response = await fetch(`${API_BASE_URL}/project?${queryParams.toString()}`, {
           headers: {
             Accept: '*/*',
             Authorization: `Bearer ${user?.accessToken}`,
