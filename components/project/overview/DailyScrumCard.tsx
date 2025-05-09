@@ -58,9 +58,7 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
   const [error, setError] = useState<string | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
-  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(
-    user?.email || null
-  )
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
   const [selectedMemberTasks, setSelectedMemberTasks] = useState<{
     todoTasks: Task[]
     doneTasks: Task[]
@@ -69,6 +67,12 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
     Done: false,
     TODO: false,
   })
+
+  useEffect(() => {
+    if (user?.email && !selectedMemberId) {
+      setSelectedMemberId(user.email)
+    }
+  }, [user?.email, selectedMemberId])
 
   useEffect(() => {
     if (!user?.accessToken) return
@@ -259,7 +263,12 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
       role: 'MEMBER',
     })
   }
-  const members = Array.from(membersMap.values())
+
+  const members = Array.from(membersMap.values()).sort((a, b) => {
+    if (a.email === user?.email) return -1
+    if (b.email === user?.email) return 1
+    return 0
+  })
 
   const filteredTasks = (category: Category) => {
     if (!selectedMemberId) return []
