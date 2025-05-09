@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
-const EPICCUSTOM = '681b7cb51706bf23240428a3'
+const EPICCUSTOM = '681dfdd7f6f5af421eb58934'
 
 // API 엔드포인트 상수
 const API_ENDPOINTS = {
