@@ -28,7 +28,7 @@ export type ProjectListItem = {
   leader: Member
 }
 
-export type ProjectDetail = {
+export type Project = {
   projectId: string
   title: string
   description: string
@@ -39,5 +39,4 @@ export type ProjectDetail = {
   imageUrl: string
 }
 
-// 기존 Project 타입은 하위 호환성을 위해 유지
-export type Project = ProjectDetail
+export type ProjectStatus = '' | 'ACTIVE' | 'ARCHIVED' | 'PENDING'
