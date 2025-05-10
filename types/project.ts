@@ -76,4 +76,4 @@ export interface DailyScrumResponse {
   projectId: string
 }
 
-export type Category = 'Done' | 'TODO'
+export type Category = 'DONE' | 'TODO'
