@@ -1,6 +1,5 @@
 'use client'
 
-// CalendarView는 SSR 문제 없으면 그대로 사용
 import CalendarView from '@/components/project/task/CalendarView'
 import KanbanView from '@/components/project/task/KanbanView'
 import {
@@ -11,19 +10,53 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { useProjectStore } from '@/stores/useProjectStore'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { Project } from '@/types/project'
 import { CircleX, Search, SlidersHorizontal } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 export default function TasksPage() {
   const { id } = useParams()
   const projectId = id as string
   const [searchText, setSearchText] = useState('')
   const [isToggled, setIsToggled] = useState(false)
-  const getProjectById = useProjectStore((state) => state.getProjectById)
-  const project = getProjectById(projectId)
-  const projectTitle = project?.project.title || '프로젝트'
+  const [project, setProject] = useState<Project | null>(null)
+  const [loading, setLoading] = useState(true)
+  const user = useAuthStore((state) => state.user)
+
+  useEffect(() => {
+    if (!user?.accessToken || !id) return
+
+    const fetchProjectDetails = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/project/${id}`, {
+          headers: {
+            Accept: '*/*',
+            Authorization: `Bearer ${user?.accessToken}`,
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error('프로젝트 상세 정보 불러오기 실패')
+        }
+
+        const data = await response.json()
+        setProject(data)
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProjectDetails()
+  }, [id, user?.accessToken])
+
+  const projectTitle = project?.title || '프로젝트'
 
   return (
     <div className="flex min-h-screen">
@@ -36,7 +69,11 @@ export default function TasksPage() {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink href={`/projects/${id}/overview`}>
-                {projectTitle}
+                {loading ? (
+                  <Skeleton className="h-4 w-[100px]" />
+                ) : (
+                  projectTitle
+                )}
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
@@ -48,7 +85,7 @@ export default function TasksPage() {
 
         <div className="flex justify-between items-center mb-3 mt-2">
           <h1 className="text-3xl font-bold gap-4 text-black-01">
-            {projectTitle}
+            {loading ? <Skeleton className="h-8 w-[200px]" /> : projectTitle}
           </h1>
         </div>
 
