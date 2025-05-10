@@ -3,50 +3,22 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { Category, DailyScrumResponse, Task } from '@/types/project'
 import { Pencil, Trash2, UserIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Select from 'react-select'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
-
-type Category = 'Done' | 'TODO'
-
-interface Task {
-  taskId: string
-  title: string
-  description: string
-  status: string
-  assignee: {
-    email: string
-    name: string
-    profileImageUrl: string
-    profiles: {
-      stacks: string[]
-      positions: string[]
-      projectId: string
-    }[]
-    role: string
-  }
-  startDate: string
-  endDate: string
-  priority: string
-  epic: {
-    epicId: string
-    title: string
-    description: string
-    projectId: string
-  }
-}
-
-interface DailyScrumResponse {
-  dailyScrumId: string
-  timestamp: string
-  todoTasks: Task[]
-  doneTasks: Task[]
-  projectId: string
-}
 
 interface DailyScrumCardProps {
   projectId: string
@@ -58,7 +30,6 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
   const [isEditMode, setIsEditMode] = useState(false)
   const [pendingChanges, setPendingChanges] = useState<{
@@ -69,6 +40,7 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
     Done: false,
     TODO: false,
   })
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
 
   useEffect(() => {
     if (user?.email && !selectedMemberId) {
@@ -204,16 +176,11 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
     }))
   }
 
-  const handleAddTask = (category: Category) => {
-    if (!selectedTask) {
-      setError('태스크를 선택해주세요.')
-      return
-    }
-
+  const handleAddTask = (category: Category, task: Task) => {
     const isTaskAlreadySelected = [
       ...pendingChanges.todoTasks,
       ...pendingChanges.doneTasks,
-    ].some((task) => task.taskId === selectedTask.taskId)
+    ].some((t) => t.taskId === task.taskId)
 
     if (isTaskAlreadySelected) {
       setError('이미 선택된 태스크입니다.')
@@ -224,11 +191,13 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
       ...prev,
       [category === 'Done' ? 'doneTasks' : 'todoTasks']: [
         ...prev[category === 'Done' ? 'doneTasks' : 'todoTasks'],
-        selectedTask,
+        task,
       ],
     }))
-    setSelectedTask(null)
-    setIsAdding({ Done: false, TODO: false })
+    setIsAdding((prev) => ({
+      ...prev,
+      [category]: false,
+    }))
   }
 
   const handleRemoveTask = (taskId: string, category: Category) => {
@@ -247,8 +216,12 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
     }
 
     try {
-      const todoTaskIds = pendingChanges.todoTasks.map((t) => t.taskId)
-      const doneTaskIds = pendingChanges.doneTasks.map((t) => t.taskId)
+      const todoTaskIds = pendingChanges.todoTasks
+        .filter(task => task.assignee.email === selectedMemberId)
+        .map((t) => t.taskId)
+      const doneTaskIds = pendingChanges.doneTasks
+        .filter(task => task.assignee.email === selectedMemberId)
+        .map((t) => t.taskId)
 
       const response = await fetch(
         `${API_BASE_URL}/daily-scrum?projectId=${projectId}`,
@@ -286,7 +259,6 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
 
   const handleCancelEdit = () => {
     setIsEditMode(false)
-    setSelectedTask(null)
     setIsAdding({ Done: false, TODO: false })
   }
 
@@ -319,6 +291,38 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
       </CardContent>
     </Card>
   )
+
+  const selectStyles = {
+    control: (base: any) => ({
+      ...base,
+      minHeight: '32px',
+      height: '32px',
+      backgroundColor: 'white',
+      border: '1px solid #e2e8f0',
+      borderRadius: '6px',
+      boxShadow: 'none',
+      '&:hover': {
+        border: '1px solid #cbd5e1',
+      },
+    }),
+    valueContainer: (base: any) => ({
+      ...base,
+      padding: '0 8px',
+    }),
+    input: (base: any) => ({
+      ...base,
+      margin: 0,
+      padding: 0,
+    }),
+    indicatorsContainer: (base: any) => ({
+      ...base,
+      height: '32px',
+    }),
+    menu: (base: any) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+  }
 
   if (loading) return renderSkeleton()
   if (error) {
@@ -373,178 +377,204 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
   const isCurrentUserSelected = () => selectedMemberId === user?.email
 
   return (
-    <Card className="col-span-2 row-span-2">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>데일리 스크럼</CardTitle>
-        {isEditMode && (
-          <div className="flex gap-2">
-            <Button size="sm" onClick={handleSaveChanges}>
-              완료
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleCancelEdit}>
-              취소
-            </Button>
-          </div>
-        )}
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-[1fr_2fr_2fr] gap-2 items-start">
-          <div className="grid grid-cols-2 gap-2">
-            {members.map((member) => {
-              const isSelected = selectedMemberId === member.email
-              return (
-                <button
-                  key={member.email}
-                  onClick={() => {
-                    if (isEditMode) {
-                      setError('편집 중에는 다른 멤버를 선택할 수 없습니다.')
-                      return
-                    }
-                    setSelectedMemberId(member.email)
-                    setSelectedTask(null)
-                    setIsAdding({ Done: false, TODO: false })
-                  }}
-                  className="flex flex-col items-center gap-1"
-                >
-                  <Avatar
-                    className={`w-10 h-10 transition-all bg-cm-light ${
-                      isSelected
-                        ? 'ring-2 ring-cm'
-                        : 'opacity-50 hover:opacity-100'
-                    }`}
+    <>
+      <Card className="col-span-2 row-span-2">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>데일리 스크럼</CardTitle>
+          {isEditMode && (
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => setShowConfirmDialog(true)}>
+                완료
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleCancelEdit}>
+                취소
+              </Button>
+            </div>
+          )}
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-[1fr_2fr_2fr] gap-2 items-start">
+            <div className="grid grid-cols-2 gap-2">
+              {members.map((member) => {
+                const isSelected = selectedMemberId === member.email
+                return (
+                  <button
+                    key={member.email}
+                    onClick={() => {
+                      if (isEditMode) {
+                        setError('편집 중에는 다른 멤버를 선택할 수 없습니다.')
+                        return
+                      }
+                      setSelectedMemberId(member.email)
+                      setIsAdding({ Done: false, TODO: false })
+                    }}
+                    className="flex flex-col items-center gap-1"
                   >
-                    <AvatarImage
-                      src={member.profileImageUrl}
-                      alt={member.name}
-                    />
-                    <AvatarFallback>
-                      <UserIcon className="w-4 h-4 text-gray-400" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-xs text-center">{member.name}</span>
-                </button>
-              )
-            })}
-          </div>
-
-          {(['Done', 'TODO'] as Category[]).map((category) => (
-            <div key={category} className="px-2">
-              <div
-                className={`text-center text-sm font-semibold py-1 rounded ${
-                  category === 'Done'
-                    ? 'text-cm-green bg-cm-green-light'
-                    : 'text-cm-gray bg-cm-gray-light'
-                }`}
-              >
-                {category === 'Done' ? '어제 한 일' : '오늘 할 일'}
-              </div>
-              <div className="mt-2 flex flex-col gap-2">
-                {(isEditMode ? pendingChanges : dailyScrum)[
-                  category === 'Done' ? 'doneTasks' : 'todoTasks'
-                ]
-                  .filter((task) => task.assignee.email === selectedMemberId)
-                  .map((task) => (
-                    <Card
-                      key={task.taskId}
-                      className="text-sm px-2 py-2 shadow-none rounded-md relative group"
+                    <Avatar
+                      className={`w-10 h-10 transition-all bg-cm-light ${
+                        isSelected
+                          ? 'ring-2 ring-cm'
+                          : 'opacity-50 hover:opacity-100'
+                      }`}
                     >
-                      <div className="flex justify-between items-center">
-                        {isEditMode ? (
+                      <AvatarImage
+                        src={member.profileImageUrl}
+                        alt={member.name}
+                      />
+                      <AvatarFallback>
+                        <UserIcon className="w-4 h-4 text-gray-400" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-xs text-center">{member.name}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {(['Done', 'TODO'] as Category[]).map((category) => (
+              <div key={category} className="px-2">
+                <div
+                  className={`text-center text-sm font-semibold py-1 rounded ${
+                    category === 'Done'
+                      ? 'text-cm-green bg-cm-green-light'
+                      : 'text-cm-gray bg-cm-gray-light'
+                  }`}
+                >
+                  {category === 'Done' ? '어제 한 일' : '오늘 할 일'}
+                </div>
+                <div className="mt-2 flex flex-col gap-2">
+                  {(isEditMode ? pendingChanges : dailyScrum)[
+                    category === 'Done' ? 'doneTasks' : 'todoTasks'
+                  ]
+                    .filter((task) => task.assignee.email === selectedMemberId)
+                    .map((task) => (
+                      isEditMode ? (
+                        <div
+                          key={task.taskId}
+                          className="text-sm relative group"
+                        >
+                          <div className="flex justify-between items-center">
+                            <Select
+                              options={getAvailableTasksForDropdown(task.taskId)}
+                              getOptionLabel={(option) => option.title}
+                              getOptionValue={(option) => option.taskId}
+                              value={task}
+                              onChange={(newValue) =>
+                                newValue && handleTaskChange(task.taskId, newValue)
+                              }
+                              placeholder="태스크 선택"
+                              className="text-sm w-full"
+                              menuPortalTarget={document.body}
+                              isSearchable
+                              noOptionsMessage={() => "선택 가능한 태스크가 없습니다"}
+                              styles={selectStyles}
+                            />
+                            {isCurrentUserSelected() && (
+                              <button
+                                onClick={() => handleRemoveTask(task.taskId, category)}
+                                className="text-gray-500 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity ml-2"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <Card
+                          key={task.taskId}
+                          className="text-sm px-2 py-2 shadow-none rounded-md relative group"
+                        >
+                          <div className="flex justify-between items-center">
+                            <span>{task.title}</span>
+                            {isCurrentUserSelected() && (
+                              <button
+                                onClick={() => {
+                                  setIsEditMode(true)
+                                }}
+                                className="text-gray-500 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </Card>
+                      )
+                    ))}
+                  {isAdding[category] && isCurrentUserSelected() ? (
+                    <div className="flex flex-col gap-2 mt-1">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
                           <Select
-                            options={getAvailableTasksForDropdown(task.taskId)}
-                            getOptionLabel={(option) => option.title}
-                            getOptionValue={(option) => option.taskId}
-                            value={task}
-                            onChange={(newValue) =>
-                              newValue &&
-                              handleTaskChange(task.taskId, newValue)
-                            }
-                            placeholder="태스크 선택"
-                            className="text-sm w-full"
-                            menuPortalTarget={document.body}
-                            styles={{
-                              menuPortal: (base) => ({
-                                ...base,
-                                zIndex: 9999,
-                              }),
-                            }}
-                          />
-                        ) : (
-                          <span>{task.title}</span>
-                        )}
-                        {isCurrentUserSelected() && (
-                          <button
-                            onClick={() => {
-                              if (!isEditMode) {
-                                setIsEditMode(true)
-                              } else {
-                                handleRemoveTask(task.taskId, category)
+                            options={getAvailableTasksForDropdown('new')}
+                            getOptionLabel={(option: Task) => option.title}
+                            getOptionValue={(option: Task) => option.taskId}
+                            value={null}
+                            onChange={(newValue) => {
+                              if (newValue) {
+                                handleAddTask(category, newValue)
                               }
                             }}
-                            className="text-gray-500 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            {isEditMode ? (
-                              <Trash2 className="w-4 h-4" />
-                            ) : (
-                              <Pencil className="w-4 h-4" />
-                            )}
-                          </button>
-                        )}
+                            placeholder="태스크 선택"
+                            className="text-sm"
+                            isSearchable
+                            noOptionsMessage={() => "선택 가능한 태스크가 없습니다"}
+                            styles={selectStyles}
+                          />
+                        </div>
+                        <button
+                          onClick={() => {
+                            setIsAdding((prev) => ({
+                              ...prev,
+                              [category]: false,
+                            }))
+                          }}
+                          className="text-gray-500 hover:text-gray-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
-                    </Card>
-                  ))}
-                {isAdding[category] && isCurrentUserSelected() ? (
-                  <div className="flex flex-col gap-2 mt-1">
-                    <Select
-                      options={getAvailableTasksForDropdown('new')}
-                      getOptionLabel={(option) => option.title}
-                      getOptionValue={(option) => option.taskId}
-                      value={selectedTask}
-                      onChange={(newValue) => setSelectedTask(newValue)}
-                      placeholder="태스크 선택"
-                      className="text-sm"
-                    />
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => handleAddTask(category)}
-                        disabled={!selectedTask}
-                      >
-                        추가
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedTask(null)
-                          setIsAdding((prev) => ({
-                            ...prev,
-                            [category]: false,
-                          }))
-                        }}
-                      >
-                        취소
-                      </Button>
                     </div>
-                  </div>
-                ) : isCurrentUserSelected() ? (
-                  <button
-                    onClick={() => {
-                      if (!isEditMode) {
-                        setIsEditMode(true)
-                      }
-                      setIsAdding((prev) => ({ ...prev, [category]: true }))
-                    }}
-                    className="text-sm text-gray-500 hover:underline text-left"
-                  >
-                    + Add
-                  </button>
-                ) : null}
+                  ) : isCurrentUserSelected() ? (
+                    <button
+                      onClick={() => {
+                        if (!isEditMode) {
+                          setIsEditMode(true)
+                        }
+                        setIsAdding((prev) => ({ ...prev, [category]: true }))
+                      }}
+                      className="text-sm text-gray-500 hover:underline text-left"
+                    >
+                      + Add
+                    </button>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>데일리 스크럼 완료</DialogTitle>
+            <DialogDescription>
+              데일리 스크럼을 완료하면 더 이상 수정할 수 없습니다. 계속하시겠습니까?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+              취소
+            </Button>
+            <Button onClick={() => {
+              handleSaveChanges()
+              setShowConfirmDialog(false)
+            }}>
+              완료
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
