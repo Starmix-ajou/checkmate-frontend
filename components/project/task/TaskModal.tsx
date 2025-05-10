@@ -4,10 +4,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { Member } from '@/types/project'
 import { Task } from '@/types/userTask'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
-import { X } from 'lucide-react'
+import { ChevronDown, X } from 'lucide-react'
 import { useState } from 'react'
 import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
@@ -16,6 +17,7 @@ type TaskModalProps = {
   task: Task
   isOpen: boolean
   onClose: () => void
+  members: Member[]
   onUpdate: (
     taskId: string,
     data: Partial<{
@@ -36,6 +38,7 @@ export default function TaskModal({
   onClose,
   task,
   onUpdate,
+  members,
 }: TaskModalProps) {
   const [title, setTitle] = useState(task.title)
   const [description, setDescription] = useState(task.description || '')
@@ -46,6 +49,10 @@ export default function TaskModal({
   const [startDate, setStartDate] = useState<Date>(new Date(task.startDate))
   const [endDate, setEndDate] = useState<Date>(new Date(task.endDate))
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  const [isAssigneeOpen, setIsAssigneeOpen] = useState(false)
+  const [selectedAssignee, setSelectedAssignee] = useState<Member | null>(
+    members.find((m) => m.email === task.assignee?.email) || null
+  )
 
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'yyyy.MM.dd')
@@ -113,6 +120,7 @@ export default function TaskModal({
         priority: priority,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
+        assigneeEmail: selectedAssignee?.email || '',
       }
 
       await onUpdate(task.taskId, updateData)
@@ -129,8 +137,17 @@ export default function TaskModal({
       <div className="fixed inset-0 bg-black/50" onClick={onClose} />
       <div className="fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto">
         <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">세부 정보</h2>
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h2 className="text-xl font-semibold">
+                {task.epic?.title || '에픽 없음'}
+              </h2>
+              {task.epic?.description && (
+                <p className="text-sm text-gray-500 mt-1">
+                  {task.epic.description}
+                </p>
+              )}
+            </div>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-full"
@@ -156,38 +173,60 @@ export default function TaskModal({
               <h3 className="text-sm font-medium text-gray-500 mb-2">
                 Assignee
               </h3>
-              <div className="flex items-center gap-2 p-2 border border-gray-200 rounded-md">
-                {task.assignee?.profileImageUrl && (
-                  <img
-                    src={task.assignee.profileImageUrl}
-                    alt={task.assignee.name}
-                    className="w-8 h-8 rounded-full"
-                  />
-                )}
-                <div>
-                  <div className="text-sm font-medium">
-                    {task.assignee?.name || '담당자 없음'}
+              <Popover open={isAssigneeOpen} onOpenChange={setIsAssigneeOpen}>
+                <PopoverTrigger asChild>
+                  <div className="flex items-center justify-between p-2 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">
+                    <div className="flex items-center gap-2">
+                      {selectedAssignee?.profileImageUrl && (
+                        <img
+                          src={selectedAssignee.profileImageUrl}
+                          alt={selectedAssignee.name}
+                          className="w-8 h-8 rounded-full"
+                        />
+                      )}
+                      <div>
+                        <div className="text-sm font-medium">
+                          {selectedAssignee?.name || '담당자 선택'}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {selectedAssignee?.email}
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronDown size={20} className="text-gray-500" />
                   </div>
-                  <div className="text-xs text-gray-500">
-                    {task.assignee?.email}
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0">
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {members.map((member) => (
+                      <div
+                        key={member.userId}
+                        className="flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer"
+                        onClick={() => {
+                          setSelectedAssignee(member)
+                          setIsAssigneeOpen(false)
+                        }}
+                      >
+                        {member.profileImageUrl && (
+                          <img
+                            src={member.profileImageUrl}
+                            alt={member.name}
+                            className="w-8 h-8 rounded-full"
+                          />
+                        )}
+                        <div>
+                          <div className="text-sm font-medium">
+                            {member.name}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {member.email}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 에픽 */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Epic</h3>
-              <div className="p-2 border border-gray-200 rounded-md">
-                <div className="text-sm font-medium">
-                  {task.epic?.title || '에픽 없음'}
-                </div>
-                {task.epic?.description && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    {task.epic.description}
-                  </div>
-                )}
-              </div>
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* 상태 */}

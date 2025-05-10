@@ -1,5 +1,6 @@
 'use client'
 
+import { Member } from '@/types/project'
 import { Task } from '@/types/userTask'
 import { DndContext, DragOverlay } from '@dnd-kit/core'
 import { Check, Pencil, Pickaxe, Trash2, X } from 'lucide-react'
@@ -11,7 +12,13 @@ import KanbanColumn from './KanbanColumn'
 import { KanbanLogic } from './KanbanLogic'
 import TaskModal from './TaskModal'
 
-export default function KanbanView({ projectId }: { projectId: string }) {
+export default function KanbanView({
+  projectId,
+  members,
+}: {
+  projectId: string
+  members: Member[]
+}) {
   const {
     columns,
     activeTask,
@@ -266,6 +273,7 @@ export default function KanbanView({ projectId }: { projectId: string }) {
           onClose={handleModalClose}
           task={selectedTaskForModal}
           onUpdate={updateTaskAndState}
+          members={members}
         />
       )}
     </div>
