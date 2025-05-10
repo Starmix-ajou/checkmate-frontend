@@ -41,6 +41,8 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
     TODO: false,
   })
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [showSwitchMemberDialog, setShowSwitchMemberDialog] = useState(false)
+  const [pendingMemberId, setPendingMemberId] = useState<string | null>(null)
 
   useEffect(() => {
     if (user?.email && !selectedMemberId) {
@@ -262,6 +264,26 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
     setIsAdding({ Done: false, TODO: false })
   }
 
+  const handleMemberSelect = (memberEmail: string) => {
+    if (isEditMode) {
+      setPendingMemberId(memberEmail)
+      setShowSwitchMemberDialog(true)
+    } else {
+      setSelectedMemberId(memberEmail)
+      setIsAdding({ Done: false, TODO: false })
+    }
+  }
+
+  const handleSwitchMember = () => {
+    if (pendingMemberId) {
+      setSelectedMemberId(pendingMemberId)
+      setIsEditMode(false)
+      setIsAdding({ Done: false, TODO: false })
+      setPendingMemberId(null)
+    }
+    setShowSwitchMemberDialog(false)
+  }
+
   const renderSkeleton = () => (
     <Card className="col-span-2 row-span-2">
       <CardHeader>
@@ -357,8 +379,8 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
 
   return (
     <>
-      <Card className="col-span-2 row-span-2">
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="col-span-2 row-span-2 pt-4">
+        <CardHeader className="flex flex-row items-center justify-between h-8">
           <CardTitle>데일리 스크럼</CardTitle>
           {isEditMode && (
             <div className="flex gap-2">
@@ -379,14 +401,7 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
                 return (
                   <button
                     key={member.email}
-                    onClick={() => {
-                      if (isEditMode) {
-                        setError('편집 중에는 다른 멤버를 선택할 수 없습니다.')
-                        return
-                      }
-                      setSelectedMemberId(member.email)
-                      setIsAdding({ Done: false, TODO: false })
-                    }}
+                    onClick={() => handleMemberSelect(member.email)}
                     className="flex flex-col items-center gap-1"
                   >
                     <Avatar
@@ -487,7 +502,7 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
                       )
                     )}
                   {isAdding[category] && isCurrentUserSelected() ? (
-                    <div className="flex flex-col gap-2 mt-1">
+                    <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2">
                         <div className="flex-1">
                           <Select
@@ -564,6 +579,30 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
               }}
             >
               완료
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSwitchMemberDialog} onOpenChange={setShowSwitchMemberDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>멤버 변경</DialogTitle>
+            <DialogDescription>
+              데일리 스크럼이 완료되지 않았습니다. 저장하지 않고 다른 멤버로 이동하시겠습니까?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowSwitchMemberDialog(false)}
+            >
+              취소
+            </Button>
+            <Button
+              onClick={handleSwitchMember}
+            >
+              이동
             </Button>
           </DialogFooter>
         </DialogContent>
