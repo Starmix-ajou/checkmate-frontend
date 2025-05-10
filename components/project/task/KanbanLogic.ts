@@ -388,45 +388,86 @@ export function KanbanLogic(projectId: string) {
           )
         }
 
-        // 서버 응답이 없는 경우 클라이언트에서 임시 태스크 생성
-        const newTask: Task = {
-          taskId: `task-${Date.now()}`,
-          title: taskData.title,
-          description: taskData.description,
-          status: taskData.status,
-          assignee: {
-            userId: '',
-            name: '',
-            email: taskData.assigneeEmail,
-            profileImageUrl: '',
-            profiles: [],
-            role: '',
-          },
-          startDate: taskData.startDate,
-          endDate: taskData.endDate,
-          priority: taskData.priority,
-          epic: {
-            epicId: taskData.epicId,
-            title: '',
-            description: '',
-            projectId: '',
-          },
+        // POST가 성공하면 전체 Task 목록을 가져옴
+        const tasksResponse = await fetch(
+          `${API_ENDPOINTS.TASKS}?projectId=${projectId}`,
+          {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${user.accessToken}`,
+            },
+            credentials: 'include',
+          }
+        )
+
+        if (!tasksResponse.ok) {
+          throw new Error(`Task 목록 조회 실패: ${tasksResponse.status}`)
         }
 
-        console.log('새 태스크 생성 성공:', newTask)
+        const tasks: Task[] = await tasksResponse.json()
+        if (!Array.isArray(tasks)) {
+          throw new Error('서버로부터 받은 Task 목록이 올바른 형식이 아닙니다.')
+        }
 
-        // 새 태스크를 적절한 컬럼에 추가
-        setColumns((prev) => {
-          const newColumns = { ...prev }
-          const columnKey =
-            newTask.status === 'IN_PROGRESS'
-              ? 'inProgress'
-              : newTask.status === 'DONE'
-                ? 'done'
-                : 'todo'
-          newColumns[columnKey] = [...newColumns[columnKey], newTask]
-          return newColumns
+        // Task 목록을 상태에 따라 분류
+        const newColumns: Record<ColumnType, Task[]> = {
+          todo: [],
+          inProgress: [],
+          done: [],
+        }
+
+        tasks.forEach((task) => {
+          if (!task.status) {
+            console.warn('태스크에 status가 없습니다:', task)
+            newColumns.todo.push({
+              ...task,
+              status: 'TODO',
+            })
+            return
+          }
+
+          const taskWithStatus = {
+            ...task,
+            status: task.status,
+          }
+
+          switch (task.status) {
+            case 'TODO':
+              newColumns.todo.push(taskWithStatus)
+              break
+            case 'IN_PROGRESS':
+              newColumns.inProgress.push(taskWithStatus)
+              break
+            case 'DONE':
+              newColumns.done.push(taskWithStatus)
+              break
+            default:
+              console.warn('알 수 없는 태스크 상태:', task.status)
+              newColumns.todo.push({
+                ...task,
+                status: 'TODO',
+              })
+          }
         })
+
+        // 상태 업데이트
+        setColumns(newColumns)
+
+        // 새로 생성된 Task 찾기 (제목과 상태로 찾음)
+        const newTask = tasks.find(
+          (task) =>
+            task.title === taskData.title && task.status === taskData.status
+        )
+
+        if (!newTask) {
+          console.error('생성된 Task를 찾을 수 없습니다:', {
+            taskData,
+            allTasks: tasks,
+          })
+          throw new Error('생성된 Task를 찾을 수 없습니다.')
+        }
 
         return newTask
       } catch (error) {
@@ -434,7 +475,7 @@ export function KanbanLogic(projectId: string) {
         throw error
       }
     },
-    [user?.accessToken, setColumns]
+    [user?.accessToken, projectId, setColumns]
   )
 
   const handleAddTask = useCallback(
