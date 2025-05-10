@@ -1,12 +1,12 @@
 'use client'
 
 import LoadingCheckMate from '@/components/LoadingCheckMate'
-import DailyScrumCard from '@/components/project/overview/DailyScrumCard'
 import MyTaskCard from '@/components/project/overview/MyTaskCard'
 import ProjectHeader from '@/components/project/overview/ProjectHeader'
 import ScheduleCard from '@/components/project/overview/ScheduleCard'
 import SprintPeriodCard from '@/components/project/overview/SprintPeriodCard'
 import StatusCard from '@/components/project/overview/StatusCard'
+import DailyScrumCard from '@/components/project/overview/daily-scrum/DailyScrumCard'
 import {
   Breadcrumb,
   BreadcrumbItem,
