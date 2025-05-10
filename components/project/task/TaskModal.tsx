@@ -180,6 +180,8 @@ export default function TaskModal({
                     <div className="flex items-center gap-2">
                       {selectedAssignee?.profileImageUrl && (
                         <Image
+                          width={32}
+                          height={32}
                           src={selectedAssignee.profileImageUrl}
                           alt={selectedAssignee.name}
                           className="w-8 h-8 rounded-full"
@@ -210,6 +212,8 @@ export default function TaskModal({
                       >
                         {member.profileImageUrl && (
                           <Image
+                            width={32}
+                            height={32}
                             src={member.profileImageUrl}
                             alt={member.name}
                             className="w-8 h-8 rounded-full"
