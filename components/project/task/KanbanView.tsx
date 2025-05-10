@@ -4,7 +4,7 @@ import { Member } from '@/types/project'
 import { Task } from '@/types/userTask'
 import { DndContext, DragOverlay } from '@dnd-kit/core'
 import { Check, Pencil, Pickaxe, Trash2, X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // import LoadingCheckMate from '@/components/LoadingCheckMate'
 
@@ -37,6 +37,12 @@ export default function KanbanView({
   const [selectedTaskForModal, setSelectedTaskForModal] = useState<Task | null>(
     null
   )
+  const [forceUpdate, setForceUpdate] = useState(0)
+
+  // columns가 변경될 때마다 강제로 리렌더링
+  useEffect(() => {
+    setForceUpdate((prev) => prev + 1)
+  }, [columns])
 
   const handleTaskSelect = (taskId: string, isSelected: boolean) => {
     setSelectedTasks((prev) => {
@@ -115,22 +121,10 @@ export default function KanbanView({
     }>
   ) => {
     try {
-      // 서버에 업데이트 요청
+      // 서버에 업데이트 요청만 하고, 로컬 상태 업데이트는 하지 않음
       await updateTaskOnServer(taskId, data)
 
-      // 로컬 상태 업데이트
-      setColumns((prev) => {
-        const newColumns = { ...prev }
-        Object.keys(newColumns).forEach((key) => {
-          const columnKey = key as keyof typeof newColumns
-          newColumns[columnKey] = newColumns[columnKey].map((task) =>
-            task.taskId === taskId ? { ...task, ...data } : task
-          )
-        })
-        return newColumns
-      })
-
-      // 모달에 표시된 태스크도 업데이트
+      // 모달에 표시된 태스크만 업데이트
       if (selectedTaskForModal?.taskId === taskId) {
         setSelectedTaskForModal((prev) => (prev ? { ...prev, ...data } : null))
       }
@@ -159,7 +153,7 @@ export default function KanbanView({
   // }
 
   return (
-    <div className="text-[#121212]">
+    <div className="text-[#121212]" key={forceUpdate}>
       <DndContext
         sensors={sensors}
         onDragOver={handleDragOver}

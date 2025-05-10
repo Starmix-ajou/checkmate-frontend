@@ -41,99 +41,91 @@ export function KanbanLogic(projectId: string) {
   const sensors = useSensors(useSensor(MouseSensor))
 
   // tasks 데이터 가져오기
-  useEffect(() => {
+  const fetchTasks = useCallback(async () => {
     if (!user?.accessToken) {
       console.log('인증 토큰이 없습니다.')
       setLoading(false)
       return
     }
-
-    const fetchTasks = async () => {
-      try {
-        setError(null)
-
-        const response = await fetch(
-          `${API_ENDPOINTS.TASKS}?projectId=${projectId}`,
-          {
-            method: 'GET',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${user.accessToken}`,
-            },
-            credentials: 'include',
-          }
+    try {
+      setError(null)
+      setLoading(true)
+      const response = await fetch(
+        `${API_ENDPOINTS.TASKS}?projectId=${projectId}`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+          credentials: 'include',
+        }
+      )
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(
+          errorData?.message || `HTTP error! status: ${response.status}`
         )
+      }
+      const tasks: Task[] = await response.json()
+      if (!Array.isArray(tasks)) {
+        throw new Error('서버로부터 받은 데이터가 배열이 아닙니다.')
+      }
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => null)
-          throw new Error(
-            errorData?.message || `HTTP error! status: ${response.status}`
-          )
+      // 태스크를 상태에 따라 분류
+      const newColumns: Record<ColumnType, Task[]> = {
+        todo: [],
+        inProgress: [],
+        done: [],
+      }
+      tasks.forEach((task) => {
+        if (!task.status) {
+          console.warn('태스크에 status가 없습니다:', task)
+          newColumns.todo.push({
+            ...task,
+            status: 'TODO',
+          })
+          return
         }
-
-        const tasks: Task[] = await response.json()
-
-        if (!Array.isArray(tasks)) {
-          throw new Error('서버로부터 받은 데이터가 배열이 아닙니다.')
+        const taskWithStatus = {
+          ...task,
+          status: task.status,
         }
-
-        // 태스크를 상태에 따라 분류
-        const newColumns: Record<ColumnType, Task[]> = {
-          todo: [],
-          inProgress: [],
-          done: [],
-        }
-
-        tasks.forEach((task) => {
-          if (!task.status) {
-            console.warn('태스크에 status가 없습니다:', task)
+        switch (task.status) {
+          case 'TODO':
+            newColumns.todo.push(taskWithStatus)
+            break
+          case 'IN_PROGRESS':
+            newColumns.inProgress.push(taskWithStatus)
+            break
+          case 'DONE':
+            newColumns.done.push(taskWithStatus)
+            break
+          default:
+            console.warn('알 수 없는 태스크 상태:', task.status)
             newColumns.todo.push({
               ...task,
               status: 'TODO',
             })
-            return
-          }
-
-          const taskWithStatus = {
-            ...task,
-            status: task.status,
-          }
-
-          switch (task.status) {
-            case 'TODO':
-              newColumns.todo.push(taskWithStatus)
-              break
-            case 'IN_PROGRESS':
-              newColumns.inProgress.push(taskWithStatus)
-              break
-            case 'DONE':
-              newColumns.done.push(taskWithStatus)
-              break
-            default:
-              console.warn('알 수 없는 태스크 상태:', task.status)
-              newColumns.todo.push({
-                ...task,
-                status: 'TODO',
-              })
-          }
-        })
-
-        setColumns(newColumns)
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : '알 수 없는 오류가 발생했습니다.'
-        console.error('태스크 불러오기 실패:', error)
-        setError(errorMessage)
-      } finally {
-        setLoading(false)
-      }
+        }
+      })
+      setColumns(newColumns)
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : '알 수 없는 오류가 발생했습니다.'
+      console.error('태스크 불러오기 실패:', error)
+      setError(errorMessage)
+    } finally {
+      setLoading(false)
     }
-
-    fetchTasks()
   }, [user?.accessToken, projectId])
+
+  useEffect(() => {
+    fetchTasks()
+  }, [fetchTasks])
 
   const findColumn = (taskId: string): ColumnType | null => {
     return (
@@ -152,6 +144,7 @@ export function KanbanLogic(projectId: string) {
     }
 
     try {
+      setLoading(true) // 로딩 시작
       console.log('태스크 수정 요청 데이터:', { taskId, ...taskData })
       const response = await fetch(`${API_ENDPOINTS.TASKS}/${taskId}`, {
         method: 'PUT',
@@ -177,42 +170,18 @@ export function KanbanLogic(projectId: string) {
       }
 
       console.log('태스크 수정 성공')
-
-      // 서버 업데이트 성공 후 로컬 상태 즉시 업데이트
-      setColumns((prev) => {
-        const newColumns = { ...prev }
-
-        // 모든 컬럼에서 태스크 찾기
-        const allTasks = Object.values(newColumns).flat()
-        const task = allTasks.find((t) => t.taskId === taskId)
-
-        if (!task) return prev
-
-        // 새로운 상태에 따라 태스크 이동
-        const newStatus = taskData.status || task.status
-        const newColumn =
-          newStatus === 'IN_PROGRESS'
-            ? 'inProgress'
-            : newStatus === 'DONE'
-              ? 'done'
-              : 'todo'
-
-        // 모든 컬럼에서 태스크 제거
-        Object.keys(newColumns).forEach((key) => {
-          newColumns[key as ColumnType] = newColumns[key as ColumnType].filter(
-            (t) => t.taskId !== taskId
-          )
-        })
-
-        // 새로운 컬럼에 업데이트된 태스크 추가
-        const updatedTask = { ...task, ...taskData }
-        newColumns[newColumn] = [...newColumns[newColumn], updatedTask]
-
-        return newColumns
-      })
+      // PUT 성공 후 전체 Task 목록을 다시 불러와서 setColumns 갱신
+      await fetchTasks()
     } catch (error) {
       console.error('태스크 수정 실패:', error)
+      setError(
+        error instanceof Error
+          ? error.message
+          : '태스크 수정 중 오류가 발생했습니다.'
+      )
       throw error
+    } finally {
+      setLoading(false) // 로딩 종료
     }
   }
 

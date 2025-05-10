@@ -193,7 +193,7 @@ export default function TaskModal({
                         </div>
                       </div>
                     </div>
-                    <ChevronDown size={20} className="text-gray-500" />
+                    <ChevronDown size={20} className="text-black-01" />
                   </div>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">
