@@ -156,12 +156,12 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
     )
   }
 
-  const handleTaskChange = (taskId: string, newTask: Task) => {
+  const handleTaskChange = (prevTaskId: string, newTask: Task) => {
     const isTaskAlreadySelected =
       pendingChanges.todoTasks.has(newTask.taskId) ||
       pendingChanges.doneTasks.has(newTask.taskId)
 
-    if (isTaskAlreadySelected && newTask.taskId !== taskId) {
+    if (isTaskAlreadySelected && newTask.taskId !== prevTaskId) {
       setError('이미 선택된 태스크입니다.')
       return
     }
@@ -170,11 +170,13 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
       const newTodoTasks = new Map(prev.todoTasks)
       const newDoneTasks = new Map(prev.doneTasks)
 
-      if (newTodoTasks.has(taskId)) {
-        newTodoTasks.set(taskId, newTask)
+      if (newTodoTasks.has(prevTaskId)) {
+        newTodoTasks.delete(prevTaskId)
+        newTodoTasks.set(newTask.taskId, newTask)
       }
-      if (newDoneTasks.has(taskId)) {
-        newDoneTasks.set(taskId, newTask)
+      if (newDoneTasks.has(prevTaskId)) {
+        newDoneTasks.delete(prevTaskId)
+        newDoneTasks.set(newTask.taskId, newTask)
       }
 
       return { todoTasks: newTodoTasks, doneTasks: newDoneTasks }
@@ -296,7 +298,7 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
   const renderSkeleton = () => (
     <Card className="col-span-2 row-span-2">
       <CardHeader>
-        <Skeleton className="h-6 w-32" />
+        <Skeleton className="h-5 w-32" />
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-[1fr_2fr_2fr] gap-2 items-start">
