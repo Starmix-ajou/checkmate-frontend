@@ -1,12 +1,12 @@
 'use client'
 
 import LoadingCheckMate from '@/components/LoadingCheckMate'
-import DailyScrumCard from '@/components/project/overview/DailyScrumCard'
 import MyTaskCard from '@/components/project/overview/MyTaskCard'
 import ProjectHeader from '@/components/project/overview/ProjectHeader'
 import ScheduleCard from '@/components/project/overview/ScheduleCard'
 import SprintPeriodCard from '@/components/project/overview/SprintPeriodCard'
 import StatusCard from '@/components/project/overview/StatusCard'
+import DailyScrumCard from '@/components/project/overview/daily-scrum/DailyScrumCard'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -96,7 +96,7 @@ export default function ProjectOverview() {
           <ProjectHeader project={project} loading={loading} />
 
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <DailyScrumCard />
+            <DailyScrumCard projectId={id as string} />
             <SprintPeriodCard />
             <StatusCard />
             <MyTaskCard tasks={tasks} />
