@@ -9,6 +9,7 @@ import { Task } from '@/types/userTask'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { ChevronDown, X } from 'lucide-react'
+import Image from 'next/image'
 import { useState } from 'react'
 import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
@@ -178,7 +179,7 @@ export default function TaskModal({
                   <div className="flex items-center justify-between p-2 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">
                     <div className="flex items-center gap-2">
                       {selectedAssignee?.profileImageUrl && (
-                        <img
+                        <Image
                           src={selectedAssignee.profileImageUrl}
                           alt={selectedAssignee.name}
                           className="w-8 h-8 rounded-full"
@@ -208,7 +209,7 @@ export default function TaskModal({
                         }}
                       >
                         {member.profileImageUrl && (
-                          <img
+                          <Image
                             src={member.profileImageUrl}
                             alt={member.name}
                             className="w-8 h-8 rounded-full"

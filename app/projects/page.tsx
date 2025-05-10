@@ -35,12 +35,15 @@ const Home = () => {
           queryParams.append('status', filter)
         }
 
-        const response = await fetch(`${API_BASE_URL}/project?${queryParams.toString()}`, {
-          headers: {
-            Accept: '*/*',
-            Authorization: `Bearer ${user?.accessToken}`,
-          },
-        })
+        const response = await fetch(
+          `${API_BASE_URL}/project?${queryParams.toString()}`,
+          {
+            headers: {
+              Accept: '*/*',
+              Authorization: `Bearer ${user?.accessToken}`,
+            },
+          }
+        )
 
         if (!response.ok) {
           throw new Error('프로젝트 불러오기 실패')
