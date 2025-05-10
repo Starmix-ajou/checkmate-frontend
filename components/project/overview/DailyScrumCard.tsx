@@ -217,10 +217,10 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
 
     try {
       const todoTaskIds = pendingChanges.todoTasks
-        .filter(task => task.assignee.email === selectedMemberId)
+        .filter((task) => task.assignee.email === selectedMemberId)
         .map((t) => t.taskId)
       const doneTaskIds = pendingChanges.doneTasks
-        .filter(task => task.assignee.email === selectedMemberId)
+        .filter((task) => task.assignee.email === selectedMemberId)
         .map((t) => t.taskId)
 
       const response = await fetch(
@@ -292,38 +292,6 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
     </Card>
   )
 
-  const selectStyles = {
-    control: (base: any) => ({
-      ...base,
-      minHeight: '32px',
-      height: '32px',
-      backgroundColor: 'white',
-      border: '1px solid #e2e8f0',
-      borderRadius: '6px',
-      boxShadow: 'none',
-      '&:hover': {
-        border: '1px solid #cbd5e1',
-      },
-    }),
-    valueContainer: (base: any) => ({
-      ...base,
-      padding: '0 8px',
-    }),
-    input: (base: any) => ({
-      ...base,
-      margin: 0,
-      padding: 0,
-    }),
-    indicatorsContainer: (base: any) => ({
-      ...base,
-      height: '32px',
-    }),
-    menu: (base: any) => ({
-      ...base,
-      zIndex: 9999,
-    }),
-  }
-
   if (loading) return renderSkeleton()
   if (error) {
     return (
@@ -375,6 +343,17 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
   })
 
   const isCurrentUserSelected = () => selectedMemberId === user?.email
+  const hasUserDailyScrum = () => {
+    if (!dailyScrum || !selectedMemberId) return false
+    return (
+      dailyScrum.todoTasks.some(
+        (task) => task.assignee.email === selectedMemberId
+      ) ||
+      dailyScrum.doneTasks.some(
+        (task) => task.assignee.email === selectedMemberId
+      )
+    )
+  }
 
   return (
     <>
@@ -447,7 +426,7 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
                     category === 'Done' ? 'doneTasks' : 'todoTasks'
                   ]
                     .filter((task) => task.assignee.email === selectedMemberId)
-                    .map((task) => (
+                    .map((task) =>
                       isEditMode ? (
                         <div
                           key={task.taskId}
@@ -455,23 +434,29 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
                         >
                           <div className="flex justify-between items-center">
                             <Select
-                              options={getAvailableTasksForDropdown(task.taskId)}
-                              getOptionLabel={(option) => option.title}
-                              getOptionValue={(option) => option.taskId}
+                              options={getAvailableTasksForDropdown(
+                                task.taskId
+                              )}
+                              getOptionLabel={(option: Task) => option.title}
+                              getOptionValue={(option: Task) => option.taskId}
                               value={task}
                               onChange={(newValue) =>
-                                newValue && handleTaskChange(task.taskId, newValue)
+                                newValue &&
+                                handleTaskChange(task.taskId, newValue)
                               }
                               placeholder="태스크 선택"
                               className="text-sm w-full"
                               menuPortalTarget={document.body}
                               isSearchable
-                              noOptionsMessage={() => "선택 가능한 태스크가 없습니다"}
-                              styles={selectStyles}
+                              noOptionsMessage={() =>
+                                '선택 가능한 태스크가 없습니다'
+                              }
                             />
                             {isCurrentUserSelected() && (
                               <button
-                                onClick={() => handleRemoveTask(task.taskId, category)}
+                                onClick={() =>
+                                  handleRemoveTask(task.taskId, category)
+                                }
                                 className="text-gray-500 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity ml-2"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -486,20 +471,21 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
                         >
                           <div className="flex justify-between items-center">
                             <span>{task.title}</span>
-                            {isCurrentUserSelected() && (
-                              <button
-                                onClick={() => {
-                                  setIsEditMode(true)
-                                }}
-                                className="text-gray-500 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </button>
-                            )}
+                            {isCurrentUserSelected() &&
+                              !hasUserDailyScrum() && (
+                                <button
+                                  onClick={() => {
+                                    setIsEditMode(true)
+                                  }}
+                                  className="text-gray-500 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                              )}
                           </div>
                         </Card>
                       )
-                    ))}
+                    )}
                   {isAdding[category] && isCurrentUserSelected() ? (
                     <div className="flex flex-col gap-2 mt-1">
                       <div className="flex items-center gap-2">
@@ -517,8 +503,9 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
                             placeholder="태스크 선택"
                             className="text-sm"
                             isSearchable
-                            noOptionsMessage={() => "선택 가능한 태스크가 없습니다"}
-                            styles={selectStyles}
+                            noOptionsMessage={() =>
+                              '선택 가능한 태스크가 없습니다'
+                            }
                           />
                         </div>
                         <button
@@ -534,7 +521,7 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
                         </button>
                       </div>
                     </div>
-                  ) : isCurrentUserSelected() ? (
+                  ) : isCurrentUserSelected() && !hasUserDailyScrum() ? (
                     <button
                       onClick={() => {
                         if (!isEditMode) {
@@ -559,17 +546,23 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
           <DialogHeader>
             <DialogTitle>데일리 스크럼 완료</DialogTitle>
             <DialogDescription>
-              데일리 스크럼을 완료하면 더 이상 수정할 수 없습니다. 계속하시겠습니까?
+              데일리 스크럼을 완료하면 더 이상 수정할 수 없습니다.
+              계속하시겠습니까?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+            >
               취소
             </Button>
-            <Button onClick={() => {
-              handleSaveChanges()
-              setShowConfirmDialog(false)
-            }}>
+            <Button
+              onClick={() => {
+                handleSaveChanges()
+                setShowConfirmDialog(false)
+              }}
+            >
               완료
             </Button>
           </DialogFooter>
