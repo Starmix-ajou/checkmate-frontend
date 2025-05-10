@@ -61,12 +61,47 @@ export default function TaskModal({
     setDescription(e.target.value)
   }
 
-  const handlePriorityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPriority(e.target.value as Task['priority'])
+  const cycleStatus = () => {
+    const statuses: ('TODO' | 'IN_PROGRESS' | 'DONE')[] = [
+      'TODO',
+      'IN_PROGRESS',
+      'DONE',
+    ]
+    const nextIndex = (statuses.indexOf(status) + 1) % statuses.length
+    setStatus(statuses[nextIndex])
   }
 
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setStatus(e.target.value as 'TODO' | 'IN_PROGRESS' | 'DONE')
+  const cyclePriority = () => {
+    const priorities: Task['priority'][] = ['LOW', 'MEDIUM', 'HIGH']
+    const nextIndex = (priorities.indexOf(priority) + 1) % priorities.length
+    setPriority(priorities[nextIndex])
+  }
+
+  const formatStatus = (status: 'TODO' | 'IN_PROGRESS' | 'DONE') => {
+    switch (status) {
+      case 'TODO':
+        return 'To Do'
+      case 'IN_PROGRESS':
+        return 'In Progress'
+      case 'DONE':
+        return 'Done'
+    }
+  }
+
+  const formatPriority = (priority: Task['priority']) => {
+    return priority.charAt(0) + priority.slice(1).toLowerCase()
+  }
+
+  const statusStyleMap: Record<'TODO' | 'IN_PROGRESS' | 'DONE', string> = {
+    TODO: 'bg-[#F8F8F7] text-[#858380]',
+    IN_PROGRESS: 'bg-[#F3F9FC] text-[#5093BC]',
+    DONE: 'bg-[#F6FAF6] text-[#5C9771]',
+  }
+
+  const priorityStyleMap: Record<Task['priority'], string> = {
+    LOW: 'bg-[#E1FBD6] text-[#204206]',
+    MEDIUM: 'bg-[#FFF5E2] text-[#B46C00]',
+    HIGH: 'bg-[#FFE5E3] text-[#D91F11]',
   }
 
   const handleSave = async () => {
@@ -95,7 +130,7 @@ export default function TaskModal({
       <div className="fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">태스크 상세</h2>
+            <h2 className="text-xl font-semibold">세부 정보</h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-full"
@@ -116,18 +151,54 @@ export default function TaskModal({
               />
             </div>
 
+            {/* 담당자 */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-500 mb-2">
+                Assignee
+              </h3>
+              <div className="flex items-center gap-2 p-2 border border-gray-200 rounded-md">
+                {task.assignee?.profileImageUrl && (
+                  <img
+                    src={task.assignee.profileImageUrl}
+                    alt={task.assignee.name}
+                    className="w-8 h-8 rounded-full"
+                  />
+                )}
+                <div>
+                  <div className="text-sm font-medium">
+                    {task.assignee?.name || '담당자 없음'}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {task.assignee?.email}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 에픽 */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-500 mb-2">Epic</h3>
+              <div className="p-2 border border-gray-200 rounded-md">
+                <div className="text-sm font-medium">
+                  {task.epic?.title || '에픽 없음'}
+                </div>
+                {task.epic?.description && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    {task.epic.description}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* 상태 */}
             <div>
               <h3 className="text-sm font-medium text-gray-500 mb-2">Status</h3>
-              <select
-                value={status}
-                onChange={handleStatusChange}
-                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              <div
+                className={`inline-block text-sm font-normal px-3 py-1.5 rounded-sm cursor-pointer ${statusStyleMap[status]}`}
+                onClick={cycleStatus}
               >
-                <option value="TODO">To Do</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="DONE">Done</option>
-              </select>
+                {formatStatus(status)}
+              </div>
             </div>
 
             {/* 우선순위 */}
@@ -135,15 +206,12 @@ export default function TaskModal({
               <h3 className="text-sm font-medium text-gray-500 mb-2">
                 Priority
               </h3>
-              <select
-                value={priority}
-                onChange={handlePriorityChange}
-                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              <div
+                className={`inline-block text-sm font-normal px-3 py-1.5 rounded-sm cursor-pointer ${priorityStyleMap[priority]}`}
+                onClick={cyclePriority}
               >
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
-              </select>
+                {formatPriority(priority)}
+              </div>
             </div>
 
             {/* 기간 */}

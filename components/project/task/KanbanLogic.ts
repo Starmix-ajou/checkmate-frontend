@@ -354,6 +354,7 @@ export function KanbanLogic(projectId: string) {
         endDate: string
         priority: Task['priority']
         epicId: string
+        taskId: string
       }
     ): Promise<Task> => {
       if (!user?.accessToken) {
@@ -503,6 +504,7 @@ export function KanbanLogic(projectId: string) {
           endDate: nextWeek,
           priority: 'MEDIUM',
           epicId: EPICCUSTOM,
+          taskId: '',
         })
       } catch (error) {
         console.error('태스크 생성 실패:', error)
