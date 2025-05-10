@@ -21,11 +21,11 @@ type TaskModalProps = {
     data: Partial<{
       title: string
       description: string
-      status: 'TODO' | 'IN_PROGRESS' | 'DONE'
+      status: Task['status']
       assigneeEmail: string
       startDate: string
       endDate: string
-      priority: 'LOW' | 'MEDIUM' | 'HIGH'
+      priority: Task['priority']
       epicId: string
     }>
   ) => Promise<void>
@@ -92,7 +92,7 @@ export default function TaskModal({
   return (
     <>
       <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-      <div className="fixed top-0 right-0 h-full w-[500px] bg-white shadow-lg overflow-y-auto">
+      <div className="fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold">태스크 상세</h2>

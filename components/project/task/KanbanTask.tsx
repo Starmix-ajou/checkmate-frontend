@@ -25,11 +25,11 @@ type TaskProps = {
     data: Partial<{
       title?: string
       description?: string
-      status?: 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'DONE'
+      status?: Task['status']
       assigneeEmail?: string
       startDate?: string
       endDate?: string
-      priority?: 'LOW' | 'MEDIUM' | 'HIGH'
+      priority?: Task['priority']
       epicId?: string
     }>
   ) => void

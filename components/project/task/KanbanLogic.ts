@@ -10,12 +10,23 @@ import { useCallback, useEffect, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
-const EPICCUSTOM = '681b7cb51706bf23240428a3'
+const EPICCUSTOM = '681f663cf6f5af421eb58947'
 
 // API 엔드포인트 상수
 const API_ENDPOINTS = {
   TASKS: `${API_BASE_URL}/task`,
 } as const
+
+type TaskUpdateData = Partial<{
+  title: string
+  description: string
+  status: Task['status']
+  assigneeEmail: string
+  startDate: string
+  endDate: string
+  priority: Task['priority']
+  epicId: string
+}>
 
 export function KanbanLogic(projectId: string) {
   const user = useAuthStore((state) => state.user)
@@ -134,16 +145,7 @@ export function KanbanLogic(projectId: string) {
 
   const updateTask = async (
     taskId: string,
-    taskData: Partial<{
-      title: string
-      description: string
-      status: 'TODO' | 'IN_PROGRESS' | 'DONE'
-      assigneeEmail: string
-      startDate: string
-      endDate: string
-      priority: 'LOW' | 'MEDIUM' | 'HIGH'
-      epicId: string
-    }>
+    taskData: TaskUpdateData
   ): Promise<void> => {
     if (!user?.accessToken) {
       throw new Error('인증 토큰이 없습니다.')
@@ -214,19 +216,7 @@ export function KanbanLogic(projectId: string) {
     }
   }
 
-  const handleTaskUpdate = async (
-    taskId: string,
-    data: Partial<{
-      title?: string
-      description?: string
-      status?: 'TODO' | 'IN_PROGRESS' | 'DONE'
-      assigneeEmail?: string
-      startDate?: string
-      endDate?: string
-      priority?: 'LOW' | 'MEDIUM' | 'HIGH'
-      epicId?: string
-    }>
-  ) => {
+  const handleTaskUpdate = async (taskId: string, data: TaskUpdateData) => {
     const task = Object.values(columns)
       .flat()
       .find((t) => t.taskId === taskId)
@@ -246,7 +236,7 @@ export function KanbanLogic(projectId: string) {
         return `${year}-${month}-${day}`
       }
 
-      const updateData = {
+      const updateData: TaskUpdateData = {
         title: data.title || task.title,
         description: data.description || task.description,
         status: data.status || task.status,
@@ -354,16 +344,18 @@ export function KanbanLogic(projectId: string) {
   }
 
   const createTask = useCallback(
-    async (taskData: {
-      title: string
-      description: string
-      status: 'TODO' | 'IN_PROGRESS' | 'DONE'
-      assigneeEmail: string
-      startDate: string
-      endDate: string
-      priority: 'LOW' | 'MEDIUM' | 'HIGH'
-      epicId: string
-    }): Promise<Task> => {
+    async (
+      taskData: TaskUpdateData & {
+        title: string
+        description: string
+        status: Task['status']
+        assigneeEmail: string
+        startDate: string
+        endDate: string
+        priority: Task['priority']
+        epicId: string
+      }
+    ): Promise<Task> => {
       if (!user?.accessToken) {
         throw new Error('인증 토큰이 없습니다.')
       }
