@@ -11,6 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { useProjectStore } from '@/stores/useProjectStore'
 import { CircleX, Search, SlidersHorizontal } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
@@ -20,6 +21,9 @@ export default function TasksPage() {
   const projectId = id as string
   const [searchText, setSearchText] = useState('')
   const [isToggled, setIsToggled] = useState(false)
+  const getProjectById = useProjectStore((state) => state.getProjectById)
+  const project = getProjectById(projectId)
+  const projectTitle = project?.project.title || '프로젝트'
 
   return (
     <div className="flex min-h-screen">
@@ -32,7 +36,7 @@ export default function TasksPage() {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink href={`/projects/${id}/overview`}>
-                프로젝트 - {id}
+                {projectTitle}
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
@@ -44,7 +48,7 @@ export default function TasksPage() {
 
         <div className="flex justify-between items-center mb-3 mt-2">
           <h1 className="text-3xl font-bold gap-4 text-black-01">
-            프로젝트 - {id}
+            {projectTitle}
           </h1>
         </div>
 
