@@ -16,7 +16,9 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
-export default function Navbar() {
+import { SidebarTrigger } from '../ui/sidebar'
+
+export default function ProjectNavbar() {
   const user = useAuthStore((state) => state.user)
   const clearUser = useAuthStore((state) => state.clearUser)
   const [loading, setLoading] = useState(true)
@@ -52,6 +54,7 @@ export default function Navbar() {
             priority
           />
         </Link>
+        <SidebarTrigger />
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-2">
