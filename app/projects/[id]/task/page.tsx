@@ -3,6 +3,7 @@
 import CalendarView from '@/components/project/task/CalendarView'
 import KanbanView from '@/components/project/task/KanbanView'
 import TaskFilter from '@/components/project/task/TaskFilter'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -25,6 +26,7 @@ type FilterOption = {
   priority: Task['priority'] | 'ALL'
   epicTitle: string
   sprint: string
+  assigneeId?: string
 }
 
 export default function TasksPage() {
@@ -34,10 +36,12 @@ export default function TasksPage() {
   const [isToggled, setIsToggled] = useState(false)
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
   const [filters, setFilters] = useState<FilterOption>({
     priority: 'ALL',
     epicTitle: '',
     sprint: '',
+    assigneeId: undefined,
   })
   const user = useAuthStore((state) => state.user)
 
@@ -122,6 +126,43 @@ export default function TasksPage() {
           <h1 className="text-3xl font-bold gap-4 text-black-01">
             {loading ? <Skeleton className="h-8 w-[200px]" /> : projectTitle}
           </h1>
+          {!loading && project && (
+            <div className="flex items-center gap-2">
+              {project.members.map((member) => (
+                <button
+                  key={member.userId}
+                  onClick={() => {
+                    setSelectedMemberId(
+                      selectedMemberId === member.userId ? null : member.userId
+                    )
+                    setFilters((prev) => ({
+                      ...prev,
+                      assigneeId:
+                        selectedMemberId === member.userId
+                          ? undefined
+                          : member.userId,
+                    }))
+                  }}
+                  className="flex flex-col items-center gap-1"
+                >
+                  <Avatar
+                    className={`w-10 h-10 transition-all ${
+                      selectedMemberId === member.userId
+                        ? 'ring-2 ring-cm'
+                        : 'opacity-50 hover:opacity-100'
+                    }`}
+                  >
+                    <AvatarImage
+                      src={member.profileImageUrl}
+                      alt={member.name}
+                    />
+                    <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs text-center">{member.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center mb-6">
