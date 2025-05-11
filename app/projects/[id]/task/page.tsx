@@ -36,7 +36,6 @@ export default function TasksPage() {
   const [isToggled, setIsToggled] = useState(false)
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
-  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
   const [filters, setFilters] = useState<FilterOption>({
     priority: 'ALL',
     epicTitle: '',
@@ -132,13 +131,10 @@ export default function TasksPage() {
                 <button
                   key={member.userId}
                   onClick={() => {
-                    setSelectedMemberId(
-                      selectedMemberId === member.userId ? null : member.userId
-                    )
                     setFilters((prev) => ({
                       ...prev,
                       assigneeId:
-                        selectedMemberId === member.userId
+                        prev.assigneeId === member.userId
                           ? undefined
                           : member.userId,
                     }))
@@ -147,7 +143,7 @@ export default function TasksPage() {
                 >
                   <Avatar
                     className={`w-10 h-10 transition-all ${
-                      selectedMemberId === member.userId
+                      filters.assigneeId === member.userId
                         ? 'ring-2 ring-cm'
                         : 'opacity-50 hover:opacity-100'
                     }`}
