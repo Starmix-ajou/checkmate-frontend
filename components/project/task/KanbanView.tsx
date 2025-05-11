@@ -16,10 +16,15 @@ export default function KanbanView({
   projectId,
   members,
   searchText,
+  filters,
 }: {
   projectId: string
   members: Member[]
   searchText: string
+  filters: {
+    priority: Task['priority'] | 'ALL'
+    epicTitle: string
+  }
 }) {
   const {
     columns,
@@ -46,19 +51,31 @@ export default function KanbanView({
     setForceUpdate((prev) => prev + 1)
   }, [columns])
 
-  // 검색어에 따라 태스크를 필터링하는 함수
-  const filterTasksBySearch = (tasks: Task[]) => {
-    if (!searchText) return tasks
-    return tasks.filter((task) =>
-      task.title.toLowerCase().includes(searchText.toLowerCase())
-    )
+  // 검색어와 필터에 따라 태스크를 필터링하는 함수
+  const filterTasks = (tasks: Task[]) => {
+    return tasks.filter((task) => {
+      // 검색어 필터링
+      const matchesSearch =
+        !searchText ||
+        task.title.toLowerCase().includes(searchText.toLowerCase())
+
+      // 우선순위 필터링
+      const matchesPriority =
+        filters.priority === 'ALL' || task.priority === filters.priority
+
+      // 에픽 필터링
+      const matchesEpic =
+        !filters.epicTitle || task.epic.title === filters.epicTitle
+
+      return matchesSearch && matchesPriority && matchesEpic
+    })
   }
 
   // 필터링된 컬럼 데이터 생성
   const filteredColumns = {
-    todo: filterTasksBySearch(columns.todo),
-    inProgress: filterTasksBySearch(columns.inProgress),
-    done: filterTasksBySearch(columns.done),
+    todo: filterTasks(columns.todo),
+    inProgress: filterTasks(columns.inProgress),
+    done: filterTasks(columns.done),
   }
 
   const handleTaskSelect = (taskId: string, isSelected: boolean) => {

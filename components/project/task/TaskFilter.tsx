@@ -1,0 +1,141 @@
+import { Task } from '@/types/userTask'
+import { SlidersHorizontal } from 'lucide-react'
+import { useState } from 'react'
+
+type FilterOption = {
+  priority: Task['priority'] | 'ALL'
+  epicTitle: string
+}
+
+type TaskFilterProps = {
+  epics: { epicId: string; title: string }[]
+  onFilterChange: (filters: FilterOption) => void
+}
+
+export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
+  const [isHovered, setIsHovered] = useState(false)
+  const [isFixed, setIsFixed] = useState(false)
+  const [activeFilter, setActiveFilter] = useState<keyof FilterOption | null>(
+    null
+  )
+  const [filters, setFilters] = useState<FilterOption>({
+    priority: 'ALL',
+    epicTitle: '',
+  })
+
+  const handleFilterChange = (key: keyof FilterOption, value: string) => {
+    const newFilters = { ...filters, [key]: value }
+    setFilters(newFilters)
+    onFilterChange(newFilters)
+  }
+
+  const handleIconClick = () => {
+    setIsFixed(!isFixed)
+    if (!isFixed) {
+      setIsHovered(true)
+    }
+  }
+
+  return (
+    <div className="relative flex items-center">
+      <div className="flex items-center">
+        <div className="relative">
+          <button
+            onClick={handleIconClick}
+            className="flex items-center justify-center w-8 h-8"
+            onMouseEnter={() => !isFixed && setIsHovered(true)}
+            onMouseLeave={() => !isFixed && setIsHovered(false)}
+          >
+            <SlidersHorizontal
+              size={20}
+              className={`transition-colors ${
+                isFixed ? 'text-black-01' : 'text-gray-01 hover:text-black-01'
+              }`}
+            />
+          </button>
+        </div>
+
+        {(isHovered || isFixed) && (
+          <div className="absolute right-full mr-4 flex items-center gap-4">
+            <div className="relative">
+              <button
+                className={`text-sm whitespace-nowrap ${
+                  activeFilter === 'priority' ? 'text-black-01' : 'text-gray-01'
+                }`}
+                onClick={() =>
+                  setActiveFilter(
+                    activeFilter === 'priority' ? null : 'priority'
+                  )
+                }
+              >
+                Priority
+              </button>
+              {activeFilter === 'priority' && (
+                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-10">
+                  <div
+                    className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
+                    onClick={() => handleFilterChange('priority', 'ALL')}
+                  >
+                    ALL
+                  </div>
+                  {['LOW', 'MEDIUM', 'HIGH'].map((priority) => (
+                    <div
+                      key={priority}
+                      className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
+                      onClick={() =>
+                        handleFilterChange(
+                          'priority',
+                          priority as Task['priority']
+                        )
+                      }
+                    >
+                      {priority}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="relative">
+              <button
+                className={`text-sm whitespace-nowrap ${
+                  activeFilter === 'epicTitle'
+                    ? 'text-black-01'
+                    : 'text-gray-01'
+                }`}
+                onClick={() =>
+                  setActiveFilter(
+                    activeFilter === 'epicTitle' ? null : 'epicTitle'
+                  )
+                }
+              >
+                Epic
+              </button>
+              {activeFilter === 'epicTitle' && (
+                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-10">
+                  <div
+                    className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
+                    onClick={() => handleFilterChange('epicTitle', '')}
+                  >
+                    ALL
+                  </div>
+                  {epics.map((epic) => (
+                    <div
+                      key={epic.epicId}
+                      className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
+                      onClick={() =>
+                        handleFilterChange('epicTitle', epic.title)
+                      }
+                    >
+                      {epic.title}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
