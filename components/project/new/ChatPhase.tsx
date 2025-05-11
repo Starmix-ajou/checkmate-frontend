@@ -3,6 +3,7 @@
 import { phases } from '@/components/project/new/phases'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
+import { Checkbox } from '@/components/ui/checkbox'
 import { FileUpload } from '@/components/ui/file-upload'
 import { Input } from '@/components/ui/input'
 import {
@@ -21,6 +22,7 @@ import { ArrowUp, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
 
+import { DefinitionTable } from './DefinitionTable'
 import { FeatureTable } from './FeatureTable'
 import { TeamMemberTable } from './TeamMemberTable'
 
@@ -51,11 +53,20 @@ export default function ChatPhase({
   const [file, setFile] = useState<File | null>(null)
   const [skipFile, setSkipFile] = useState(false)
   const [tableData, setTableData] = useState<TeamMember[]>([])
+  const [isSSEConnected, setIsSSEConnected] = useState(false)
 
   const [projectTitle, setProjectTitle] = useState('')
   const [projectDescription, setProjectDescription] = useState(formPhaseInput)
 
   const user = useAuthStore((state) => state.user)
+
+  const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([])
+
+  const handleSuggestionChange = (suggestion: string, checked: boolean) => {
+    setSelectedSuggestions((prev) =>
+      checked ? [...prev, suggestion] : prev.filter((s) => s !== suggestion)
+    )
+  }
 
   const sendProjectDefinition = async () => {
     if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
@@ -84,10 +95,11 @@ export default function ChatPhase({
     console.log(tableData)
 
     console.log(body)
+    console.log('정의서 POST')
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/test/definition`,
+        `${process.env.NEXT_PUBLIC_API_URL}/project/definition`,
         {
           method: 'POST',
           headers: {
@@ -105,6 +117,7 @@ export default function ChatPhase({
   }
 
   const startSSE = () => {
+    if (isSSEConnected) return
     const token = user?.accessToken
     if (!token) return console.warn('JWT 토큰이 존재하지 않습니다.')
 
@@ -120,6 +133,7 @@ export default function ChatPhase({
 
     eventSource.onopen = async () => {
       console.log('SSE 연결 성공')
+      setIsSSEConnected(true)
       sendProjectDefinition()
     }
 
@@ -182,6 +196,7 @@ export default function ChatPhase({
     eventSource.onerror = (err) => {
       console.error('SSE 연결 오류:', err)
       eventSource.close()
+      setIsSSEConnected(false)
     }
   }
 
@@ -239,10 +254,16 @@ export default function ChatPhase({
         if (phase.id === 7) {
           // 피드백 전송
           if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
+          console.log('피드백 전송')
+          console.log(
+            messageText +
+              '\n 선택한 기능 목록: ' +
+              selectedSuggestions.join(', ')
+          )
 
           try {
             const res = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/test/specification`,
+              `${process.env.NEXT_PUBLIC_API_URL}/project/definition`,
               {
                 method: 'PUT',
                 headers: {
@@ -250,19 +271,23 @@ export default function ChatPhase({
                   Authorization: `Bearer ${user.accessToken}`,
                 },
                 body: JSON.stringify({
-                  feedback: messageText,
+                  feedback:
+                    messageText +
+                    '\n 선택한 기능 목록: ' +
+                    selectedSuggestions.join(', '),
                 }),
               }
             )
 
             if (!res.ok) throw new Error(`피드백 전송 실패: ${res.status}`)
+            setSelectedSuggestions([])
           } catch (error) {
             console.error('피드백 전송 에러:', error)
           }
         } else {
           await sendProjectDefinition()
+          startSSE()
         }
-        startSSE()
       } else {
         onNext()
       }
@@ -276,24 +301,7 @@ export default function ChatPhase({
           {msg.tableData.features && (
             <div className="mb-4">
               <h3 className="font-semibold mb-2">기능 목록</h3>
-              <FeatureTable
-                data={msg.tableData.features}
-                onDataChange={(newFeatures) => {
-                  setMessages((prev) =>
-                    prev.map((m) =>
-                      m === msg
-                        ? {
-                            ...m,
-                            tableData: {
-                              ...m.tableData!,
-                              features: newFeatures,
-                            },
-                          }
-                        : m
-                    )
-                  )
-                }}
-              />
+              <DefinitionTable data={msg.tableData.features} />
             </div>
           )}
           {msg.tableData.suggestions && (
@@ -302,9 +310,23 @@ export default function ChatPhase({
               {msg.tableData.suggestions.map((suggestion, index) => (
                 <div key={index} className="mb-4">
                   <p className="font-medium mb-1">{suggestion.question}</p>
-                  <ul className="list-disc pl-5">
+                  <ul className="list-none pl-5 space-y-2">
                     {suggestion.answers.map((answer, ansIndex) => (
-                      <li key={ansIndex}>{answer}</li>
+                      <li key={ansIndex} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`suggestion-${index}-${ansIndex}`}
+                          checked={selectedSuggestions.includes(answer)}
+                          onCheckedChange={(checked) =>
+                            handleSuggestionChange(answer, checked as boolean)
+                          }
+                        />
+                        <label
+                          htmlFor={`suggestion-${index}-${ansIndex}`}
+                          className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {answer}
+                        </label>
+                      </li>
                     ))}
                   </ul>
                 </div>
