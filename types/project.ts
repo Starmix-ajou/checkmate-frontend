@@ -37,6 +37,12 @@ export type Project = {
   members: Member[]
   leader: Member
   imageUrl: string
+  epics: {
+    epicId: string
+    title: string
+    description: string
+    projectId: string
+  }[]
 }
 
 export type ProjectStatus = '' | 'ACTIVE' | 'ARCHIVED' | 'PENDING'

@@ -2,6 +2,7 @@
 
 import CalendarView from '@/components/project/task/CalendarView'
 import KanbanView from '@/components/project/task/KanbanView'
+import TaskFilter from '@/components/project/task/TaskFilter'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,11 +14,17 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Project } from '@/types/project'
-import { CircleX, Search, SlidersHorizontal } from 'lucide-react'
+import { Task } from '@/types/userTask'
+import { CircleX, Search } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
+
+type FilterOption = {
+  priority: Task['priority'] | 'ALL'
+  epicTitle: string
+}
 
 export default function TasksPage() {
   const { id } = useParams()
@@ -26,6 +33,10 @@ export default function TasksPage() {
   const [isToggled, setIsToggled] = useState(false)
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
+  const [filters, setFilters] = useState<FilterOption>({
+    priority: 'ALL',
+    epicTitle: '',
+  })
   const user = useAuthStore((state) => state.user)
 
   useEffect(() => {
@@ -114,18 +125,16 @@ export default function TasksPage() {
           </div>
 
           <div className="flex flex-row justify-end h-[36px]">
-            <div className="py-1.5 cursor-pointer mr-3 flex items-center">
-              <SlidersHorizontal
-                size={20}
-                className="text-gray-01 transition-colors hover:text-black-01 focus:text-black-01 active:text-black-01"
-              />
-            </div>
+            <TaskFilter
+              epics={project?.epics || []}
+              onFilterChange={setFilters}
+            />
 
-            <div className="flex items-center border-1 border-[#F7F7F7] bg-[#F7F7F7] rounded-full px-3 py-2 w-64 relative">
+            <div className="flex items-center border-1 border-[#F7F7F7] bg-[#F7F7F7] rounded-full px-3 py-2 w-64 relative ml-3">
               <Search size={24} className="text-gray-01 shrink-0 mr-2" />
               <input
                 type="text"
-                className="outline-none text-black-01 text-base font-medium placeholder-gray-01 placeholder-base w-full pr-8" // w-full과 pr-8을 추가해줍니다
+                className="outline-none text-black-01 text-base font-medium placeholder-gray-01 placeholder-base w-full pr-8"
                 placeholder="검색"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
@@ -133,7 +142,7 @@ export default function TasksPage() {
               {searchText && (
                 <CircleX
                   size={16}
-                  className="text-gray-01 cursor-pointer shrink-0 absolute right-3" // absolute와 right-3을 추가하여 CircleX를 input의 오른쪽 끝에 위치시킵니다
+                  className="text-gray-01 cursor-pointer shrink-0 absolute right-3"
                   onClick={() => setSearchText('')}
                 />
               )}
@@ -149,6 +158,7 @@ export default function TasksPage() {
             projectId={projectId}
             members={project?.members || []}
             searchText={searchText}
+            filters={filters}
           />
         )}
       </div>
