@@ -24,6 +24,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 type FilterOption = {
   priority: Task['priority'] | 'ALL'
   epicTitle: string
+  sprint: string
 }
 
 export default function TasksPage() {
@@ -36,6 +37,7 @@ export default function TasksPage() {
   const [filters, setFilters] = useState<FilterOption>({
     priority: 'ALL',
     epicTitle: '',
+    sprint: '',
   })
   const user = useAuthStore((state) => state.user)
 
@@ -44,19 +46,41 @@ export default function TasksPage() {
 
     const fetchProjectDetails = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/project/${id}`, {
+        // 프로젝트 상세 정보 가져오기
+        const projectResponse = await fetch(`${API_BASE_URL}/project/${id}`, {
           headers: {
             Accept: '*/*',
             Authorization: `Bearer ${user?.accessToken}`,
           },
         })
 
-        if (!response.ok) {
+        if (!projectResponse.ok) {
           throw new Error('프로젝트 상세 정보 불러오기 실패')
         }
 
-        const data = await response.json()
-        setProject(data)
+        const projectData = await projectResponse.json()
+        setProject(projectData)
+
+        // 에픽 목록 가져오기
+        const epicsResponse = await fetch(
+          `${API_BASE_URL}/epic?projectId=${id}`,
+          {
+            headers: {
+              Accept: '*/*',
+              Authorization: `Bearer ${user?.accessToken}`,
+            },
+          }
+        )
+
+        if (!epicsResponse.ok) {
+          throw new Error('에픽 목록 불러오기 실패')
+        }
+
+        const epicsData = await epicsResponse.json()
+        console.log('에픽 목록:', epicsData)
+
+        // 프로젝트 데이터에 에픽 목록 추가
+        setProject((prev) => (prev ? { ...prev, epics: epicsData } : null))
       } catch (error) {
         console.error(error)
       } finally {

@@ -5,10 +5,16 @@ import { useState } from 'react'
 type FilterOption = {
   priority: Task['priority'] | 'ALL'
   epicTitle: string
+  sprint: string
 }
 
 type TaskFilterProps = {
-  epics: { epicId: string; title: string }[]
+  epics: {
+    epicId: string
+    title: string
+    description: string
+    projectId: string
+  }[]
   onFilterChange: (filters: FilterOption) => void
 }
 
@@ -21,6 +27,7 @@ export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
   const [filters, setFilters] = useState<FilterOption>({
     priority: 'ALL',
     epicTitle: '',
+    sprint: '',
   })
 
   const handleFilterChange = (key: keyof FilterOption, value: string) => {
@@ -136,6 +143,40 @@ export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
                       {epic.title}
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+
+            <div className="relative">
+              <button
+                className={`text-sm whitespace-nowrap ${
+                  activeFilter === 'sprint' ? 'text-black-01' : 'text-gray-01'
+                }`}
+                onClick={() =>
+                  setActiveFilter(activeFilter === 'sprint' ? null : 'sprint')
+                }
+              >
+                Sprint
+              </button>
+              {activeFilter === 'sprint' && (
+                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-10">
+                  <div
+                    className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap text-[#795548]"
+                    onClick={() => handleFilterChange('sprint', '')}
+                  >
+                    ALL
+                  </div>
+                  {['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'].map(
+                    (sprint) => (
+                      <div
+                        key={sprint}
+                        className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
+                        onClick={() => handleFilterChange('sprint', sprint)}
+                      >
+                        {sprint}
+                      </div>
+                    )
+                  )}
                 </div>
               )}
             </div>
