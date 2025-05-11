@@ -83,7 +83,7 @@ export default function ProjectSidebar() {
   )?.role
 
   return (
-    <Sidebar className="mt-12">
+    <Sidebar className="mt-12 h-[calc(100svh-3rem)]">
       <SidebarHeader className="flex p-2 border-b">
         <div className="flex items-center gap-2">
           <DropdownMenu>

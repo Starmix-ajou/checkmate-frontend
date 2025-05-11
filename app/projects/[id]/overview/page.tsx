@@ -75,7 +75,7 @@ export default function ProjectOverview() {
   return (
     <>
       <LoadingCheckMate size={64} loading={loading} />
-      <div className="flex min-h-screen w-full">
+      <div className="flex w-full">
         <div className="flex-1 p-6">
           <Breadcrumb>
             <BreadcrumbList>
