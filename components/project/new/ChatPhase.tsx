@@ -159,6 +159,26 @@ export default function ChatPhase({
       }
     })
 
+    eventSource.addEventListener('create-feature-specification', (event) => {
+      if ('data' in event) {
+        const message = event as MessageEvent
+        try {
+          const parsed = JSON.parse(message.data)
+          console.log('SSE 수신 (create-feature-specification):', parsed)
+
+          const specifications = parsed?.suggestion?.specifications ?? []
+
+          if (specifications.length > 0) {
+            addMessage('ai', '기능 명세를 생성했습니다.', {
+              specifications,
+            })
+          }
+        } catch (error) {
+          console.error('SSE 데이터 파싱 오류:', error)
+        }
+      }
+    })
+
     eventSource.onerror = (err) => {
       console.error('SSE 연결 오류:', err)
       eventSource.close()
@@ -216,7 +236,32 @@ export default function ChatPhase({
       addMessage('ai', nextPhase?.question || '로딩중')
 
       if (!nextPhase || nextPhase.id > 6) {
-        await sendProjectDefinition()
+        if (phase.id === 7) {
+          // 피드백 전송
+          if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
+
+          try {
+            const res = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/test/specification`,
+              {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${user.accessToken}`,
+                },
+                body: JSON.stringify({
+                  feedback: messageText,
+                }),
+              }
+            )
+
+            if (!res.ok) throw new Error(`피드백 전송 실패: ${res.status}`)
+          } catch (error) {
+            console.error('피드백 전송 에러:', error)
+          }
+        } else {
+          await sendProjectDefinition()
+        }
         startSSE()
       } else {
         onNext()
@@ -264,6 +309,29 @@ export default function ChatPhase({
                   </ul>
                 </div>
               ))}
+            </div>
+          )}
+          {msg.tableData.specifications && (
+            <div className="mb-4">
+              <h3 className="font-semibold mb-2">기능 명세</h3>
+              <FeatureTable
+                data={msg.tableData.specifications}
+                onDataChange={(newSpecifications) => {
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m === msg
+                        ? {
+                            ...m,
+                            tableData: {
+                              ...m.tableData!,
+                              specifications: newSpecifications,
+                            },
+                          }
+                        : m
+                    )
+                  )
+                }}
+              />
             </div>
           )}
         </div>
