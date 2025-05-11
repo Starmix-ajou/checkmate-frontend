@@ -3,9 +3,5 @@ export default function AccountLayout({
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <>
-      <main className="pt-12">{children}</main>
-    </>
-  )
+  return <main className="pt-12 min-h-screen">{children}</main>
 }
