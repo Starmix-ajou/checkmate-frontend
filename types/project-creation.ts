@@ -7,6 +7,7 @@ export type Message = {
       question: string
       answers: string[]
     }[]
+    specifications?: Feature[]
   }
 }
 
