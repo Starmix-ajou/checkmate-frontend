@@ -12,17 +12,33 @@ import { LogOut, User } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 
 export default function Navbar() {
   const user = useAuthStore((state) => state.user)
+  const clearUser = useAuthStore((state) => state.clearUser)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     if (user !== null) {
       setLoading(false)
     }
   }, [user])
+
+  const handleSignOut = async () => {
+    try {
+      await signOut({ redirect: false })
+      clearUser()
+      toast.success('로그아웃이 완료되었습니다.')
+      router.push('/login')
+    } catch (error) {
+      toast.error('로그아웃 중 오류가 발생했습니다.')
+      console.log(error)
+    }
+  }
 
   return (
     <nav className="flex fixed w-full top-0 h-12 items-center justify-between p-4 border-b bg-white z-50">
@@ -54,7 +70,7 @@ export default function Navbar() {
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             className="flex items-center gap-2 cursor-pointer"
-            onClick={() => signOut({ callbackUrl: '/login' })}
+            onClick={handleSignOut}
           >
             <LogOut className="w-4 h-4" />
             로그아웃

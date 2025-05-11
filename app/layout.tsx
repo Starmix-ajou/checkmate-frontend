@@ -1,3 +1,4 @@
+import ToastProvider from '@/components/ToastProvider'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
@@ -28,7 +29,6 @@ export default function RootLayout({
     <Providers>
       <html lang="ko">
         <head>
-          {/* Pretendard CDN 추가 */}
           <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
@@ -37,6 +37,7 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased h-screen`}
         >
+          <ToastProvider />
           {children}
         </body>
       </html>
