@@ -26,7 +26,7 @@ type FilterOption = {
   priority: Task['priority'] | 'ALL'
   epicTitle: string
   sprint: string
-  assigneeId?: string
+  assigneeId: string[]
 }
 
 export default function TasksPage() {
@@ -40,7 +40,7 @@ export default function TasksPage() {
     priority: 'ALL',
     epicTitle: '',
     sprint: '',
-    assigneeId: undefined,
+    assigneeId: [],
   })
   const user = useAuthStore((state) => state.user)
 
@@ -133,17 +133,16 @@ export default function TasksPage() {
                   onClick={() => {
                     setFilters((prev) => ({
                       ...prev,
-                      assigneeId:
-                        prev.assigneeId === member.userId
-                          ? undefined
-                          : member.userId,
+                      assigneeId: prev.assigneeId.includes(member.userId)
+                        ? prev.assigneeId.filter((id) => id !== member.userId)
+                        : [...prev.assigneeId, member.userId],
                     }))
                   }}
                   className="flex flex-col items-center gap-1"
                 >
                   <Avatar
                     className={`w-10 h-10 transition-all ${
-                      filters.assigneeId === member.userId
+                      filters.assigneeId.includes(member.userId)
                         ? 'ring-2 ring-cm'
                         : 'opacity-50 hover:opacity-100'
                     }`}

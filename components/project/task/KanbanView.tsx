@@ -24,7 +24,7 @@ export default function KanbanView({
   filters: {
     priority: Task['priority'] | 'ALL'
     epicTitle: string
-    assigneeId?: string
+    assigneeId: string[]
   }
 }) {
   const {
@@ -70,7 +70,8 @@ export default function KanbanView({
 
       // 담당자 필터링
       const matchesAssignee =
-        !filters.assigneeId || task.assignee.userId === filters.assigneeId
+        filters.assigneeId.length === 0 ||
+        filters.assigneeId.includes(task.assignee.userId)
 
       return matchesSearch && matchesPriority && matchesEpic && matchesAssignee
     })
