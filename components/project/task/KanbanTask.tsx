@@ -10,7 +10,7 @@ import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { GripVertical } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { DayPicker } from 'react-day-picker'
+import { DayPicker, getDefaultClassNames } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 
 type TaskProps = {
@@ -64,6 +64,10 @@ export default function KanbanTask({
   const [startDate, setStartDate] = useState<Date>(new Date(initialStartDate))
   const [endDate, setEndDate] = useState<Date>(new Date(initialEndDate))
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  const [tempStartDate, setTempStartDate] = useState<Date>(
+    new Date(initialStartDate)
+  )
+  const [tempEndDate, setTempEndDate] = useState<Date>(new Date(initialEndDate))
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -232,7 +236,20 @@ export default function KanbanTask({
       </div>
 
       {/* Duration */}
-      <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+      <Popover
+        open={isCalendarOpen}
+        onOpenChange={(open) => {
+          setIsCalendarOpen(open)
+          if (!open) {
+            setStartDate(tempStartDate)
+            setEndDate(tempEndDate)
+            onUpdate?.(taskId, {
+              startDate: tempStartDate.toISOString(),
+              endDate: tempEndDate.toISOString(),
+            })
+          }
+        }}
+      >
         <PopoverTrigger asChild>
           <div
             className="text-xs text-gray-01 font-medium cursor-pointer hover:text-black-01 duration-text"
@@ -244,40 +261,23 @@ export default function KanbanTask({
         <PopoverContent className="w-auto p-0" align="start">
           <DayPicker
             mode="range"
-            selected={{ from: startDate, to: endDate }}
+            selected={{ from: tempStartDate, to: tempEndDate }}
             onSelect={(range) => {
               if (range?.from) {
-                setStartDate(range.from)
+                setTempStartDate(range.from)
                 if (range.to) {
-                  setEndDate(range.to)
-                  onUpdate?.(taskId, {
-                    startDate: range.from.toISOString(),
-                    endDate: range.to.toISOString(),
-                  })
+                  setTempEndDate(range.to)
                 }
               }
             }}
             locale={ko}
             captionLayout="label"
             classNames={{
-              caption: 'flex justify-between items-center px-4 py-2',
-              nav: 'flex items-center justify-between w-full flex items-center px-4',
-              nav_button: 'text-gray-500 hover:text-black transition-colors',
-              caption_label:
-                'text-center font-semibold text-base w-full flex items-center justify-center text-black-01',
-              table: 'w-full border-collapse mt-4',
-              head_row:
-                'flex justify-between text-center text-gray-500 text-xs',
-              head_cell: 'w-full',
-              weekday:
-                'text-black-01 [&:first-child]:text-[#D91F11] [&:last-child]:text-[#D91F11]',
-            }}
-            modifiers={{
-              weekend: (date: Date) =>
-                date.getDay() === 0 || date.getDay() === 6,
-            }}
-            modifiersStyles={{
-              weekend: { color: '#D91F11' },
+              ...getDefaultClassNames(),
+              today: 'font-black',
+              selected: 'bg-[#795548] border-[#795548] text-black-01',
+              root: `${getDefaultClassNames().root} shadow-lg p-5`,
+              chevron: `${getDefaultClassNames().chevron} fill-[#795548] text-[#795548] hover:fill-[#795548] hover:text-[#795548]`,
             }}
             formatters={{
               formatCaption: (date) => format(date, 'yyyy. MM'),
@@ -286,28 +286,11 @@ export default function KanbanTask({
                 return weekdays[weekday.getDay()]
               },
             }}
-            styles={{
-              months: {
-                display: 'flex',
-                flexDirection: 'column',
-              },
-              caption: {
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-              },
-              nav: {
-                position: 'static',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              },
-              nav_button: {
-                width: '28px',
-                height: '28px',
-              },
+            modifiers={{
+              weekend: (date) => date.getDay() === 0 || date.getDay() === 6,
+            }}
+            modifiersStyles={{
+              weekend: { color: '#D91F11' },
             }}
           />
         </PopoverContent>
