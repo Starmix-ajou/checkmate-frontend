@@ -1,6 +1,7 @@
 'use client'
 
 import LoadingCheckMate from '@/components/LoadingCheckMate'
+import Navbar from '@/components/Navbar'
 import { ProjectFilter, ProjectList } from '@/components/project/home'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { ProjectListItem, ProjectStatus } from '@/types/project'
@@ -69,6 +70,7 @@ const Home = () => {
 
   return (
     <>
+      <Navbar />
       <LoadingCheckMate size={64} loading={loading} />
       <div className="p-6 w-full max-w-7xl mx-auto">
         <ProjectFilter setFilter={setFilter} />

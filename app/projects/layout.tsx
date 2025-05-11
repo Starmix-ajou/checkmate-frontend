@@ -1,5 +1,3 @@
-import Navbar from '@/components/Navbar'
-
 export default function AccountLayout({
   children,
 }: {
@@ -7,7 +5,6 @@ export default function AccountLayout({
 }) {
   return (
     <>
-      <Navbar />
       <main className="pt-12">{children}</main>
     </>
   )
