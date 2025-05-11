@@ -1,4 +1,5 @@
 import MainContent from '@/components/MainContent'
+import ProjectNavbar from '@/components/project/ProjectNavbar'
 import ProjectSidebar from '@/components/project/Sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import '@blocknote/core/fonts/inter.css'
@@ -14,6 +15,7 @@ export default function ProjectsLayout({
 }) {
   return (
     <SidebarProvider>
+      <ProjectNavbar />
       <ProjectSidebar />
       <MainContent>{children}</MainContent>
     </SidebarProvider>
