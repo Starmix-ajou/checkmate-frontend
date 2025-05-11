@@ -73,7 +73,7 @@ export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
               {activeFilter === 'priority' && (
                 <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-10">
                   <div
-                    className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
+                    className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap text-[#795548]"
                     onClick={() => handleFilterChange('priority', 'ALL')}
                   >
                     ALL
@@ -81,7 +81,13 @@ export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
                   {['LOW', 'MEDIUM', 'HIGH'].map((priority) => (
                     <div
                       key={priority}
-                      className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
+                      className={`px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap ${
+                        priority === 'LOW'
+                          ? 'text-[#204206]'
+                          : priority === 'MEDIUM'
+                            ? 'text-[#B46C00]'
+                            : 'text-[#D91F11]'
+                      }`}
                       onClick={() =>
                         handleFilterChange(
                           'priority',
@@ -114,7 +120,7 @@ export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
               {activeFilter === 'epicTitle' && (
                 <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-10">
                   <div
-                    className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
+                    className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap text-[#795548]"
                     onClick={() => handleFilterChange('epicTitle', '')}
                   >
                     ALL
