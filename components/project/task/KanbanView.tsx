@@ -15,9 +15,11 @@ import TaskModal from './TaskModal'
 export default function KanbanView({
   projectId,
   members,
+  searchText,
 }: {
   projectId: string
   members: Member[]
+  searchText: string
 }) {
   const {
     columns,
@@ -43,6 +45,21 @@ export default function KanbanView({
   useEffect(() => {
     setForceUpdate((prev) => prev + 1)
   }, [columns])
+
+  // 검색어에 따라 태스크를 필터링하는 함수
+  const filterTasksBySearch = (tasks: Task[]) => {
+    if (!searchText) return tasks
+    return tasks.filter((task) =>
+      task.title.toLowerCase().includes(searchText.toLowerCase())
+    )
+  }
+
+  // 필터링된 컬럼 데이터 생성
+  const filteredColumns = {
+    todo: filterTasksBySearch(columns.todo),
+    inProgress: filterTasksBySearch(columns.inProgress),
+    done: filterTasksBySearch(columns.done),
+  }
 
   const handleTaskSelect = (taskId: string, isSelected: boolean) => {
     setSelectedTasks((prev) => {
@@ -178,13 +195,13 @@ export default function KanbanView({
                   To Do
                 </span>
                 <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
-                  ({columns.todo.length})
+                  ({filteredColumns.todo.length})
                 </span>
               </div>
             }
             columnKey="todo"
             bg="bg-[#F8F8F7] rounded-none"
-            tasks={columns.todo}
+            tasks={filteredColumns.todo}
             onTaskSelect={handleTaskSelect}
             onTaskUpdate={updateTaskAndState}
             onTaskClick={handleTaskClick}
@@ -197,13 +214,13 @@ export default function KanbanView({
                   In Progress
                 </span>
                 <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
-                  ({columns.inProgress.length})
+                  ({filteredColumns.inProgress.length})
                 </span>
               </div>
             }
             columnKey="inProgress"
             bg="bg-[#F3F9FC] rounded-none"
-            tasks={columns.inProgress}
+            tasks={filteredColumns.inProgress}
             onTaskSelect={handleTaskSelect}
             onTaskUpdate={updateTaskAndState}
             onTaskClick={handleTaskClick}
@@ -216,13 +233,13 @@ export default function KanbanView({
                   Done
                 </span>
                 <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
-                  ({columns.done.length})
+                  ({filteredColumns.done.length})
                 </span>
               </div>
             }
             columnKey="done"
             bg="bg-[#F6FAF6] rounded-none"
-            tasks={columns.done}
+            tasks={filteredColumns.done}
             onTaskSelect={handleTaskSelect}
             onTaskUpdate={updateTaskAndState}
             onTaskClick={handleTaskClick}

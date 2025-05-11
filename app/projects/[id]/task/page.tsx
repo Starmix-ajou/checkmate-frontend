@@ -145,7 +145,11 @@ export default function TasksPage() {
         {isToggled ? (
           <CalendarView />
         ) : (
-          <KanbanView projectId={projectId} members={project?.members || []} />
+          <KanbanView
+            projectId={projectId}
+            members={project?.members || []}
+            searchText={searchText}
+          />
         )}
       </div>
     </div>
