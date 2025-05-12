@@ -8,19 +8,26 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { ProjectStatus } from '@/types/project'
 import { LogOut, User } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
-export default function Navbar() {
+type NavbarProps = {
+  setFilter: (filter: ProjectStatus) => void
+  currentFilter?: ProjectStatus
+}
+
+export default function Navbar({ setFilter, currentFilter = '' }: NavbarProps) {
   const user = useAuthStore((state) => state.user)
   const clearUser = useAuthStore((state) => state.clearUser)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     if (user !== null) {
@@ -42,7 +49,7 @@ export default function Navbar() {
 
   return (
     <nav className="flex fixed w-full top-0 h-12 items-center justify-between p-4 border-b bg-white z-50">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-8">
         <Link href="/projects" className="text-xl font-bold">
           <Image
             src="/logo.svg"
@@ -52,6 +59,50 @@ export default function Navbar() {
             priority
           />
         </Link>
+        {pathname === '/projects' && (
+          <div className="flex gap-8">
+            <button
+              onClick={() => setFilter('')}
+              className={`text-sm font-medium h-12 border-b-2 transition-colors ${
+                currentFilter === ''
+                  ? 'border-cm text-cm'
+                  : 'border-transparent hover:border-cm'
+              }`}
+            >
+              전체 프로젝트
+            </button>
+            <button
+              onClick={() => setFilter('ACTIVE')}
+              className={`text-sm font-medium h-12 border-b-2 transition-colors ${
+                currentFilter === 'ACTIVE'
+                  ? 'border-cm text-cm'
+                  : 'border-transparent hover:border-cm'
+              }`}
+            >
+              진행중 프로젝트
+            </button>
+            <button
+              onClick={() => setFilter('ARCHIVED')}
+              className={`text-sm font-medium h-12 border-b-2 transition-colors ${
+                currentFilter === 'ARCHIVED'
+                  ? 'border-cm text-cm'
+                  : 'border-transparent hover:border-cm'
+              }`}
+            >
+              지난 프로젝트
+            </button>
+            <button
+              onClick={() => setFilter('PENDING')}
+              className={`text-sm font-medium h-12 border-b-2 transition-colors ${
+                currentFilter === 'PENDING'
+                  ? 'border-cm text-cm'
+                  : 'border-transparent hover:border-cm'
+              }`}
+            >
+              초대받은 프로젝트
+            </button>
+          </div>
+        )}
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-2">

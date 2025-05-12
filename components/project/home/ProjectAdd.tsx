@@ -1,6 +1,6 @@
 'use client'
 
-import { CirclePlus } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 
 const ProjectAdd = () => {
@@ -11,12 +11,9 @@ const ProjectAdd = () => {
   }
 
   return (
-    <button
-      onClick={handleClick}
-      className="ml-4 p-2 rounded-full hover:bg-gray-200 transition"
-    >
-      <CirclePlus className="text-gray-600 hover:text-black" size={28} />
-    </button>
+    <Button variant="cm" onClick={handleClick}>
+      새 프로젝트 추가
+    </Button>
   )
 }
 
