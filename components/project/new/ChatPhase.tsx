@@ -21,6 +21,7 @@ import { EventSourcePolyfill } from 'event-source-polyfill'
 import { ArrowUp, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
+import CheckMateLogoSpinner from '@/components/CheckMateSpinner'
 
 import { DefinitionTable } from './DefinitionTable'
 import { FeatureTable } from './FeatureTable'
@@ -61,6 +62,8 @@ export default function ChatPhase({
   const user = useAuthStore((state) => state.user)
 
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([])
+
+  const [isLoadingSpecification, setIsLoadingSpecification] = useState(false)
 
   const handleSuggestionChange = (suggestion: string, checked: boolean) => {
     setSelectedSuggestions((prev) =>
@@ -226,15 +229,17 @@ export default function ChatPhase({
           const parsed = JSON.parse(message.data)
           console.log('SSE 수신 (create-feature-specification):', parsed)
 
-          const specifications = parsed?.suggestion?.specifications ?? []
+          const features = parsed?.features ?? []
 
-          if (specifications.length > 0) {
+          if (features.length > 0) {
+            setIsLoadingSpecification(false)
             addMessage('ai', '기능 명세를 생성했습니다.', {
-              specifications,
+              specifications: features
             })
           }
         } catch (error) {
           console.error('SSE 데이터 파싱 오류:', error)
+          setIsLoadingSpecification(false)
         }
       }
     })
@@ -331,6 +336,7 @@ export default function ChatPhase({
             console.error('피드백 전송 에러:', error)
           }
         } else {
+          setIsLoadingSpecification(true)
           startSSE()
         }
       } else {
@@ -536,6 +542,11 @@ export default function ChatPhase({
             {renderMessage(msg)}
           </div>
         ))}
+        {isLoadingSpecification && (
+          <div className="flex justify-center items-center py-4">
+            <CheckMateLogoSpinner size={48} />
+          </div>
+        )}
       </div>
 
       <div className="fixed bottom-0 left-0 w-full bg-white p-4 flex items-center gap-2">
