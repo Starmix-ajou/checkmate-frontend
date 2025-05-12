@@ -39,6 +39,7 @@ export default function KanbanView({
     deleteTask,
     handleTaskUpdate: updateTaskOnServer,
     getTaskById,
+    fetchTasks,
   } = KanbanLogic(projectId)
 
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set())
@@ -48,33 +49,24 @@ export default function KanbanView({
   )
   const [forceUpdate, setForceUpdate] = useState(0)
 
+  // 필터가 변경될 때마다 서버에서 데이터를 다시 가져옴
+  useEffect(() => {
+    fetchTasks(filters)
+  }, [filters, fetchTasks])
+
   // columns가 변경될 때마다 강제로 리렌더링
   useEffect(() => {
     setForceUpdate((prev) => prev + 1)
   }, [columns])
 
-  // 검색어와 필터에 따라 태스크를 필터링하는 함수
+  // 검색어에 따라 태스크를 필터링하는 함수
   const filterTasks = (tasks: Task[]) => {
     return tasks.filter((task) => {
-      // 검색어 필터링
-      const matchesSearch =
+      // 검색어 필터링만 클라이언트에서 수행
+      return (
         !searchText ||
         task.title.toLowerCase().includes(searchText.toLowerCase())
-
-      // 우선순위 필터링
-      const matchesPriority =
-        filters.priority === 'ALL' || task.priority === filters.priority
-
-      // 에픽 필터링
-      const matchesEpic =
-        !filters.epicTitle || task.epic.title === filters.epicTitle
-
-      // 담당자 필터링
-      const matchesAssignee =
-        filters.assigneeId.length === 0 ||
-        filters.assigneeId.includes(task.assignee.userId)
-
-      return matchesSearch && matchesPriority && matchesEpic && matchesAssignee
+      )
     })
   }
 
