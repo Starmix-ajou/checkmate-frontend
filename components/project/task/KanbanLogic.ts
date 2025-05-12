@@ -10,11 +10,12 @@ import { useCallback, useEffect, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
-const EPICCUSTOM = '681f663cf6f5af421eb58947'
+const EPICCUSTOM = '6821df1f4f10381b51dd11b1' //제발에픽의 Id
 
 // API 엔드포인트 상수
 const API_ENDPOINTS = {
   TASKS: `${API_BASE_URL}/task`,
+  TASK_BY_ID: `${API_BASE_URL}/task`,
 } as const
 
 type TaskUpdateData = Partial<{
@@ -530,6 +531,37 @@ export function KanbanLogic(projectId: string) {
     }
   }
 
+  const getTaskById = async (taskId: string): Promise<Task> => {
+    if (!user?.accessToken) {
+      throw new Error('인증 토큰이 없습니다.')
+    }
+
+    try {
+      const response = await fetch(`${API_ENDPOINTS.TASK_BY_ID}/${taskId}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(
+          errorData?.message || `HTTP error! status: ${response.status}`
+        )
+      }
+
+      const task: Task = await response.json()
+      return task
+    } catch (error) {
+      console.error('태스크 조회 실패:', error)
+      throw error
+    }
+  }
+
   return {
     columns,
     loading,
@@ -543,5 +575,6 @@ export function KanbanLogic(projectId: string) {
     handleTaskUpdate,
     setColumns,
     deleteTask,
+    getTaskById,
   }
 }

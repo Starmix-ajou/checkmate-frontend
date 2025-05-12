@@ -38,6 +38,7 @@ export default function KanbanView({
     setColumns,
     deleteTask,
     handleTaskUpdate: updateTaskOnServer,
+    getTaskById,
   } = KanbanLogic(projectId)
 
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set())
@@ -308,6 +309,7 @@ export default function KanbanView({
           task={selectedTaskForModal}
           onUpdate={updateTaskAndState}
           members={members}
+          getTaskById={getTaskById}
         />
       )}
     </div>

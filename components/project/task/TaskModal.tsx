@@ -10,7 +10,7 @@ import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { ChevronDown, X } from 'lucide-react'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { DayPicker, getDefaultClassNames } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 
@@ -32,28 +32,69 @@ type TaskModalProps = {
       epicId: string
     }>
   ) => Promise<void>
+  getTaskById: (taskId: string) => Promise<Task>
 }
 
 export default function TaskModal({
   isOpen,
   onClose,
-  task,
+  task: initialTask,
   onUpdate,
   members,
+  getTaskById,
 }: TaskModalProps) {
-  const [title, setTitle] = useState(task.title)
-  const [description, setDescription] = useState(task.description || '')
-  const [priority, setPriority] = useState<Task['priority']>(task.priority)
-  const [status, setStatus] = useState<'TODO' | 'IN_PROGRESS' | 'DONE'>(
-    task.status
+  const [task, setTask] = useState<Task>(initialTask)
+  const [title, setTitle] = useState(initialTask.title)
+  const [description, setDescription] = useState(initialTask.description || '')
+  const [priority, setPriority] = useState<Task['priority']>(
+    initialTask.priority
   )
-  const [startDate, setStartDate] = useState<Date>(new Date(task.startDate))
-  const [endDate, setEndDate] = useState<Date>(new Date(task.endDate))
+  const [status, setStatus] = useState<'TODO' | 'IN_PROGRESS' | 'DONE'>(
+    initialTask.status
+  )
+  const [startDate, setStartDate] = useState<Date>(
+    new Date(initialTask.startDate)
+  )
+  const [endDate, setEndDate] = useState<Date>(new Date(initialTask.endDate))
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [isAssigneeOpen, setIsAssigneeOpen] = useState(false)
   const [selectedAssignee, setSelectedAssignee] = useState<Member | null>(
-    members.find((m) => m.email === task.assignee?.email) || null
+    members.find((m) => m.email === initialTask.assignee?.email) || null
   )
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchTask = async () => {
+      try {
+        setLoading(true)
+        const updatedTask = await getTaskById(initialTask.taskId)
+        console.log('개별 태스크 데이터:', updatedTask)
+        setTask(updatedTask)
+        setTitle(updatedTask.title)
+        setDescription(updatedTask.description || '')
+        setPriority(updatedTask.priority)
+        setStatus(updatedTask.status)
+        setStartDate(new Date(updatedTask.startDate))
+        setEndDate(new Date(updatedTask.endDate))
+        setSelectedAssignee(
+          members.find((m) => m.email === updatedTask.assignee?.email) || null
+        )
+      } catch (error) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : '태스크를 불러오는데 실패했습니다.'
+        )
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (isOpen) {
+      fetchTask()
+    }
+  }, [isOpen, initialTask.taskId, getTaskById, members])
 
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'yyyy.MM.dd')
@@ -133,6 +174,36 @@ export default function TaskModal({
 
   if (!isOpen) return null
 
+  if (loading) {
+    return (
+      <>
+        <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+        <div className="fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto">
+          <div className="p-6">
+            <div className="flex justify-center items-center h-full">
+              <p>로딩 중...</p>
+            </div>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  if (error) {
+    return (
+      <>
+        <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+        <div className="fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto">
+          <div className="p-6">
+            <div className="flex justify-center items-center h-full">
+              <p className="text-red-500">{error}</p>
+            </div>
+          </div>
+        </div>
+      </>
+    )
+  }
+
   return (
     <>
       <div className="fixed inset-0 bg-black/50" onClick={onClose} />
@@ -141,11 +212,11 @@ export default function TaskModal({
           <div className="flex justify-between items-start mb-6">
             <div>
               <h2 className="text-xl font-semibold">
-                {task.epic?.title || '에픽 없음'}
+                {task.epic.sprint?.title || '스프린트 없음'}
               </h2>
               {task.epic?.description && (
-                <p className="text-sm text-gray-500 mt-1">
-                  {task.epic.description}
+                <p className="text-base text-gray-01 mt-1">
+                  {task.epic.sprint?.description}
                 </p>
               )}
             </div>
@@ -158,9 +229,25 @@ export default function TaskModal({
           </div>
 
           <div className="grid gap-4">
+            {/* 에픽 정보 */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-500 mb-2">Epic</h3>
+              {task.epic?.title && (
+                <p className="text-base font-medium text-gray-700 mt-2">
+                  {task.epic.title}
+                </p>
+              )}
+              {task.epic?.description && (
+                <p className="text-sm text-gray-500 mt-1">
+                  {task.epic.description}
+                </p>
+              )}
+            </div>
             {/* 제목 */}
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Title</h3>
+              <h3 className="text-sm font-medium text-gray-500 mb-2">
+                Task Title
+              </h3>
               <input
                 type="text"
                 value={title}
