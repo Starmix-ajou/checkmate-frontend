@@ -134,7 +134,7 @@ export default function ChatPhase({
     eventSource.onopen = async () => {
       console.log('SSE 연결 성공')
       setIsSSEConnected(true)
-      sendProjectDefinition()
+      await sendProjectDefinition()
     }
 
     eventSource.onmessage = (event) => {
@@ -164,9 +164,55 @@ export default function ChatPhase({
           }
 
           setTimeout(() => {
-            eventSource.close()
             onNext()
           }, 1000)
+        } catch (error) {
+          console.error('SSE 데이터 파싱 오류:', error)
+        }
+      }
+    })
+
+    eventSource.addEventListener('feedback-feature-definition', (event) => {
+      if ('data' in event) {
+        const message = event as MessageEvent
+        try {
+          const parsed = JSON.parse(message.data)
+          console.log('SSE 수신 (feedback-feature-definition):', parsed)
+
+          const features: Feature[] = parsed?.features ?? []
+          const isNextStep = parsed?.isNextStep ?? false
+
+          if (features.length > 0) {
+            addMessage('ai', '피드백에 따른 기능 정의를 생성했습니다.', {
+              features,
+            })
+          }
+
+          if (!isNextStep) {
+            setTimeout(async () => {
+              if (!user?.accessToken)
+                return console.warn('JWT 토큰이 없습니다.')
+
+              try {
+                const res = await fetch(
+                  `${process.env.NEXT_PUBLIC_API_URL}/project/specification`,
+                  {
+                    method: 'GET',
+                    headers: {
+                      Authorization: `Bearer ${user.accessToken}`,
+                    },
+                  }
+                )
+
+                if (!res.ok)
+                  throw new Error(`명세 단계 전환 실패: ${res.status}`)
+
+                onNext()
+              } catch (error) {
+                console.error('명세 단계 전환 에러:', error)
+              }
+            }, 1000)
+          }
         } catch (error) {
           console.error('SSE 데이터 파싱 오류:', error)
         }
@@ -285,7 +331,6 @@ export default function ChatPhase({
             console.error('피드백 전송 에러:', error)
           }
         } else {
-          await sendProjectDefinition()
           startSSE()
         }
       } else {
