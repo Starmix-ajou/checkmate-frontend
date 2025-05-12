@@ -1,11 +1,14 @@
 'use client'
 
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import { Member, Profile } from '@/types/project'
-import { Calendar, Heart, Users } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import tinycolor from 'tinycolor2'
+
+import AvatarGroup from '../overview/AvatarGroup'
 
 type ProjectCardProps = {
   id: string
@@ -17,6 +20,28 @@ type ProjectCardProps = {
   imageUrl: string
 }
 
+const pastelColors = [
+  '#F5EAEA',
+  '#E9F0F6',
+  '#EDF4ED',
+  '#F9F6EC',
+  '#EFEFF6',
+  '#F6F3F0',
+  '#F3F1F5',
+  '#E7EFF2',
+  '#F0F0F0',
+  '#EBF3EC',
+]
+
+const getColorFromString = (str: string) => {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  const index = Math.abs(hash) % pastelColors.length
+  return pastelColors[index]
+}
+
 const ProjectCard = ({
   id,
   position,
@@ -26,87 +51,103 @@ const ProjectCard = ({
   endDate,
   imageUrl,
 }: ProjectCardProps) => {
-  const [isFavorited, setIsFavorited] = useState(false)
   const [today, setToday] = useState<Date | null>(null)
 
   useEffect(() => {
     setToday(new Date())
   }, [])
 
-  if (!today) {
-    return <div>Loading...</div>
-  }
+  const backgroundColor = useMemo(
+    () => getColorFromString(title + id),
+    [title, id]
+  )
 
-  const toggleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsFavorited((prev) => !prev)
-  }
+  const titleColor = useMemo(() => {
+    const bg = tinycolor(backgroundColor)
+    return bg.darken(20).saturate(15).toString()
+  }, [backgroundColor])
+
+  if (!today) return null
 
   const start = new Date(startDate)
   const end = new Date(endDate)
+  const totalDays = Math.ceil(
+    (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+  )
+  const elapsedDays = Math.ceil(
+    (today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+  )
+  const progress = Math.min((elapsedDays / totalDays) * 100, 100)
+  const dDay = Math.ceil(
+    (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  )
 
-  const totalDuration = end.getTime() - start.getTime()
-  const elapsedTime = today.getTime() - start.getTime()
-  const progress =
-    (elapsedTime / totalDuration) * 100 > 100
-      ? 100
-      : (elapsedTime / totalDuration) * 100
+  const memberAvatars = members.map((member) => ({
+    name: member.name,
+    src: member.profileImageUrl || '',
+  }))
 
   return (
-    <div className="w-90 h-50">
-      <Link href={`/projects/${id}/overview`}>
-        <Card className="w-full h-full cursor-pointer hover:shadow-lg transition-all ease-in-out duration-300 transform hover:scale-105">
-          <CardContent className="flex items-center justify-center h-full bg-gray-200 rounded-2xl overflow-hidden">
-            {imageUrl ? (
-              <Image
-                src={imageUrl}
-                alt={title}
-                width={360}
-                height={200}
-                className="object-cover w-full h-full"
-              />
-            ) : (
-              <span className="text-gray-500">image</span>
-            )}
-          </CardContent>
-        </Card>
-      </Link>
-
-      <div className="flex justify-between items-start pt-2 ml-4">
-        <div className="flex flex-col">
-          <div className="text-left font-semibold text-base">{title}</div>
-          <div className="text-left font-normal text-xs flex items-center text-gray-500">
-            <Calendar className="mr-1" size={14} />
-            {startDate} ~ {endDate}
-          </div>
-          <div className="text-left font-normal text-xs flex items-center text-gray-500 mt-1">
-            <Users className="mr-1" size={14} />
-            {members.length}명 참여 중
-          </div>
-          <div className="text-left font-normal text-xs flex items-center text-gray-500 mt-1">
+    <Link href={`/projects/${id}/overview`}>
+      <Card className="rounded-lg shadow-md transition hover:shadow-lg cursor-pointer w-90 max-w-md p-0 gap-0">
+        <div className="relative w-full h-40 rounded-t-lg overflow-hidden">
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={title}
+              fill
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <div
+              className="w-full h-full flex items-center"
+              style={{ backgroundColor }}
+            >
+              <span
+                className="text-4xl px-4 text-left text-nowrap"
+                style={{ color: titleColor }}
+              >
+                {title}
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="p-4">
+          <div className="text-lg font-semibold">{title}</div>
+          <div className="inline-block bg-orange-100 text-orange-600 text-xs font-medium px-2 py-1 rounded-md">
             {position.join(', ')}
           </div>
+          <div className="text-sm text-gray-500">
+            {startDate} ~ {endDate}
+          </div>
+
+          <div className="flex flex-col gap-2 pt-4">
+            <div className="flex items-center justify-between">
+              <AvatarGroup users={memberAvatars} />
+              <div className="text-xs text-gray-500">
+                {dDay < 0 ? 'Done' : `D-${dDay}`}
+              </div>
+            </div>
+            <div className="w-full">
+              <div className="relative h-5">
+                <Image
+                  src="/tabler-run.svg"
+                  alt="run"
+                  width={20}
+                  height={20}
+                  className="text-cm-blue absolute"
+                  style={{
+                    left: `${progress}%`,
+                    transform: 'translateX(-50%)',
+                  }}
+                />
+              </div>
+              <Progress value={progress} className="w-full h-1 rounded-full" />
+            </div>
+          </div>
         </div>
-
-        <Heart
-          className={`cursor-pointer ${isFavorited ? 'text-red-500' : 'text-gray-500'} mt-4 mr-4`}
-          size={18}
-          onClick={toggleFavorite}
-        />
-      </div>
-
-      <div className="border-b border-black my-2" />
-
-      <div className="w-full h-2 bg-gray-300 rounded-full mt-4">
-        <div
-          className="h-full rounded-full"
-          style={{
-            width: `${progress}%`,
-            backgroundColor: 'black',
-          }}
-        />
-      </div>
-    </div>
+      </Card>
+    </Link>
   )
 }
 
