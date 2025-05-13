@@ -1,4 +1,4 @@
-import LoadingCheckMate from '@/components/LoadingCheckMate'
+import CheckMateLogoSpinner from '@/components/CheckMateSpinner'
 import { Button } from '@/components/ui/button'
 import {
   Popover,
@@ -64,6 +64,20 @@ export default function TaskModal({
   )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsVisible(true)
+    }
+  }, [isOpen])
+
+  const handleClose = () => {
+    setIsVisible(false)
+    setTimeout(() => {
+      onClose()
+    }, 300)
+  }
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -172,16 +186,21 @@ export default function TaskModal({
     }
   }
 
-  if (!isOpen) return null
+  if (!isOpen && !isVisible) return null
 
   if (loading) {
     return (
       <>
-        <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-        <div className="fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto">
+        <div
+          className={`fixed inset-0 bg-black/10 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+          onClick={handleClose}
+        />
+        <div
+          className={`fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto transition-transform duration-300 ${isVisible ? 'translate-x-0' : 'translate-x-full'}`}
+        >
           <div className="relative w-full h-full">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <LoadingCheckMate loading={loading} />
+              <CheckMateLogoSpinner />
             </div>
           </div>
         </div>
@@ -192,8 +211,13 @@ export default function TaskModal({
   if (error) {
     return (
       <>
-        <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-        <div className="fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto">
+        <div
+          className={`fixed inset-0 bg-black/10 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+          onClick={handleClose}
+        />
+        <div
+          className={`fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto transition-transform duration-300 ${isVisible ? 'translate-x-0' : 'translate-x-full'}`}
+        >
           <div className="p-6">
             <div className="flex justify-center items-center h-full">
               <p className="text-red-500">{error}</p>
@@ -206,8 +230,13 @@ export default function TaskModal({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-      <div className="fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto">
+      <div
+        className={`fixed inset-0 bg-black/10 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+        onClick={handleClose}
+      />
+      <div
+        className={`fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto transition-transform duration-300 ${isVisible ? 'translate-x-0' : 'translate-x-full'}`}
+      >
         <div className="p-6">
           <div className="flex justify-between items-start mb-6">
             <div>
@@ -221,7 +250,7 @@ export default function TaskModal({
               )}
             </div>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="p-2 hover:bg-gray-100 rounded-full"
             >
               <X size={20} />
@@ -414,7 +443,7 @@ export default function TaskModal({
             </div>
 
             <div className="flex justify-end gap-2 mt-4">
-              <Button variant="outline" onClick={onClose}>
+              <Button variant="outline" onClick={handleClose}>
                 취소
               </Button>
               <Button onClick={handleSave}>수정 완료</Button>
