@@ -73,8 +73,6 @@ export function KanbanLogic(projectId: string) {
           }),
         })
 
-        console.log('필터링 파라미터:', queryParams.toString())
-
         // 프로젝트의 모든 태스크를 필터링과 함께 가져오기
         const response = await fetch(
           `${API_ENDPOINTS.TASKS}?${queryParams.toString()}`,
