@@ -24,7 +24,7 @@ export default function KanbanView({
   filters: {
     priority: Task['priority'] | 'ALL'
     epicTitle: string
-    assigneeId: string[]
+    assigneeEmails: string[]
   }
 }) {
   const {
@@ -296,11 +296,11 @@ export default function KanbanView({
 
       {selectedTaskForModal && (
         <TaskModal
-          isOpen={true}
-          onClose={handleModalClose}
           task={selectedTaskForModal}
-          onUpdate={updateTaskAndState}
+          isOpen={!!selectedTaskForModal}
+          onClose={handleModalClose}
           members={members}
+          onUpdate={updateTaskAndState}
           getTaskById={getTaskById}
         />
       )}

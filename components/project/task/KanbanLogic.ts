@@ -32,7 +32,7 @@ type TaskUpdateData = Partial<{
 type TaskFilters = {
   priority: Task['priority'] | 'ALL'
   epicTitle: string
-  assigneeId: string[]
+  assigneeEmails: string[] // assignee.email 배열
 }
 
 export function KanbanLogic(projectId: string) {
@@ -59,9 +59,25 @@ export function KanbanLogic(projectId: string) {
         setError(null)
         setLoading(true)
 
-        // 프로젝트의 모든 태스크 ID 가져오기
+        // 필터링 파라미터 구성
+        const queryParams = new URLSearchParams({
+          projectId,
+          ...(currentFilters.priority !== 'ALL' && {
+            priority: currentFilters.priority,
+          }),
+          ...(currentFilters.epicTitle && {
+            epicTitle: currentFilters.epicTitle,
+          }),
+          ...(currentFilters.assigneeEmails?.length > 0 && {
+            assigneeEmail: currentFilters.assigneeEmails.join(','),
+          }),
+        })
+
+        console.log('필터링 파라미터:', queryParams.toString())
+
+        // 프로젝트의 모든 태스크를 필터링과 함께 가져오기
         const response = await fetch(
-          `${API_ENDPOINTS.TASKS}?projectId=${projectId}`,
+          `${API_ENDPOINTS.TASKS}?${queryParams.toString()}`,
           {
             method: 'GET',
             headers: {
@@ -79,52 +95,6 @@ export function KanbanLogic(projectId: string) {
 
         const tasks: Task[] = await response.json()
 
-        // 각 태스크의 상세 정보를 가져와서 필터링
-        const filteredTasks = await Promise.all(
-          tasks.map(async (task) => {
-            const taskResponse = await fetch(
-              `${API_ENDPOINTS.TASK_BY_ID}/${task.taskId}`,
-              {
-                method: 'GET',
-                headers: {
-                  Accept: 'application/json',
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${user.accessToken}`,
-                },
-                credentials: 'include',
-              }
-            )
-
-            if (!taskResponse.ok) {
-              throw new Error(`HTTP error! status: ${taskResponse.status}`)
-            }
-
-            const taskDetail: Task = await taskResponse.json()
-
-            // 필터링 조건 확인
-            const matchesPriority =
-              currentFilters.priority === 'ALL' ||
-              taskDetail.priority === currentFilters.priority
-
-            const matchesEpic =
-              !currentFilters.epicTitle ||
-              taskDetail.epic.title === currentFilters.epicTitle
-
-            const matchesAssignee =
-              currentFilters.assigneeId.length === 0 ||
-              currentFilters.assigneeId.includes(taskDetail.assignee.userId)
-
-            return matchesPriority && matchesEpic && matchesAssignee
-              ? taskDetail
-              : null
-          })
-        )
-
-        // null이 아닌 태스크만 필터링
-        const validTasks = filteredTasks.filter(
-          (task): task is Task => task !== null
-        )
-
         // 태스크를 상태에 따라 분류
         const newColumns: Record<ColumnType, Task[]> = {
           todo: [],
@@ -132,7 +102,7 @@ export function KanbanLogic(projectId: string) {
           done: [],
         }
 
-        validTasks.forEach((task) => {
+        tasks.forEach((task) => {
           if (!task.status) {
             console.warn('태스크에 status가 없습니다:', task)
             newColumns.todo.push({
@@ -185,7 +155,7 @@ export function KanbanLogic(projectId: string) {
     fetchTasks({
       priority: 'ALL',
       epicTitle: '',
-      assigneeId: [],
+      assigneeEmails: [],
     })
   }, [fetchTasks])
 
@@ -236,7 +206,7 @@ export function KanbanLogic(projectId: string) {
       await fetchTasks({
         priority: 'ALL',
         epicTitle: '',
-        assigneeId: [],
+        assigneeEmails: [],
       })
     } catch (error) {
       console.error('태스크 수정 실패:', error)

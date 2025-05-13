@@ -6,7 +6,7 @@ type FilterOption = {
   priority: Task['priority'] | 'ALL'
   epicTitle: string
   sprint: string
-  assigneeId: string[]
+  assigneeEmails: string[]
 }
 
 type TaskFilterProps = {
@@ -29,7 +29,7 @@ export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
     priority: 'ALL',
     epicTitle: '',
     sprint: '',
-    assigneeId: [],
+    assigneeEmails: [],
   })
 
   const handleFilterChange = (key: keyof FilterOption, value: string) => {
