@@ -1,3 +1,4 @@
+import LoadingCheckMate from '@/components/LoadingCheckMate'
 import { Button } from '@/components/ui/button'
 import {
   Popover,
@@ -69,7 +70,6 @@ export default function TaskModal({
       try {
         setLoading(true)
         const updatedTask = await getTaskById(initialTask.taskId)
-        console.log('개별 태스크 데이터:', updatedTask)
         setTask(updatedTask)
         setTitle(updatedTask.title)
         setDescription(updatedTask.description || '')
@@ -179,9 +179,9 @@ export default function TaskModal({
       <>
         <div className="fixed inset-0 bg-black/50" onClick={onClose} />
         <div className="fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto">
-          <div className="p-6">
-            <div className="flex justify-center items-center h-full">
-              <p>로딩 중...</p>
+          <div className="relative w-full h-full">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              <LoadingCheckMate loading={loading} />
             </div>
           </div>
         </div>
