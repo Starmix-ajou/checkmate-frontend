@@ -35,6 +35,7 @@ export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
   const handleFilterChange = (key: keyof FilterOption, value: string) => {
     const newFilters = { ...filters, [key]: value }
     setFilters(newFilters)
+    console.log('TaskFilter - 필터 변경:', JSON.stringify(newFilters, null, 2))
     onFilterChange(newFilters)
   }
 
