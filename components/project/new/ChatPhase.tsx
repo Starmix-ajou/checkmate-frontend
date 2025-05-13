@@ -1,5 +1,6 @@
 'use client'
 
+import CheckMateLogoSpinner from '@/components/CheckMateSpinner'
 import { phases } from '@/components/project/new/phases'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -21,7 +22,6 @@ import { EventSourcePolyfill } from 'event-source-polyfill'
 import { ArrowUp, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
-import CheckMateLogoSpinner from '@/components/CheckMateSpinner'
 
 import { DefinitionTable } from './DefinitionTable'
 import { FeatureTable } from './FeatureTable'
@@ -31,6 +31,7 @@ type ChatPhaseProps = {
   phase: Phase
   onNext: () => void
   formPhaseInput: string
+  onSpecificationsComplete?: (specifications: Feature[]) => void
 }
 
 function getInitialMemberData(count: number = 1): TeamMember[] {
@@ -45,6 +46,7 @@ export default function ChatPhase({
   phase,
   onNext,
   formPhaseInput,
+  onSpecificationsComplete,
 }: ChatPhaseProps) {
   const [messages, setMessages] = useState<Message[]>([
     { sender: 'ai', text: phase.question },
@@ -55,6 +57,7 @@ export default function ChatPhase({
   const [skipFile, setSkipFile] = useState(false)
   const [tableData, setTableData] = useState<TeamMember[]>([])
   const [isSSEConnected, setIsSSEConnected] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const [projectTitle, setProjectTitle] = useState('')
   const [projectDescription, setProjectDescription] = useState(formPhaseInput)
@@ -191,7 +194,7 @@ export default function ChatPhase({
             })
           }
 
-          if (!isNextStep) {
+          if (isNextStep) {
             setTimeout(async () => {
               if (!user?.accessToken)
                 return console.warn('JWT 토큰이 없습니다.')
@@ -222,6 +225,37 @@ export default function ChatPhase({
       }
     })
 
+    eventSource.addEventListener('feedback-feature-specification', (event) => {
+      if ('data' in event) {
+        const message = event as MessageEvent
+        try {
+          const parsed = JSON.parse(message.data)
+          console.log('SSE 수신 (feedback-feature-specification):', parsed)
+
+          const features = parsed?.features ?? []
+          const isNextStep = parsed?.isNextStep ?? false
+
+          if (features.length > 0) {
+            addMessage('ai', '피드백에 따른 기능 명세를 생성했습니다.', {
+              specifications: features,
+            })
+          }
+
+          if (isNextStep) {
+            setTimeout(async () => {
+              if (!user?.accessToken)
+                return console.warn('JWT 토큰이 없습니다.')
+              console.log('최종 명세서 검토 단계로 전환')
+              onSpecificationsComplete?.(features)
+              onNext()
+            }, 1000)
+          }
+        } catch (error) {
+          console.error('SSE 데이터 파싱 오류:', error)
+        }
+      }
+    })
+
     eventSource.addEventListener('create-feature-specification', (event) => {
       if ('data' in event) {
         const message = event as MessageEvent
@@ -234,7 +268,7 @@ export default function ChatPhase({
           if (features.length > 0) {
             setIsLoadingSpecification(false)
             addMessage('ai', '기능 명세를 생성했습니다.', {
-              specifications: features
+              specifications: features,
             })
           }
         } catch (error) {
@@ -290,7 +324,12 @@ export default function ChatPhase({
     if (phase.id === 1) setProjectDescription(input)
     if (phase.id === 2) setProjectTitle(input)
 
-    addMessage('user', messageText)
+    if (phase.inputType === 'table') {
+      addMessage('user', messageText, { teamMembers: tableData })
+    } else {
+      addMessage('user', messageText)
+    }
+    
     setInput('')
     setFile(null)
     setSkipFile(false)
@@ -298,54 +337,79 @@ export default function ChatPhase({
     const currentIndex = phases.findIndex((p) => p.id === phase.id)
     const nextPhase = phases[currentIndex + 1]
 
+    setIsLoading(true)
     setTimeout(async () => {
-      addMessage('ai', nextPhase?.question || '로딩중')
-
       if (!nextPhase || nextPhase.id > 6) {
         if (phase.id === 7) {
-          // 피드백 전송
-          if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
-          console.log('피드백 전송')
-          console.log(
-            messageText +
-              '\n 선택한 기능 목록: ' +
-              selectedSuggestions.join(', ')
-          )
-
-          try {
-            const res = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/project/definition`,
-              {
-                method: 'PUT',
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${user.accessToken}`,
-                },
-                body: JSON.stringify({
-                  feedback:
-                    messageText +
-                    '\n 선택한 기능 목록: ' +
-                    selectedSuggestions.join(', '),
-                }),
-              }
-            )
-
-            if (!res.ok) throw new Error(`피드백 전송 실패: ${res.status}`)
-            setSelectedSuggestions([])
-          } catch (error) {
-            console.error('피드백 전송 에러:', error)
-          }
+          await sendDefinitionFeedback(messageText)
+        } else if (phase.id === 8) {
+          await sendSpecificationFeedback(messageText)
         } else {
           setIsLoadingSpecification(true)
           startSSE()
         }
       } else {
+        addMessage('ai', nextPhase.question)
         onNext()
       }
+      setIsLoading(false)
     }, 1000)
   }
 
-  const renderMessage = (msg: Message) => {
+  const sendDefinitionFeedback = async (feedback: string) => {
+    if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/project/definition`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+          body: JSON.stringify({
+            feedback:
+              feedback +
+              '\n 선택한 기능 목록: ' +
+              selectedSuggestions.join(', '),
+          }),
+        }
+      )
+
+      if (!res.ok) throw new Error(`피드백 전송 실패: ${res.status}`)
+      setSelectedSuggestions([])
+    } catch (error) {
+      console.error('피드백 전송 에러:', error)
+    }
+  }
+
+  const sendSpecificationFeedback = async (feedback: string) => {
+    if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/project/specification`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+          body: JSON.stringify({
+            feedback,
+          }),
+        }
+      )
+
+      if (!res.ok) throw new Error(`피드백 전송 실패: ${res.status}`)
+    } catch (error) {
+      console.error('피드백 전송 에러:', error)
+    }
+  }
+
+  const renderMessage = (msg: Message, index: number) => {
+    console.log(index)
     if (msg.tableData) {
       return (
         <div className="w-full max-w-2xl">
@@ -405,6 +469,11 @@ export default function ChatPhase({
                   )
                 }}
               />
+            </div>
+          )}
+          {msg.tableData.teamMembers && (
+            <div className="mb-4">
+              <TeamMemberTable data={msg.tableData.teamMembers} onDataChange={() => {}} readOnly={true} />
             </div>
           )}
         </div>
@@ -539,12 +608,21 @@ export default function ChatPhase({
             key={index}
             className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            {renderMessage(msg)}
+            {renderMessage(msg, index)}
           </div>
         ))}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="px-3 py-2 rounded-lg bg-[#EFEAE8]">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+            </div>
+          </div>
+        )}
         {isLoadingSpecification && (
-          <div className="flex justify-center items-center py-4">
-            <CheckMateLogoSpinner size={48} />
+          <div className="flex justify-start">
+            <div className="px-3 py-2 rounded-lg bg-[#EFEAE8]">
+              <CheckMateLogoSpinner size={24} />
+            </div>
           </div>
         )}
       </div>

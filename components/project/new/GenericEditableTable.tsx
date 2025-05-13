@@ -12,8 +12,13 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  TableMeta,
 } from '@tanstack/react-table'
 import { Trash2 } from 'lucide-react'
+
+interface CustomTableMeta<T> extends TableMeta<T> {
+  readOnly?: boolean
+}
 
 interface GenericEditableTableProps<T> {
   data: T[]
@@ -22,6 +27,7 @@ interface GenericEditableTableProps<T> {
   addButtonText?: string
   emptyStateText?: string
   defaultRow?: T
+  readOnly?: boolean
 }
 
 export function GenericEditableTable<T>({
@@ -31,6 +37,7 @@ export function GenericEditableTable<T>({
   addButtonText = '항목 추가',
   emptyStateText = 'No results.',
   defaultRow,
+  readOnly = false,
 }: GenericEditableTableProps<T>) {
   const table = useReactTable<T>({
     data,
@@ -50,7 +57,8 @@ export function GenericEditableTable<T>({
           })
         )
       },
-    },
+      readOnly,
+    } as CustomTableMeta<T>,
   })
 
   const handleAddRow = () => {
@@ -97,26 +105,30 @@ export function GenericEditableTable<T>({
                         )}
                       </TableCell>
                     ))}
-                    <TableCell className="text-center">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteRow(row.index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+                    {!readOnly && (
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteRow(row.index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
-                <TableRow>
-                  <TableCell
-                    onClick={handleAddRow}
-                    colSpan={columns.length + 1}
-                    className="text-center py-4 cursor-pointer hover:bg-gray-100 font-medium text-blue-500"
-                  >
-                    {addButtonText}
-                  </TableCell>
-                </TableRow>
+                {!readOnly && (
+                  <TableRow>
+                    <TableCell
+                      onClick={handleAddRow}
+                      colSpan={columns.length + 1}
+                      className="text-center py-4 cursor-pointer hover:bg-gray-100 font-medium text-blue-500"
+                    >
+                      {addButtonText}
+                    </TableCell>
+                  </TableRow>
+                )}
               </>
             ) : (
               <TableRow>
