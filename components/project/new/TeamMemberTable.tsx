@@ -63,8 +63,14 @@ function EditableCell({
                 <button
                   type="button"
                   onClick={() => {
-                    const newValue = positions.filter((item) => item !== position)
-                    table.options.meta?.updateData(row.index, column.id, newValue)
+                    const newValue = positions.filter(
+                      (item) => item !== position
+                    )
+                    table.options.meta?.updateData(
+                      row.index,
+                      column.id,
+                      newValue
+                    )
                   }}
                   className="ml-1 text-xs"
                 >
@@ -111,7 +117,11 @@ function EditableCell({
                   type="button"
                   onClick={() => {
                     const newValue = stacks.filter((item) => item !== stack)
-                    table.options.meta?.updateData(row.index, column.id, newValue)
+                    table.options.meta?.updateData(
+                      row.index,
+                      column.id,
+                      newValue
+                    )
                   }}
                   className="ml-1 text-xs"
                 >

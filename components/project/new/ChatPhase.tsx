@@ -31,7 +31,7 @@ type ChatPhaseProps = {
   phase: Phase
   onNext: () => void
   formPhaseInput: string
-  onSpecificationsComplete?: (specifications: Feature[]) => void
+  onSpecificationsComplete?: (specifications: Feature[], projectId: string) => void
 }
 
 function getInitialMemberData(count: number = 1): TeamMember[] {
@@ -234,6 +234,7 @@ export default function ChatPhase({
 
           const features = parsed?.features ?? []
           const isNextStep = parsed?.isNextStep ?? false
+          const projectId = parsed?.projectId ?? ''
 
           if (features.length > 0) {
             addMessage('ai', '피드백에 따른 기능 명세를 생성했습니다.', {
@@ -246,7 +247,7 @@ export default function ChatPhase({
               if (!user?.accessToken)
                 return console.warn('JWT 토큰이 없습니다.')
               console.log('최종 명세서 검토 단계로 전환')
-              onSpecificationsComplete?.(features)
+              onSpecificationsComplete?.(features, projectId)
               onNext()
             }, 1000)
           }

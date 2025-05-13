@@ -8,14 +8,15 @@ import { Feature } from '@/types/project-creation'
 
 interface CompletionPhaseProps {
   specifications: Feature[]
+  projectId: string
 }
 
-export default function CompletionPhase({ specifications }: CompletionPhaseProps) {
+export default function CompletionPhase({ specifications, projectId }: CompletionPhaseProps) {
   const user = useAuthStore((state) => state.user)
   const router = useRouter()
 
   const handleComplete = async () => {
-      router.push('/projects')
+    router.push(`/projects/${projectId}/overview`)
   }
 
   return (
@@ -27,11 +28,13 @@ export default function CompletionPhase({ specifications }: CompletionPhaseProps
         </p>
       </div>
 
+      <div className="border rounded-lg p-4">
         <FeatureTable
           data={specifications}
           onDataChange={() => {}}
           readOnly
         />
+      </div>
 
       <div className="flex justify-end">
         <Button
