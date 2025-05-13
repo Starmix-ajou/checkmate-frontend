@@ -1,3 +1,5 @@
+import { TeamMember } from './NewProjectTeamMember'
+
 export type Message = {
   sender: 'user' | 'ai'
   text: string
@@ -8,6 +10,7 @@ export type Message = {
       answers: string[]
     }[]
     specifications?: Feature[]
+    teamMembers?: TeamMember[]
   }
 }
 

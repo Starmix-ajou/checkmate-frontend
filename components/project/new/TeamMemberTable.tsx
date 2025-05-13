@@ -29,43 +29,48 @@ function EditableCell({
   table,
 }: CellContext<TeamMember, unknown>) {
   const value = getValue()
+  const readOnly = (table.options.meta as any)?.readOnly
 
   if (column.id === 'positions') {
     const positions = (value as Position[]) || []
     return (
       <div className="flex flex-col gap-2">
-        <CreatableSelect
-          menuPortalTarget={
-            typeof document !== 'undefined' ? document.body : null
-          }
-          styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
-          options={ROLE_OPTIONS.filter(
-            (option) => !positions.includes(option.value as Position)
-          )}
-          onChange={(option) => {
-            if (!option) return
-            const newValue = [...positions, option.value as Position]
-            table.options.meta?.updateData(row.index, column.id, newValue)
-          }}
-          placeholder="역할을 선택하거나 입력하세요"
-          className="w-full"
-          isClearable
-          formatCreateLabel={(inputValue) => `"${inputValue}" 추가`}
-        />
+        {!readOnly && (
+          <CreatableSelect
+            menuPortalTarget={
+              typeof document !== 'undefined' ? document.body : null
+            }
+            styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+            options={ROLE_OPTIONS.filter(
+              (option) => !positions.includes(option.value as Position)
+            )}
+            onChange={(option) => {
+              if (!option) return
+              const newValue = [...positions, option.value as Position]
+              table.options.meta?.updateData(row.index, column.id, newValue)
+            }}
+            placeholder="역할을 선택하거나 입력하세요"
+            className="w-full"
+            isClearable
+            formatCreateLabel={(inputValue) => `"${inputValue}" 추가`}
+          />
+        )}
         <div className="flex flex-wrap gap-1">
           {positions.map((position, idx) => (
             <Badge key={idx} className="flex items-center gap-1">
               {position}
-              <button
-                type="button"
-                onClick={() => {
-                  const newValue = positions.filter((item) => item !== position)
-                  table.options.meta?.updateData(row.index, column.id, newValue)
-                }}
-                className="ml-1 text-xs"
-              >
-                ✕
-              </button>
+              {!readOnly && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newValue = positions.filter((item) => item !== position)
+                    table.options.meta?.updateData(row.index, column.id, newValue)
+                  }}
+                  className="ml-1 text-xs"
+                >
+                  ✕
+                </button>
+              )}
             </Badge>
           ))}
         </div>
@@ -77,38 +82,42 @@ function EditableCell({
     const stacks = (value as Stack[]) || []
     return (
       <div className="flex flex-col gap-2">
-        <CreatableSelect
-          menuPortalTarget={
-            typeof document !== 'undefined' ? document.body : null
-          }
-          styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
-          options={STACK_OPTIONS.filter(
-            (option) => !stacks.includes(option.value as Stack)
-          )}
-          onChange={(option) => {
-            if (!option) return
-            const newValue = [...stacks, option.value as Stack]
-            table.options.meta?.updateData(row.index, column.id, newValue)
-          }}
-          placeholder="스택을 추가하거나 입력하세요"
-          className="w-full"
-          isClearable
-          formatCreateLabel={(inputValue) => `"${inputValue}" 추가`}
-        />
+        {!readOnly && (
+          <CreatableSelect
+            menuPortalTarget={
+              typeof document !== 'undefined' ? document.body : null
+            }
+            styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+            options={STACK_OPTIONS.filter(
+              (option) => !stacks.includes(option.value as Stack)
+            )}
+            onChange={(option) => {
+              if (!option) return
+              const newValue = [...stacks, option.value as Stack]
+              table.options.meta?.updateData(row.index, column.id, newValue)
+            }}
+            placeholder="스택을 추가하거나 입력하세요"
+            className="w-full"
+            isClearable
+            formatCreateLabel={(inputValue) => `"${inputValue}" 추가`}
+          />
+        )}
         <div className="flex flex-wrap gap-1">
           {stacks.map((stack, idx) => (
             <Badge key={idx} className="flex items-center gap-1">
               {stack}
-              <button
-                type="button"
-                onClick={() => {
-                  const newValue = stacks.filter((item) => item !== stack)
-                  table.options.meta?.updateData(row.index, column.id, newValue)
-                }}
-                className="ml-1 text-xs"
-              >
-                ✕
-              </button>
+              {!readOnly && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newValue = stacks.filter((item) => item !== stack)
+                    table.options.meta?.updateData(row.index, column.id, newValue)
+                  }}
+                  className="ml-1 text-xs"
+                >
+                  ✕
+                </button>
+              )}
             </Badge>
           ))}
         </div>
@@ -116,7 +125,9 @@ function EditableCell({
     )
   }
 
-  return (
+  return readOnly ? (
+    <div className="w-full py-2">{value}</div>
+  ) : (
     <Input
       value={typeof value === 'string' ? value : ''}
       onChange={(e) =>
@@ -149,9 +160,11 @@ const columns: ColumnDef<TeamMember>[] = [
 export function TeamMemberTable({
   data,
   onDataChange,
+  readOnly = false,
 }: {
   data: TeamMember[]
   onDataChange: (data: TeamMember[]) => void
+  readOnly?: boolean
 }) {
   return (
     <GenericEditableTable
@@ -160,6 +173,8 @@ export function TeamMemberTable({
       onDataChange={onDataChange}
       addButtonText="팀원 추가"
       emptyStateText="팀원이 없습니다."
+      readOnly={readOnly}
+      defaultRow={{ email: '', stacks: [], positions: [] }}
     />
   )
 }

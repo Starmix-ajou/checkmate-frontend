@@ -11,7 +11,11 @@ function EditableCell({
   table,
 }: CellContext<Feature, unknown>) {
   const value = getValue() as string
-  return (
+  const readOnly = (table.options.meta as any)?.readOnly
+
+  return readOnly ? (
+    <div className="w-full py-2">{value}</div>
+  ) : (
     <Input
       value={value || ''}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -46,13 +50,13 @@ export const featureColumns: ColumnDef<Feature>[] = [
   },
 ]
 
-export function FeatureTable({
-  data,
-  onDataChange,
-}: {
+type FeatureTableProps = {
   data: Feature[]
   onDataChange: (data: Feature[]) => void
-}) {
+  readOnly?: boolean
+}
+
+export function FeatureTable({ data, onDataChange, readOnly = false }: FeatureTableProps) {
   return (
     <GenericEditableTable
       data={data}
@@ -61,6 +65,7 @@ export function FeatureTable({
       addButtonText="기능 추가"
       emptyStateText="기능이 없습니다."
       defaultRow={{ name: '', useCase: '', input: '', output: '' }}
+      readOnly={readOnly}
     />
   )
 }

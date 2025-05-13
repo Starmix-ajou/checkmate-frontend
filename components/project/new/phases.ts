@@ -51,4 +51,18 @@ export const phases: Phase[] = [
     type: 'chat',
     inputType: 'text',
   },
+  {
+    id: 8,
+    title: 'AI 피드백',
+    question: 'AI가 생성한 기능 명세서에 대해 피드백을 주세요.',
+    type: 'chat',
+    inputType: 'text',
+  },
+  {
+    id: 9,
+    title: '최종 명세서 검토',
+    question: '최종 명세서를 검토해주세요.',
+    type: 'chat',
+    inputType: 'text',
+  },
 ]
