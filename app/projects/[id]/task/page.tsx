@@ -24,7 +24,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 type FilterOption = {
   priority: Task['priority'] | 'ALL'
-  epicTitle: string
+  epicId: string
   sprint: string
   assigneeEmails: string[]
 }
@@ -38,7 +38,7 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<FilterOption>({
     priority: 'ALL',
-    epicTitle: '',
+    epicId: '',
     sprint: '',
     assigneeEmails: [],
   })
