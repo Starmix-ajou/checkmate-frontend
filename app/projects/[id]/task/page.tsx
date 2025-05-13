@@ -189,7 +189,23 @@ export default function TasksPage() {
           <div className="flex flex-row justify-end h-[36px]">
             <TaskFilter
               epics={project?.epics || []}
-              onFilterChange={(newFilters) => setFilters(newFilters)}
+              onFilterChange={(newFilters) => {
+                const combinedFilters = {
+                  ...filters,
+                  ...newFilters,
+                  assigneeEmails: Array.from(
+                    new Set([
+                      ...filters.assigneeEmails,
+                      ...newFilters.assigneeEmails,
+                    ])
+                  ),
+                }
+                console.log(
+                  'Task Page - 필터 변경:',
+                  JSON.stringify(combinedFilters, null, 2)
+                )
+                setFilters(combinedFilters)
+              }}
             />
 
             <div className="flex items-center border-1 border-[#F7F7F7] bg-[#F7F7F7] rounded-full px-3 py-2 w-64 relative ml-3">
