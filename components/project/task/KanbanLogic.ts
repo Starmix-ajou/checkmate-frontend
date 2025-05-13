@@ -31,7 +31,7 @@ type TaskUpdateData = Partial<{
 
 type TaskFilters = {
   priority: Task['priority'] | 'ALL'
-  epicTitle: string
+  epicId: string
   assigneeEmails: string[] // assignee.email 배열
 }
 
@@ -65,8 +65,8 @@ export function KanbanLogic(projectId: string) {
           ...(currentFilters.priority !== 'ALL' && {
             priority: currentFilters.priority,
           }),
-          ...(currentFilters.epicTitle && {
-            epicTitle: currentFilters.epicTitle,
+          ...(currentFilters.epicId && {
+            epicId: currentFilters.epicId,
           }),
           ...(currentFilters.assigneeEmails?.length > 0 && {
             assigneeEmail: currentFilters.assigneeEmails.join(','),
@@ -154,7 +154,7 @@ export function KanbanLogic(projectId: string) {
   useEffect(() => {
     fetchTasks({
       priority: 'ALL',
-      epicTitle: '',
+      epicId: '',
       assigneeEmails: [],
     })
   }, [fetchTasks])
@@ -205,7 +205,7 @@ export function KanbanLogic(projectId: string) {
       // PUT 성공 후 전체 Task 목록을 다시 불러와서 setColumns 갱신
       await fetchTasks({
         priority: 'ALL',
-        epicTitle: '',
+        epicId: '',
         assigneeEmails: [],
       })
     } catch (error) {

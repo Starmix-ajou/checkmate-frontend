@@ -23,7 +23,7 @@ export default function KanbanView({
   searchText: string
   filters: {
     priority: Task['priority'] | 'ALL'
-    epicTitle: string
+    epicId: string
     assigneeEmails: string[]
   }
 }) {

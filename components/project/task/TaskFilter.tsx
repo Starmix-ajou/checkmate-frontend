@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 type FilterOption = {
   priority: Task['priority'] | 'ALL'
-  epicTitle: string
+  epicId: string
   sprint: string
   assigneeEmails: string[]
 }
@@ -27,7 +27,7 @@ export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
   )
   const [filters, setFilters] = useState<FilterOption>({
     priority: 'ALL',
-    epicTitle: '',
+    epicId: '',
     sprint: '',
     assigneeEmails: [],
   })
@@ -115,23 +115,19 @@ export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
             <div className="relative">
               <button
                 className={`text-sm whitespace-nowrap ${
-                  activeFilter === 'epicTitle'
-                    ? 'text-black-01'
-                    : 'text-gray-01'
+                  activeFilter === 'epicId' ? 'text-black-01' : 'text-gray-01'
                 }`}
                 onClick={() =>
-                  setActiveFilter(
-                    activeFilter === 'epicTitle' ? null : 'epicTitle'
-                  )
+                  setActiveFilter(activeFilter === 'epicId' ? null : 'epicId')
                 }
               >
                 Epic
               </button>
-              {activeFilter === 'epicTitle' && (
+              {activeFilter === 'epicId' && (
                 <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-10">
                   <div
                     className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap text-[#795548]"
-                    onClick={() => handleFilterChange('epicTitle', '')}
+                    onClick={() => handleFilterChange('epicId', '')}
                   >
                     ALL
                   </div>
@@ -139,9 +135,10 @@ export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
                     <div
                       key={epic.epicId}
                       className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
-                      onClick={() =>
-                        handleFilterChange('epicTitle', epic.title)
-                      }
+                      onClick={() => {
+                        console.log('선택된 Epic:', epic)
+                        handleFilterChange('epicId', epic.epicId)
+                      }}
                     >
                       {epic.title}
                     </div>
