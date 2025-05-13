@@ -1,9 +1,9 @@
 'use client'
 
 import ChatPhase from '@/components/project/new/ChatPhase'
-import FormPhase from '@/components/project/new/FormPhase'
 import CompletionPhase from '@/components/project/new/CompletionPhase'
-import { Phase, Feature } from '@/types/project-creation'
+import FormPhase from '@/components/project/new/FormPhase'
+import { Feature, Phase } from '@/types/project-creation'
 import { useState } from 'react'
 
 import { phases } from './phases'
@@ -12,6 +12,7 @@ export default function ProjectWizard() {
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState<number>(0)
   const [projectDescription, setProjectDescription] = useState('')
   const [finalSpecifications, setFinalSpecifications] = useState<Feature[]>([])
+  const [projectId, setProjectId] = useState<string>('')
 
   const handleNextPhase = () => {
     if (currentPhaseIndex < phases.length - 1) {
@@ -24,7 +25,10 @@ export default function ProjectWizard() {
   if (currentPhase.id === 9) {
     return (
       <div className="mx-auto p-6 space-y-6 max-w-4xl w-full h-full">
-        <CompletionPhase specifications={finalSpecifications} />
+        <CompletionPhase
+          specifications={finalSpecifications}
+          projectId={projectId}
+        />
       </div>
     )
   }
@@ -44,7 +48,10 @@ export default function ProjectWizard() {
           phase={currentPhase}
           onNext={handleNextPhase}
           formPhaseInput={projectDescription}
-          onSpecificationsComplete={setFinalSpecifications}
+          onSpecificationsComplete={(specifications, id) => {
+            setFinalSpecifications(specifications)
+            setProjectId(id)
+          }}
         />
       )}
     </div>
