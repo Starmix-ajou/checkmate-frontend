@@ -5,7 +5,7 @@ import { useState } from 'react'
 type FilterOption = {
   priority: Task['priority'] | 'ALL'
   epicId: string
-  sprint: string
+  sprintId: string
   assigneeEmails: string[]
 }
 
@@ -16,10 +16,23 @@ type TaskFilterProps = {
     description: string
     projectId: string
   }[]
+  sprints: {
+    sprintId: string
+    title: string
+    description: string
+    sequence: number
+    projectId: string
+    startDate: string
+    endDate: string
+  }[]
   onFilterChange: (filters: FilterOption) => void
 }
 
-export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
+export default function TaskFilter({
+  epics,
+  sprints,
+  onFilterChange,
+}: TaskFilterProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isFixed, setIsFixed] = useState(false)
   const [activeFilter, setActiveFilter] = useState<keyof FilterOption | null>(
@@ -28,7 +41,7 @@ export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
   const [filters, setFilters] = useState<FilterOption>({
     priority: 'ALL',
     epicId: '',
-    sprint: '',
+    sprintId: '',
     assigneeEmails: [],
   })
 
@@ -148,33 +161,37 @@ export default function TaskFilter({ epics, onFilterChange }: TaskFilterProps) {
             <div className="relative">
               <button
                 className={`text-sm whitespace-nowrap ${
-                  activeFilter === 'sprint' ? 'text-black-01' : 'text-gray-01'
+                  activeFilter === 'sprintId' ? 'text-black-01' : 'text-gray-01'
                 }`}
                 onClick={() =>
-                  setActiveFilter(activeFilter === 'sprint' ? null : 'sprint')
+                  setActiveFilter(
+                    activeFilter === 'sprintId' ? null : 'sprintId'
+                  )
                 }
               >
                 Sprint
               </button>
-              {activeFilter === 'sprint' && (
+              {activeFilter === 'sprintId' && (
                 <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-10">
                   <div
                     className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap text-[#795548]"
-                    onClick={() => handleFilterChange('sprint', '')}
+                    onClick={() => handleFilterChange('sprintId', '')}
                   >
                     ALL
                   </div>
-                  {['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'].map(
-                    (sprint) => (
+                  {sprints
+                    .sort((a, b) => a.sequence - b.sequence)
+                    .map((sprint) => (
                       <div
-                        key={sprint}
+                        key={sprint.sprintId}
                         className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap"
-                        onClick={() => handleFilterChange('sprint', sprint)}
+                        onClick={() =>
+                          handleFilterChange('sprintId', sprint.sprintId)
+                        }
                       >
-                        {sprint}
+                        {sprint.title}
                       </div>
-                    )
-                  )}
+                    ))}
                 </div>
               )}
             </div>

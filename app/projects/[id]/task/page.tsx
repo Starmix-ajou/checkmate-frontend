@@ -25,7 +25,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 type FilterOption = {
   priority: Task['priority'] | 'ALL'
   epicId: string
-  sprint: string
+  sprintId: string
   assigneeEmails: string[]
 }
 
@@ -41,9 +41,20 @@ export default function TasksPage() {
   const [filters, setFilters] = useState<FilterOption>({
     priority: 'ALL',
     epicId: '',
-    sprint: '',
+    sprintId: '',
     assigneeEmails: [],
   })
+  const [sprints, setSprints] = useState<
+    {
+      sprintId: string
+      title: string
+      description: string
+      sequence: number
+      projectId: string
+      startDate: string
+      endDate: string
+    }[]
+  >([])
   const user = useAuthStore((state) => state.user)
 
   useEffect(() => {
@@ -85,6 +96,24 @@ export default function TasksPage() {
 
         // 프로젝트 데이터에 에픽 목록 추가
         setProject((prev) => (prev ? { ...prev, epics: epicsData } : null))
+
+        // 스프린트 목록 가져오기
+        const sprintsResponse = await fetch(
+          `${API_BASE_URL}/sprint?projectId=${id}`,
+          {
+            headers: {
+              Accept: '*/*',
+              Authorization: `Bearer ${user?.accessToken}`,
+            },
+          }
+        )
+
+        if (!sprintsResponse.ok) {
+          throw new Error('스프린트 목록 불러오기 실패')
+        }
+
+        const sprintsData = await sprintsResponse.json()
+        setSprints(sprintsData)
       } catch (error) {
         console.error(error)
       } finally {
@@ -190,6 +219,7 @@ export default function TasksPage() {
           <div className="flex flex-row justify-end h-[36px]">
             <TaskFilter
               epics={project?.epics || []}
+              sprints={sprints}
               onFilterChange={(newFilters) => {
                 const combinedFilters = {
                   ...filters,

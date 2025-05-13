@@ -24,6 +24,7 @@ export default function KanbanView({
   filters: {
     priority: Task['priority'] | 'ALL'
     epicId: string
+    sprintId: string
     assigneeEmails: string[]
   }
 }) {
