@@ -97,9 +97,9 @@ export default function ProjectOverview() {
 
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <DailyScrumCard projectId={id as string} />
-            <SprintPeriodCard 
-              startDate={project?.startDate || ''} 
-              endDate={project?.endDate || ''} 
+            <SprintPeriodCard
+              startDate={project?.startDate || ''}
+              endDate={project?.endDate || ''}
               loading={loading}
               projectId={id as string}
             />
