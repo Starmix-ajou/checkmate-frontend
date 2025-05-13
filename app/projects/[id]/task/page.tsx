@@ -26,7 +26,7 @@ type FilterOption = {
   priority: Task['priority'] | 'ALL'
   epicTitle: string
   sprint: string
-  assigneeId: string[]
+  assigneeEmails: string[]
 }
 
 export default function TasksPage() {
@@ -40,7 +40,7 @@ export default function TasksPage() {
     priority: 'ALL',
     epicTitle: '',
     sprint: '',
-    assigneeId: [],
+    assigneeEmails: [],
   })
   const user = useAuthStore((state) => state.user)
 
@@ -133,16 +133,18 @@ export default function TasksPage() {
                   onClick={() => {
                     setFilters((prev) => ({
                       ...prev,
-                      assigneeId: prev.assigneeId.includes(member.userId)
-                        ? prev.assigneeId.filter((id) => id !== member.userId)
-                        : [...prev.assigneeId, member.userId],
+                      assigneeEmails: prev.assigneeEmails.includes(member.email)
+                        ? prev.assigneeEmails.filter(
+                            (email) => email !== member.email
+                          )
+                        : [...prev.assigneeEmails, member.email],
                     }))
                   }}
                   className="flex flex-col items-center gap-1"
                 >
                   <Avatar
                     className={`w-10 h-10 transition-all ${
-                      filters.assigneeId.includes(member.userId)
+                      filters.assigneeEmails.includes(member.email)
                         ? 'ring-2 ring-cm'
                         : 'opacity-50 hover:opacity-100'
                     }`}
@@ -187,7 +189,7 @@ export default function TasksPage() {
           <div className="flex flex-row justify-end h-[36px]">
             <TaskFilter
               epics={project?.epics || []}
-              onFilterChange={setFilters}
+              onFilterChange={(newFilters) => setFilters(newFilters)}
             />
 
             <div className="flex items-center border-1 border-[#F7F7F7] bg-[#F7F7F7] rounded-full px-3 py-2 w-64 relative ml-3">
