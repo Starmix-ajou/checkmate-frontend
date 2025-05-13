@@ -82,7 +82,6 @@ export default function TasksPage() {
         }
 
         const epicsData = await epicsResponse.json()
-        console.log('에픽 목록:', epicsData)
 
         // 프로젝트 데이터에 에픽 목록 추가
         setProject((prev) => (prev ? { ...prev, epics: epicsData } : null))
@@ -202,10 +201,7 @@ export default function TasksPage() {
                     ])
                   ),
                 }
-                console.log(
-                  'Task Page - 필터 변경:',
-                  JSON.stringify(combinedFilters, null, 2)
-                )
+
                 setFilters(combinedFilters)
               }}
             />
