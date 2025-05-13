@@ -33,6 +33,8 @@ export default function TasksPage() {
   const { id } = useParams()
   const projectId = id as string
   const [searchText, setSearchText] = useState('')
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false)
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [isToggled, setIsToggled] = useState(false)
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
@@ -208,22 +210,41 @@ export default function TasksPage() {
               }}
             />
 
-            <div className="flex items-center border-1 border-[#F7F7F7] bg-[#F7F7F7] rounded-full px-3 py-2 w-64 relative ml-3">
-              <Search size={24} className="text-gray-01 shrink-0 mr-2" />
-              <input
-                type="text"
-                className="outline-none text-black-01 text-base font-medium placeholder-gray-01 placeholder-base w-full pr-8"
-                placeholder="검색"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-              {searchText && (
-                <CircleX
-                  size={16}
-                  className="text-gray-01 cursor-pointer shrink-0 absolute right-3"
-                  onClick={() => setSearchText('')}
+            <div className="flex items-center relative ml-3">
+              <div
+                className={`flex items-center transition-all duration-300 ease-in-out ${
+                  isSearchExpanded ? 'w-64' : 'w-10'
+                } ${isSearchFocused ? 'w-64' : ''} bg-[#F7F7F7] rounded-full`}
+                onMouseEnter={() =>
+                  !isSearchExpanded && setIsSearchFocused(true)
+                }
+                onMouseLeave={() =>
+                  !isSearchExpanded && setIsSearchFocused(false)
+                }
+              >
+                <button
+                  onClick={() => setIsSearchExpanded(!isSearchExpanded)}
+                  className="p-2"
+                >
+                  <Search size={24} className="text-gray-01 shrink-0" />
+                </button>
+                <input
+                  type="text"
+                  className={`outline-none text-black-01 text-base font-medium placeholder-gray-01 placeholder-base transition-all duration-300 ease-in-out ${
+                    isSearchExpanded || isSearchFocused ? 'w-full px-3' : 'w-0'
+                  }`}
+                  placeholder="검색"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
                 />
-              )}
+                {searchText && (
+                  <CircleX
+                    size={16}
+                    className="text-gray-01 cursor-pointer shrink-0 absolute right-3"
+                    onClick={() => setSearchText('')}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
