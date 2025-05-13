@@ -239,13 +239,13 @@ export default function TasksPage() {
             <div className="flex items-center relative ml-3">
               <div
                 className={`flex items-center transition-all duration-300 ease-in-out ${
-                  isSearchExpanded ? 'w-64' : 'w-10'
+                  isSearchExpanded || searchText ? 'w-64' : 'w-10'
                 } ${isSearchFocused ? 'w-64' : ''} bg-[#F7F7F7] rounded-full`}
                 onMouseEnter={() =>
-                  !isSearchExpanded && setIsSearchFocused(true)
+                  !isSearchExpanded && !searchText && setIsSearchFocused(true)
                 }
                 onMouseLeave={() =>
-                  !isSearchExpanded && setIsSearchFocused(false)
+                  !isSearchExpanded && !searchText && setIsSearchFocused(false)
                 }
               >
                 <button
