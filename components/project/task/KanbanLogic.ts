@@ -32,7 +32,8 @@ type TaskUpdateData = Partial<{
 type TaskFilters = {
   priority: Task['priority'] | 'ALL'
   epicId: string
-  assigneeEmails: string[] // assignee.email 배열
+  sprintId: string
+  assigneeEmails: string[]
 }
 
 export function KanbanLogic(projectId: string) {
@@ -67,6 +68,9 @@ export function KanbanLogic(projectId: string) {
           }),
           ...(currentFilters.epicId && {
             epicId: currentFilters.epicId,
+          }),
+          ...(currentFilters.sprintId && {
+            sprintId: currentFilters.sprintId,
           }),
           ...(currentFilters.assigneeEmails?.length > 0 && {
             assigneeEmail: currentFilters.assigneeEmails.join(','),
@@ -153,6 +157,7 @@ export function KanbanLogic(projectId: string) {
     fetchTasks({
       priority: 'ALL',
       epicId: '',
+      sprintId: '',
       assigneeEmails: [],
     })
   }, [fetchTasks])
@@ -204,6 +209,7 @@ export function KanbanLogic(projectId: string) {
       await fetchTasks({
         priority: 'ALL',
         epicId: '',
+        sprintId: '',
         assigneeEmails: [],
       })
     } catch (error) {

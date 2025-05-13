@@ -1,3 +1,21 @@
+export type Sprint = {
+  sprintId: string
+  title: string
+  description: string
+  sequence: number
+  projectId: string
+  startDate: string
+  endDate: string
+}
+
+export type Epic = {
+  epicId: string
+  title: string
+  description: string
+  projectId: string
+  sprint: Sprint
+}
+
 export type Task = {
   taskId: string
   title: string
@@ -18,17 +36,7 @@ export type Task = {
   startDate: string
   endDate: string
   priority: 'LOW' | 'MEDIUM' | 'HIGH'
-  epic: {
-    epicId: string
-    title: string
-    description: string
-    projectId: string
-    sprint?: {
-      sprintId: string
-      title: string
-      description?: string
-    }
-  }
+  epic: Epic
 }
 
 export type ColumnType = 'todo' | 'inProgress' | 'done'
