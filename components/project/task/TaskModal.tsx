@@ -177,6 +177,7 @@ export default function TaskModal({
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
         assigneeEmail: selectedAssignee?.email || '',
+        epicId: task.epic.epicId,
       }
 
       await onUpdate(task.taskId, updateData)

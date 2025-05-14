@@ -1,6 +1,7 @@
 'use client'
 
 import CheckMateLogoSpinner from '@/components/CheckMateSpinner'
+import { Member } from '@/types/project'
 import { Task } from '@/types/userTask'
 import { format, getDay, isSameDay, parse, startOfWeek } from 'date-fns'
 import { ko } from 'date-fns/locale'
@@ -9,6 +10,7 @@ import { Calendar, View, dateFnsLocalizer } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
 import { CalendarLogic } from './CalendarLogic'
+import TaskModal from './TaskModal'
 
 // 로컬라이저 설정
 const locales = { ko }
@@ -28,6 +30,7 @@ type Event = {
   end: Date
   allDay?: boolean
   priority: Task['priority']
+  task: Task // Task 객체 전체를 저장
 }
 
 // 메시지 한국어 설정
@@ -50,16 +53,20 @@ type CalendarViewProps = {
     sprintId: string
     assigneeEmails: string[]
   }
+  members: Member[]
 }
 
 export default function CalendarView({
   projectId,
   searchText,
   filters,
+  members,
 }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [view, setView] = useState<View>('month')
-  const { tasks, loading, error, fetchTasks } = CalendarLogic(projectId)
+  const { tasks, loading, error, fetchTasks, handleTaskUpdate, getTaskById } =
+    CalendarLogic(projectId)
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
 
   // filters가 변경될 때마다 fetchTasks 호출
   useEffect(() => {
@@ -120,7 +127,53 @@ export default function CalendarView({
       end: new Date(task.endDate),
       allDay: true,
       priority: task.priority,
+      task, // Task 객체 전체를 저장
     }))
+
+  const handleEventClick = (event: Event) => {
+    setSelectedTask(event.task)
+  }
+
+  const handleModalClose = () => {
+    setSelectedTask(null)
+  }
+
+  const updateTaskAndState = async (
+    taskId: string,
+    data: Partial<{
+      title: string
+      description: string
+      status: Task['status']
+      assigneeEmail: string
+      startDate: string
+      endDate: string
+      priority: Task['priority']
+      epicId: string
+    }>
+  ) => {
+    try {
+      console.log('캘린더 - 업데이트 전 데이터:', {
+        taskId,
+        currentTask: selectedTask,
+        updateData: data,
+      })
+
+      // taskId를 제외한 데이터만 전송
+      const updateData = Object.fromEntries(
+        Object.entries(data).filter(([key]) => key !== 'taskId')
+      )
+
+      // 서버에 업데이트 요청만 하고, 로컬 상태 업데이트는 하지 않음
+      await handleTaskUpdate(taskId, updateData)
+
+      // 모달에 표시된 태스크만 업데이트
+      if (selectedTask?.taskId === taskId) {
+        setSelectedTask((prev) => (prev ? { ...prev, ...updateData } : null))
+      }
+    } catch (error) {
+      console.error('태스크 업데이트 실패:', error)
+    }
+  }
 
   if (error) {
     return (
@@ -186,7 +239,21 @@ export default function CalendarView({
           }
           return priorityStyleMap[event.priority]
         }}
+        onSelectEvent={handleEventClick}
       />
+
+      {selectedTask && (
+        <div className="relative z-10">
+          <TaskModal
+            task={selectedTask}
+            isOpen={!!selectedTask}
+            onClose={handleModalClose}
+            members={members}
+            onUpdate={updateTaskAndState}
+            getTaskById={getTaskById}
+          />
+        </div>
+      )}
     </div>
   )
 }
