@@ -4,6 +4,23 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
+// API 엔드포인트 상수
+const API_ENDPOINTS = {
+  TASKS: `${API_BASE_URL}/task`,
+  TASK_BY_ID: `${API_BASE_URL}/task`,
+} as const
+
+type TaskUpdateData = Partial<{
+  title: string
+  description: string
+  status: Task['status']
+  assigneeEmail: string
+  startDate: string
+  endDate: string
+  priority: Task['priority']
+  epicId: string
+}>
+
 type TaskFilters = {
   priority: Task['priority'] | 'ALL'
   epicId: string
@@ -54,7 +71,7 @@ export function CalendarLogic(projectId: string) {
 
         // 프로젝트의 모든 태스크를 필터링과 함께 가져오기
         const response = await fetch(
-          `${API_BASE_URL}/task?${queryParams.toString()}`,
+          `${API_ENDPOINTS.TASKS}?${queryParams.toString()}`,
           {
             method: 'GET',
             headers: {
@@ -87,6 +104,89 @@ export function CalendarLogic(projectId: string) {
     [user?.accessToken, projectId]
   )
 
+  const handleTaskUpdate = async (taskId: string, data: TaskUpdateData) => {
+    if (!user?.accessToken) {
+      throw new Error('인증 토큰이 없습니다.')
+    }
+
+    try {
+      setLoading(true)
+      console.log('태스크 수정 요청 데이터:', data)
+      const response = await fetch(`${API_ENDPOINTS.TASKS}/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+        credentials: 'include',
+        body: JSON.stringify(data),
+      })
+
+      console.log(
+        '서버 응답 헤더:',
+        Object.fromEntries(response.headers.entries())
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(
+          errorData?.message || `HTTP error! status: ${response.status}`
+        )
+      }
+
+      console.log('태스크 수정 성공')
+      // PUT 성공 후 전체 Task 목록을 다시 불러와서 setTasks 갱신
+      await fetchTasks({
+        priority: 'ALL',
+        epicId: '',
+        sprintId: '',
+        assigneeEmails: [],
+      })
+    } catch (error) {
+      console.error('태스크 수정 실패:', error)
+      setError(
+        error instanceof Error
+          ? error.message
+          : '태스크 수정 중 오류가 발생했습니다.'
+      )
+      throw error
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getTaskById = async (taskId: string): Promise<Task> => {
+    if (!user?.accessToken) {
+      throw new Error('인증 토큰이 없습니다.')
+    }
+
+    try {
+      const response = await fetch(`${API_ENDPOINTS.TASK_BY_ID}/${taskId}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(
+          errorData?.message || `HTTP error! status: ${response.status}`
+        )
+      }
+
+      const task: Task = await response.json()
+      return task
+    } catch (error) {
+      console.error('태스크 조회 실패:', error)
+      throw error
+    }
+  }
+
   // 초기 데이터 로딩
   useEffect(() => {
     const initialFilters: TaskFilters = {
@@ -103,5 +203,7 @@ export function CalendarLogic(projectId: string) {
     loading,
     error,
     fetchTasks,
+    handleTaskUpdate,
+    getTaskById,
   }
 }

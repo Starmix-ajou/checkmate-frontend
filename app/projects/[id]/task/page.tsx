@@ -281,6 +281,7 @@ export default function TasksPage() {
             projectId={projectId}
             searchText={searchText}
             filters={filters}
+            members={project?.members || []}
           />
         ) : (
           <KanbanView
