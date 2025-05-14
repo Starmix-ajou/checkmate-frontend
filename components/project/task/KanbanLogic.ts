@@ -6,7 +6,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -47,6 +47,7 @@ export function KanbanLogic(projectId: string) {
   const [error, setError] = useState<string | null>(null)
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const sensors = useSensors(useSensor(MouseSensor))
+  const isFetching = useRef(false)
 
   // tasks 데이터 가져오기
   const fetchTasks = useCallback(
@@ -56,6 +57,11 @@ export function KanbanLogic(projectId: string) {
         setLoading(false)
         return
       }
+
+      // 이미 요청 중이면 중복 요청 방지
+      if (isFetching.current) return
+      isFetching.current = true
+
       try {
         setError(null)
         setLoading(true)
@@ -148,18 +154,20 @@ export function KanbanLogic(projectId: string) {
         setError(errorMessage)
       } finally {
         setLoading(false)
+        isFetching.current = false
       }
     },
     [user?.accessToken, projectId]
   )
 
   useEffect(() => {
-    fetchTasks({
+    const initialFilters: TaskFilters = {
       priority: 'ALL',
       epicId: '',
       sprintId: '',
       assigneeEmails: [],
-    })
+    }
+    fetchTasks(initialFilters)
   }, [fetchTasks])
 
   const findColumn = (taskId: string): ColumnType | null => {
