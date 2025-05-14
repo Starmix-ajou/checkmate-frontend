@@ -3,5 +3,10 @@ export default function AccountLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <main className="pt-12 min-h-screen">{children}</main>
+  return (
+    <main className="min-h-screen grid grid-rows-[48px_1fr]">
+      <div />
+      {children}
+    </main>
+  )
 }

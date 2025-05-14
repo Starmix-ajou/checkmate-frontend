@@ -56,7 +56,11 @@ type FeatureTableProps = {
   readOnly?: boolean
 }
 
-export function FeatureTable({ data, onDataChange, readOnly = false }: FeatureTableProps) {
+export function FeatureTable({
+  data,
+  onDataChange,
+  readOnly = false,
+}: FeatureTableProps) {
   return (
     <GenericEditableTable
       data={data}
