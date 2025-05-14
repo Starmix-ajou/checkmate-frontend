@@ -31,7 +31,10 @@ type ChatPhaseProps = {
   phase: Phase
   onNext: () => void
   formPhaseInput: string
-  onSpecificationsComplete?: (specifications: Feature[], projectId: string) => void
+  onSpecificationsComplete?: (
+    specifications: Feature[],
+    projectId: string
+  ) => void
 }
 
 function getInitialMemberData(count: number = 1): TeamMember[] {
@@ -58,6 +61,7 @@ export default function ChatPhase({
   const [tableData, setTableData] = useState<TeamMember[]>([])
   const [isSSEConnected, setIsSSEConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [modifiedFeatures, setModifiedFeatures] = useState<Feature[]>([])
 
   const [projectTitle, setProjectTitle] = useState('')
   const [projectDescription, setProjectDescription] = useState(formPhaseInput)
@@ -66,11 +70,26 @@ export default function ChatPhase({
 
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([])
 
-  const [isLoadingSpecification, setIsLoadingSpecification] = useState(false)
-
   const handleSuggestionChange = (suggestion: string, checked: boolean) => {
     setSelectedSuggestions((prev) =>
       checked ? [...prev, suggestion] : prev.filter((s) => s !== suggestion)
+    )
+  }
+
+  const handleFeatureChange = (features: Feature[], msg: Message) => {
+    setModifiedFeatures(features)
+    setMessages((prev) =>
+      prev.map((m) =>
+        m === msg
+          ? {
+              ...m,
+              tableData: {
+                ...m.tableData!,
+                specifications: features,
+              },
+            }
+          : m
+      )
     )
   }
 
@@ -127,6 +146,7 @@ export default function ChatPhase({
     const token = user?.accessToken
     if (!token) return console.warn('JWT 토큰이 존재하지 않습니다.')
 
+    setIsLoading(true)
     const eventSource = new EventSourcePolyfill(
       `${process.env.NEXT_PUBLIC_API_URL}/sse/subscribe`,
       {
@@ -147,7 +167,8 @@ export default function ChatPhase({
       console.log(event)
       if (event.data) {
         addMessage('ai', event.data)
-        setTimeout(onNext, 1000)
+        setIsLoading(false)
+        onNext()
         eventSource.close()
       }
     }
@@ -169,11 +190,11 @@ export default function ChatPhase({
             })
           }
 
-          setTimeout(() => {
-            onNext()
-          }, 1000)
+          setIsLoading(false)
+          onNext()
         } catch (error) {
           console.error('SSE 데이터 파싱 오류:', error)
+          setIsLoading(false)
         }
       }
     })
@@ -195,32 +216,41 @@ export default function ChatPhase({
           }
 
           if (isNextStep) {
-            setTimeout(async () => {
-              if (!user?.accessToken)
-                return console.warn('JWT 토큰이 없습니다.')
+            addMessage(
+              'ai',
+              '위와 같은 기능 정의에 따라 기능 명세를 작성중입니다.'
+            )
+            if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
 
-              try {
-                const res = await fetch(
-                  `${process.env.NEXT_PUBLIC_API_URL}/project/specification`,
-                  {
-                    method: 'GET',
-                    headers: {
-                      Authorization: `Bearer ${user.accessToken}`,
-                    },
-                  }
-                )
+            try {
+              fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/project/specification`,
+                {
+                  method: 'GET',
+                  headers: {
+                    Authorization: `Bearer ${user.accessToken}`,
+                  },
+                }
+              )
+                .then((res) => {
+                  if (!res.ok)
+                    throw new Error(`명세 단계 전환 실패: ${res.status}`)
 
-                if (!res.ok)
-                  throw new Error(`명세 단계 전환 실패: ${res.status}`)
-
-                onNext()
-              } catch (error) {
-                console.error('명세 단계 전환 에러:', error)
-              }
-            }, 1000)
+                  setIsLoading(false)
+                  onNext()
+                })
+                .catch((error) => {
+                  console.error('명세 단계 전환 에러:', error)
+                  setIsLoading(false)
+                })
+            } catch (error) {
+              console.error('명세 단계 전환 에러:', error)
+              setIsLoading(false)
+            }
           }
         } catch (error) {
           console.error('SSE 데이터 파싱 오류:', error)
+          setIsLoading(false)
         }
       }
     })
@@ -243,16 +273,15 @@ export default function ChatPhase({
           }
 
           if (isNextStep) {
-            setTimeout(async () => {
-              if (!user?.accessToken)
-                return console.warn('JWT 토큰이 없습니다.')
-              console.log('최종 명세서 검토 단계로 전환')
-              onSpecificationsComplete?.(features, projectId)
-              onNext()
-            }, 1000)
+            if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
+            console.log('최종 명세서 검토 단계로 전환')
+            setIsLoading(false)
+            onSpecificationsComplete?.(features, projectId)
+            onNext()
           }
         } catch (error) {
           console.error('SSE 데이터 파싱 오류:', error)
+          setIsLoading(false)
         }
       }
     })
@@ -267,14 +296,13 @@ export default function ChatPhase({
           const features = parsed?.features ?? []
 
           if (features.length > 0) {
-            setIsLoadingSpecification(false)
             addMessage('ai', '기능 명세를 생성했습니다.', {
               specifications: features,
             })
           }
         } catch (error) {
           console.error('SSE 데이터 파싱 오류:', error)
-          setIsLoadingSpecification(false)
+          setIsLoading(false)
         }
       }
     })
@@ -283,6 +311,7 @@ export default function ChatPhase({
       console.error('SSE 연결 오류:', err)
       eventSource.close()
       setIsSSEConnected(false)
+      setIsLoading(false)
     }
   }
 
@@ -330,7 +359,7 @@ export default function ChatPhase({
     } else {
       addMessage('user', messageText)
     }
-    
+
     setInput('')
     setFile(null)
     setSkipFile(false)
@@ -339,22 +368,21 @@ export default function ChatPhase({
     const nextPhase = phases[currentIndex + 1]
 
     setIsLoading(true)
-    setTimeout(async () => {
-      if (!nextPhase || nextPhase.id > 6) {
-        if (phase.id === 7) {
-          await sendDefinitionFeedback(messageText)
-        } else if (phase.id === 8) {
-          await sendSpecificationFeedback(messageText)
-        } else {
-          setIsLoadingSpecification(true)
-          startSSE()
-        }
+    if (!nextPhase || nextPhase.id > 6) {
+      if (phase.id === 7) {
+        await sendDefinitionFeedback(messageText)
+      } else if (phase.id === 8) {
+        await sendSpecificationFeedback(messageText)
       } else {
+        startSSE()
+      }
+    } else {
+      setTimeout(() => {
         addMessage('ai', nextPhase.question)
         onNext()
-      }
-      setIsLoading(false)
-    }, 1000)
+        setIsLoading(false)
+      }, 1000)
+    }
   }
 
   const sendDefinitionFeedback = async (feedback: string) => {
@@ -389,6 +417,16 @@ export default function ChatPhase({
     if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
 
     try {
+      const modifiedFeaturesText = modifiedFeatures
+        .map(
+          (feature) =>
+            `기능명:${feature.name}+사용사례:${feature.useCase}+입력:${feature.input}+출력:${feature.output}`
+        )
+        .join('\n')
+
+      const fullFeedback =
+        feedback + '\n 수정된 기능 명세:\n' + modifiedFeaturesText
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/project/specification`,
         {
@@ -398,12 +436,13 @@ export default function ChatPhase({
             Authorization: `Bearer ${user.accessToken}`,
           },
           body: JSON.stringify({
-            feedback,
+            feedback: fullFeedback,
           }),
         }
       )
 
       if (!res.ok) throw new Error(`피드백 전송 실패: ${res.status}`)
+      setModifiedFeatures([])
     } catch (error) {
       console.error('피드백 전송 에러:', error)
     }
@@ -454,27 +493,20 @@ export default function ChatPhase({
               <h3 className="font-semibold mb-2">기능 명세</h3>
               <FeatureTable
                 data={msg.tableData.specifications}
-                onDataChange={(newSpecifications) => {
-                  setMessages((prev) =>
-                    prev.map((m) =>
-                      m === msg
-                        ? {
-                            ...m,
-                            tableData: {
-                              ...m.tableData!,
-                              specifications: newSpecifications,
-                            },
-                          }
-                        : m
-                    )
-                  )
-                }}
+                onDataChange={(newFeatures) =>
+                  handleFeatureChange(newFeatures, msg)
+                }
+                readOnly={false}
               />
             </div>
           )}
           {msg.tableData.teamMembers && (
             <div className="mb-4">
-              <TeamMemberTable data={msg.tableData.teamMembers} onDataChange={() => {}} readOnly={true} />
+              <TeamMemberTable
+                data={msg.tableData.teamMembers}
+                onDataChange={() => {}}
+                readOnly={true}
+              />
             </div>
           )}
         </div>
@@ -614,16 +646,7 @@ export default function ChatPhase({
         ))}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="px-3 py-2 rounded-lg bg-[#EFEAE8]">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-            </div>
-          </div>
-        )}
-        {isLoadingSpecification && (
-          <div className="flex justify-start">
-            <div className="px-3 py-2 rounded-lg bg-[#EFEAE8]">
-              <CheckMateLogoSpinner size={24} />
-            </div>
+            <CheckMateLogoSpinner size={24} />
           </div>
         )}
       </div>

@@ -9,10 +9,10 @@ import {
 } from '@/components/ui/table'
 import {
   ColumnDef,
+  TableMeta,
   flexRender,
   getCoreRowModel,
   useReactTable,
-  TableMeta,
 } from '@tanstack/react-table'
 import { Trash2 } from 'lucide-react'
 

@@ -37,6 +37,7 @@ function EditableCell({
       <div className="flex flex-col gap-2">
         {!readOnly && (
           <CreatableSelect
+            menuPlacement="auto"
             menuPortalTarget={
               typeof document !== 'undefined' ? document.body : null
             }
@@ -90,6 +91,7 @@ function EditableCell({
       <div className="flex flex-col gap-2">
         {!readOnly && (
           <CreatableSelect
+            menuPlacement="auto"
             menuPortalTarget={
               typeof document !== 'undefined' ? document.body : null
             }

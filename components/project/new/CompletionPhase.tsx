@@ -1,18 +1,20 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { FeatureTable } from './FeatureTable'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { useRouter } from 'next/navigation'
 import { Feature } from '@/types/project-creation'
+import { useRouter } from 'next/navigation'
+
+import { FeatureTable } from './FeatureTable'
 
 interface CompletionPhaseProps {
   specifications: Feature[]
   projectId: string
 }
 
-export default function CompletionPhase({ specifications, projectId }: CompletionPhaseProps) {
-  const user = useAuthStore((state) => state.user)
+export default function CompletionPhase({
+  specifications,
+  projectId,
+}: CompletionPhaseProps) {
   const router = useRouter()
 
   const handleComplete = async () => {
@@ -28,13 +30,7 @@ export default function CompletionPhase({ specifications, projectId }: Completio
         </p>
       </div>
 
-      <div className="border rounded-lg p-4">
-        <FeatureTable
-          data={specifications}
-          onDataChange={() => {}}
-          readOnly
-        />
-      </div>
+      <FeatureTable data={specifications} onDataChange={() => {}} readOnly />
 
       <div className="flex justify-end">
         <Button
@@ -46,4 +42,4 @@ export default function CompletionPhase({ specifications, projectId }: Completio
       </div>
     </div>
   )
-} 
+}

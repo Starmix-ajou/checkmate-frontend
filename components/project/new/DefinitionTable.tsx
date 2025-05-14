@@ -1,4 +1,3 @@
-import { Feature } from '@/types/project-creation'
 import {
   Table,
   TableBody,
@@ -7,6 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Feature } from '@/types/project-creation'
 
 interface DefinitionTableProps {
   data: Feature[]
@@ -19,18 +19,16 @@ export function DefinitionTable({ data }: DefinitionTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead>기능명</TableHead>
-            <TableHead>설명</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((feature, index) => (
             <TableRow key={index}>
               <TableCell className="font-medium">{feature.name}</TableCell>
-              <TableCell>{feature.useCase}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </div>
   )
-} 
+}

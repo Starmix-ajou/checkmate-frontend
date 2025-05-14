@@ -136,13 +136,13 @@
   position: relative;
   width: 64px;
   height: 64px;
-  margin: 4rem;
 }
 
 .cm-square {
   position: absolute;
   width: 32px;
   height: 32px;
+  border-radius: var(--border-radius, 8px);
 }
 
 .cm-square.cm-dark {
@@ -168,45 +168,45 @@
 @keyframes rotateA {
   0% {
     transform: translate(0, 0);
-    border-radius: 8px 8px 0 8px;
+    border-radius: var(--border-radius, 8px) var(--border-radius, 8px) 0 var(--border-radius, 8px);
   }
   25% {
-    transform: translate(0, 32px);
-    border-radius: 8px 0 8px 8px;
+    transform: translate(0, var(--animation-distance, 32px));
+    border-radius: var(--border-radius, 8px) 0 var(--border-radius, 8px) var(--border-radius, 8px);
   }
   50% {
-    transform: translate(32px, 32px);
-    border-radius: 0 8px 8px 8px;
+    transform: translate(var(--animation-distance, 32px), var(--animation-distance, 32px));
+    border-radius: 0 var(--border-radius, 8px) var(--border-radius, 8px) var(--border-radius, 8px);
   }
   75% {
-    transform: translate(32px, 0);
-    border-radius: 8px 8px 8px 0;
+    transform: translate(var(--animation-distance, 32px), 0);
+    border-radius: var(--border-radius, 8px) var(--border-radius, 8px) var(--border-radius, 8px) 0;
   }
   100% {
     transform: translate(0, 0);
-    border-radius: 8px 8px 0 8px;
+    border-radius: var(--border-radius, 8px) var(--border-radius, 8px) 0 var(--border-radius, 8px);
   }
 }
 
 @keyframes rotateB {
   0% {
     transform: translate(0, 0);
-    border-radius: 0 8px 8px 8px;
+    border-radius: 0 var(--border-radius, 8px) var(--border-radius, 8px) var(--border-radius, 8px);
   }
   25% {
-    transform: translate(0, -32px);
-    border-radius: 8px 8px 8px 0;
+    transform: translate(0, calc(-1 * var(--animation-distance, 32px)));
+    border-radius: var(--border-radius, 8px) var(--border-radius, 8px) var(--border-radius, 8px) 0;
   }
   50% {
-    transform: translate(-32px, -32px);
-    border-radius: 8px 8px 0 8px;
+    transform: translate(calc(-1 * var(--animation-distance, 32px)), calc(-1 * var(--animation-distance, 32px)));
+    border-radius: var(--border-radius, 8px) var(--border-radius, 8px) 0 var(--border-radius, 8px);
   }
   75% {
-    transform: translate(-32px, 0);
-    border-radius: 8px 0 8px 8px;
+    transform: translate(calc(-1 * var(--animation-distance, 32px)), 0);
+    border-radius: var(--border-radius, 8px) 0 var(--border-radius, 8px) var(--border-radius, 8px);
   }
   100% {
     transform: translate(0, 0);
-    border-radius: 0 8px 8px 8px;
+    border-radius: 0 var(--border-radius, 8px) var(--border-radius, 8px) var(--border-radius, 8px);
   }
 }
