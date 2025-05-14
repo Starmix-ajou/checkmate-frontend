@@ -69,18 +69,21 @@ export function KanbanLogic(projectId: string) {
         // 필터링 파라미터 구성
         const queryParams = new URLSearchParams({
           projectId,
-          ...(currentFilters.priority !== 'ALL' && {
-            priority: currentFilters.priority,
-          }),
-          ...(currentFilters.epicId && {
-            epicId: currentFilters.epicId,
-          }),
           ...(currentFilters.sprintId && {
             sprintId: currentFilters.sprintId,
           }),
-          ...(currentFilters.assigneeEmails?.length > 0 && {
-            assigneeEmail: currentFilters.assigneeEmails.join(','),
-          }),
+          ...(!currentFilters.sprintId &&
+            currentFilters.priority !== 'ALL' && {
+              priority: currentFilters.priority,
+            }),
+          ...(!currentFilters.sprintId &&
+            currentFilters.epicId && {
+              epicId: currentFilters.epicId,
+            }),
+          ...(!currentFilters.sprintId &&
+            currentFilters.assigneeEmails?.length > 0 && {
+              assigneeEmail: currentFilters.assigneeEmails.join(','),
+            }),
         })
 
         // 프로젝트의 모든 태스크를 필터링과 함께 가져오기
