@@ -33,6 +33,13 @@ type Event = {
   task: Task // Task 객체 전체를 저장
 }
 
+// 상태 스타일 매핑 추가
+const statusStyleMap: Record<Task['status'], { bg: string; text: string }> = {
+  TODO: { bg: '#F8F8F7', text: '#858380' },
+  IN_PROGRESS: { bg: '#F3F9FC', text: '#5093BC' },
+  DONE: { bg: '#F6FAF6', text: '#5C9771' },
+}
+
 // 메시지 한국어 설정
 const calendarMessages = {
   next: '다음',
@@ -210,6 +217,22 @@ export default function CalendarView({
         className="text-sm"
         views={['month', 'week', 'day', 'agenda']}
         view={view}
+        components={{
+          event: ({ event }) => (
+            <div className="flex items-center gap-2">
+              <span>{event.title}</span>
+              <span
+                className="px-2 py-0.5 rounded-full text-xs"
+                style={{
+                  backgroundColor: statusStyleMap[event.task.status].bg,
+                  color: statusStyleMap[event.task.status].text,
+                }}
+              >
+                {event.task.status}
+              </span>
+            </div>
+          ),
+        }}
         eventPropGetter={(event) => {
           const priorityStyleMap: Record<
             Task['priority'],
