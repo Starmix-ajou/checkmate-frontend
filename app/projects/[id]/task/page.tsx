@@ -277,7 +277,11 @@ export default function TasksPage() {
 
         {/* Task View */}
         {isToggled ? (
-          <CalendarView />
+          <CalendarView
+            projectId={projectId}
+            searchText={searchText}
+            filters={filters}
+          />
         ) : (
           <KanbanView
             projectId={projectId}
