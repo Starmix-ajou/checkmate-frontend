@@ -7,7 +7,7 @@ import { format, getDay, isSameDay, parse, startOfWeek } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { Check, Pencil, Pickaxe } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Calendar, View, dateFnsLocalizer } from 'react-big-calendar'
+import { Calendar, Formats, View, dateFnsLocalizer } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
 import { CalendarLogic } from './CalendarLogic'
@@ -70,6 +70,16 @@ const calendarMessages = {
   agenda: '목록',
 }
 
+// 요일 포맷 설정 추가
+const formats: Formats = {
+  weekdayFormat: (date: Date) => {
+    return format(date, 'EEE').toUpperCase()
+  },
+  monthHeaderFormat: (date: Date) => {
+    return format(date, 'yyyy. MM')
+  },
+}
+
 type CalendarViewProps = {
   projectId: string
   searchText: string
@@ -120,7 +130,7 @@ export default function CalendarView({
     if (isToday && viewingToday) {
       return {
         style: {
-          backgroundColor: '#e0f2fe', // 하늘색 배경
+          backgroundColor: '#efeae8',
           fontWeight: 'bold',
         },
       }
@@ -236,6 +246,7 @@ export default function CalendarView({
         className="text-sm"
         views={['month', 'week', 'day', 'agenda']}
         view={view}
+        formats={formats}
         components={{
           event: ({ event }) => (
             <div className="group flex items-center gap-2">
