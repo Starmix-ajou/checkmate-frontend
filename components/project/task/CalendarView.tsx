@@ -59,15 +59,15 @@ const statusStyleMap: Record<
   },
 }
 
-// 메시지 한국어 설정
+// 메시지 설정
 const calendarMessages = {
-  next: '다음',
-  previous: '이전',
-  today: '오늘',
-  month: '월',
-  week: '주',
-  day: '일',
-  agenda: '목록',
+  next: 'Next',
+  previous: 'Prev',
+  today: 'Today',
+  month: 'Month',
+  week: 'Week',
+  agenda: 'Task List',
+  event: 'Task',
 }
 
 // 요일 포맷 설정 추가
@@ -77,6 +77,15 @@ const formats: Formats = {
   },
   monthHeaderFormat: (date: Date) => {
     return format(date, 'yyyy. MM')
+  },
+  dayRangeHeaderFormat: ({ start, end }: { start: Date; end: Date }) => {
+    const startMonth = format(start, 'MM')
+    const startDay = format(start, 'dd')
+    const endDay = format(end, 'dd')
+    return `${startMonth}. ${startDay} - ${endDay}`
+  },
+  agendaHeaderFormat: ({ start }: { start: Date }) => {
+    return format(start, 'yyyy. MM')
   },
 }
 
@@ -121,8 +130,8 @@ export default function CalendarView({
     if (!isSameMonth) {
       return {
         style: {
-          backgroundColor: '#f3f4f6', // 회색 배경
-          color: '#9ca3af', // 회색 텍스트
+          backgroundColor: '#f3f4f6',
+          color: '#9ca3af',
         },
       }
     }
@@ -231,7 +240,7 @@ export default function CalendarView({
   }
 
   return (
-    <div className="h-[600px] lg:h-[700px] bg-white rounded-2xl shadow-md p-4 sm:p-6 overflow-auto">
+    <div className="h-[600px] lg:h-[700px] bg-white p-4 sm:p-6 pt-0 sm:pt-0 overflow-auto">
       <Calendar
         localizer={localizer}
         events={events}
@@ -244,7 +253,7 @@ export default function CalendarView({
         style={{ height: '100%' }}
         messages={calendarMessages}
         className="text-sm [&_.rbc-header]:bg-[#efeae8] [&_.rbc-header]:!font-normal [&_.rbc-toolbar-label]:text-lg [&_.rbc-toolbar-label]:font-semibold"
-        views={['month', 'week', 'day', 'agenda']}
+        views={['month', 'week', 'agenda']}
         view={view}
         formats={formats}
         components={{
