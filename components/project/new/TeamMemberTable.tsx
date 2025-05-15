@@ -1,20 +1,11 @@
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Position, Stack, TeamMember } from '@/types/NewProjectTeamMember'
+import '@/types/table'
 import { CellContext, ColumnDef } from '@tanstack/react-table'
 import CreatableSelect from 'react-select/creatable'
 
 import { GenericEditableTable } from './GenericEditableTable'
-
-declare module '@tanstack/react-table' {
-  interface TableMeta<TData> {
-    updateData: (
-      rowIndex: number,
-      columnId: string,
-      value: unknown | TData
-    ) => void
-  }
-}
 
 const getEnumOptions = (e: object) =>
   Object.values(e).map((value) => ({ label: value, value }))
@@ -29,7 +20,7 @@ function EditableCell({
   table,
 }: CellContext<TeamMember, unknown>) {
   const value = getValue()
-  const readOnly = (table.options.meta as any)?.readOnly
+  const readOnly = table.options.meta?.readOnly
 
   if (column.id === 'positions') {
     const positions = (value as Position[]) || []
@@ -138,7 +129,7 @@ function EditableCell({
   }
 
   return readOnly ? (
-    <div className="w-full py-2">{value}</div>
+    <div className="w-full py-2">{value as string}</div>
   ) : (
     <Input
       value={typeof value === 'string' ? value : ''}

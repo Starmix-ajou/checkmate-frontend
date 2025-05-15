@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import '@/types/table'
 import { CellContext, ColumnDef } from '@tanstack/react-table'
 import clsx from 'clsx'
 
@@ -24,16 +25,6 @@ const DEFAULT_ROW: TaskRow = {
   position: '',
   assignee: '',
   period: '',
-}
-
-declare module '@tanstack/react-table' {
-  interface TableMeta<TData> {
-    updateData: (
-      rowIndex: number,
-      columnId: string,
-      value: unknown | TData
-    ) => void
-  }
 }
 
 const POSITION_OPTIONS = [
