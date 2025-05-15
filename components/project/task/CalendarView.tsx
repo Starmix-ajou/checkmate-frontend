@@ -243,7 +243,7 @@ export default function CalendarView({
         dayPropGetter={customDayPropGetter}
         style={{ height: '100%' }}
         messages={calendarMessages}
-        className="text-sm"
+        className="text-sm [&_.rbc-header]:bg-[#efeae8] [&_.rbc-header]:!font-normal [&_.rbc-toolbar-label]:text-lg [&_.rbc-toolbar-label]:font-semibold"
         views={['month', 'week', 'day', 'agenda']}
         view={view}
         formats={formats}
