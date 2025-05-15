@@ -141,6 +141,28 @@ export default function KanbanView({
     setSelectedTaskForModal(null)
   }
 
+  const handleTaskDelete = async (taskId: string) => {
+    try {
+      await deleteTask(taskId)
+
+      // 삭제된 태스크를 모든 컬럼에서 제거
+      Object.entries(columns).forEach(([columnKey, columnTasks]) => {
+        const remainingTasks = columnTasks.filter(
+          (task) => task.taskId !== taskId
+        )
+        setColumns((prev) => ({
+          ...prev,
+          [columnKey]: remainingTasks,
+        }))
+      })
+
+      handleModalClose()
+    } catch (error) {
+      console.error('태스크 삭제 실패:', error)
+      alert('태스크 삭제에 실패했습니다.')
+    }
+  }
+
   const updateTaskAndState = async (
     taskId: string,
     data: Partial<{
@@ -303,6 +325,7 @@ export default function KanbanView({
           members={members}
           onUpdate={updateTaskAndState}
           getTaskById={getTaskById}
+          deleteTask={handleTaskDelete}
         />
       )}
     </div>
