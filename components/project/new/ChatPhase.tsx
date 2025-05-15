@@ -12,6 +12,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import {
+  getSpecification,
+  postProjectDefinition,
+  putDefinitionFeedback,
+  putSpecificationFeedback,
+} from '@/lib/api/projectCreation'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { TeamMember } from '@/types/NewProjectTeamMember'
@@ -95,6 +101,7 @@ export default function ChatPhase({
 
   const sendProjectDefinition = async () => {
     if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
+    if (!dateRange?.from) return console.warn('시작 날짜가 없습니다.')
 
     const members = tableData.map((member) => ({
       email: member.email ? member.email : 'pjookim@ajou.ac.kr',
@@ -110,34 +117,50 @@ export default function ChatPhase({
       description: projectDescription
         ? projectDescription
         : '스터디 그룹을 매칭하고 관리하는 서비스',
-      startDate: dateRange?.from?.toISOString().split('T')[0],
-      endDate: dateRange?.to?.toISOString().split('T')[0],
+      startDate: dateRange.from.toISOString().split('T')[0],
+      endDate:
+        dateRange.to?.toISOString().split('T')[0] ??
+        dateRange.from.toISOString().split('T')[0],
       members,
       definitionUrl: file
         ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${file.name}`
         : '',
     }
-    console.log(tableData)
-
-    console.log(body)
-    console.log('정의서 POST')
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/project/definition`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.accessToken}`,
-          },
-          body: JSON.stringify(body),
-        }
-      )
-
-      if (!res.ok) throw new Error(`정의서 전송 실패: ${res.status}`)
+      await postProjectDefinition(user.accessToken, body)
     } catch (error) {
       console.error('정의서 전송 에러:', error)
+    }
+  }
+
+  const sendDefinitionFeedback = async (feedback: string) => {
+    if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
+
+    try {
+      await putDefinitionFeedback(
+        user.accessToken,
+        feedback,
+        selectedSuggestions
+      )
+      setSelectedSuggestions([])
+    } catch (error) {
+      console.error('피드백 전송 에러:', error)
+    }
+  }
+
+  const sendSpecificationFeedback = async (feedback: string) => {
+    if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
+
+    try {
+      await putSpecificationFeedback(
+        user.accessToken,
+        feedback,
+        modifiedFeatures
+      )
+      setModifiedFeatures([])
+    } catch (error) {
+      console.error('피드백 전송 에러:', error)
     }
   }
 
@@ -199,61 +222,48 @@ export default function ChatPhase({
       }
     })
 
-    eventSource.addEventListener('feedback-feature-definition', (event) => {
-      if ('data' in event) {
-        const message = event as MessageEvent
-        try {
-          const parsed = JSON.parse(message.data)
-          console.log('SSE 수신 (feedback-feature-definition):', parsed)
+    eventSource.addEventListener(
+      'feedback-feature-definition',
+      async (event) => {
+        if ('data' in event) {
+          const message = event as MessageEvent
+          try {
+            const parsed = JSON.parse(message.data)
+            console.log('SSE 수신 (feedback-feature-definition):', parsed)
 
-          const features: Feature[] = parsed?.features ?? []
-          const isNextStep = parsed?.isNextStep ?? false
+            const features: Feature[] = parsed?.features ?? []
+            const isNextStep = parsed?.isNextStep ?? false
 
-          if (features.length > 0) {
-            addMessage('ai', '피드백에 따른 기능 정의를 생성했습니다.', {
-              features,
-            })
-          }
-
-          if (isNextStep) {
-            addMessage(
-              'ai',
-              '위와 같은 기능 정의에 따라 기능 명세를 작성중입니다.'
-            )
-            if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
-
-            try {
-              fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/project/specification`,
-                {
-                  method: 'GET',
-                  headers: {
-                    Authorization: `Bearer ${user.accessToken}`,
-                  },
-                }
-              )
-                .then((res) => {
-                  if (!res.ok)
-                    throw new Error(`명세 단계 전환 실패: ${res.status}`)
-
-                  setIsLoading(false)
-                  onNext()
-                })
-                .catch((error) => {
-                  console.error('명세 단계 전환 에러:', error)
-                  setIsLoading(false)
-                })
-            } catch (error) {
-              console.error('명세 단계 전환 에러:', error)
-              setIsLoading(false)
+            if (features.length > 0) {
+              addMessage('ai', '피드백에 따른 기능 정의를 생성했습니다.', {
+                features,
+              })
             }
+
+            if (isNextStep) {
+              addMessage(
+                'ai',
+                '위와 같은 기능 정의에 따라 기능 명세를 작성중입니다.'
+              )
+              if (!user?.accessToken)
+                return console.warn('JWT 토큰이 없습니다.')
+
+              try {
+                await getSpecification(user.accessToken)
+                setIsLoading(false)
+                onNext()
+              } catch (error) {
+                console.error('명세 단계 전환 에러:', error)
+                setIsLoading(false)
+              }
+            }
+          } catch (error) {
+            console.error('SSE 데이터 파싱 오류:', error)
+            setIsLoading(false)
           }
-        } catch (error) {
-          console.error('SSE 데이터 파싱 오류:', error)
-          setIsLoading(false)
         }
       }
-    })
+    )
 
     eventSource.addEventListener('feedback-feature-specification', (event) => {
       if ('data' in event) {
@@ -382,69 +392,6 @@ export default function ChatPhase({
         onNext()
         setIsLoading(false)
       }, 1000)
-    }
-  }
-
-  const sendDefinitionFeedback = async (feedback: string) => {
-    if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
-
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/project/definition`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.accessToken}`,
-          },
-          body: JSON.stringify({
-            feedback:
-              feedback +
-              '\n 선택한 기능 목록: ' +
-              selectedSuggestions.join(', '),
-          }),
-        }
-      )
-
-      if (!res.ok) throw new Error(`피드백 전송 실패: ${res.status}`)
-      setSelectedSuggestions([])
-    } catch (error) {
-      console.error('피드백 전송 에러:', error)
-    }
-  }
-
-  const sendSpecificationFeedback = async (feedback: string) => {
-    if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
-
-    try {
-      const modifiedFeaturesText = modifiedFeatures
-        .map(
-          (feature) =>
-            `기능명:${feature.name}+사용사례:${feature.useCase}+입력:${feature.input}+출력:${feature.output}`
-        )
-        .join('\n')
-
-      const fullFeedback =
-        feedback + '\n 수정된 기능 명세:\n' + modifiedFeaturesText
-
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/project/specification`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.accessToken}`,
-          },
-          body: JSON.stringify({
-            feedback: fullFeedback,
-          }),
-        }
-      )
-
-      if (!res.ok) throw new Error(`피드백 전송 실패: ${res.status}`)
-      setModifiedFeatures([])
-    } catch (error) {
-      console.error('피드백 전송 에러:', error)
     }
   }
 
