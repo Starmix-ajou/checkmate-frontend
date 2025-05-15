@@ -9,7 +9,7 @@ import { Member } from '@/types/project'
 import { Task } from '@/types/userTask'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
-import { ChevronDown, X } from 'lucide-react'
+import { ChevronDown, Trash2, X } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { DayPicker, getDefaultClassNames } from 'react-day-picker'
@@ -34,6 +34,7 @@ type TaskModalProps = {
     }>
   ) => Promise<void>
   getTaskById: (taskId: string) => Promise<Task>
+  deleteTask: (taskId: string) => Promise<void>
 }
 
 export default function TaskModal({
@@ -43,6 +44,7 @@ export default function TaskModal({
   onUpdate,
   members,
   getTaskById,
+  deleteTask,
 }: TaskModalProps) {
   const [task, setTask] = useState<Task>(initialTask)
   const [title, setTitle] = useState(initialTask.title)
@@ -184,6 +186,18 @@ export default function TaskModal({
       onClose()
     } catch (error) {
       console.error('태스크 업데이트 실패:', error)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (window.confirm('해당 태스크를 삭제하시겠습니까?')) {
+      try {
+        await deleteTask(task.taskId)
+        handleClose()
+      } catch (error) {
+        console.error('태스크 삭제 실패:', error)
+        alert('태스크 삭제에 실패했습니다.')
+      }
     }
   }
 
@@ -443,11 +457,20 @@ export default function TaskModal({
               />
             </div>
 
-            <div className="flex justify-end gap-2 mt-4">
-              <Button variant="outline" onClick={handleClose}>
-                취소
+            <div className="flex justify-between items-center gap-2 mt-4">
+              <Button
+                onClick={handleDelete}
+                className="flex items-center gap-2 bg-[#FFE5E3] text-[#D91F11] hover:bg-[#D91F11] hover:text-[#FFE5E3]"
+              >
+                <Trash2 size={16} />
+                삭제
               </Button>
-              <Button onClick={handleSave}>수정 완료</Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleClose}>
+                  취소
+                </Button>
+                <Button onClick={handleSave}>수정 완료</Button>
+              </div>
             </div>
           </div>
         </div>

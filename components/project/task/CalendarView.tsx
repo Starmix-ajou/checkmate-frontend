@@ -109,8 +109,15 @@ export default function CalendarView({
 }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [view, setView] = useState<View>('month')
-  const { tasks, loading, error, fetchTasks, handleTaskUpdate, getTaskById } =
-    CalendarLogic(projectId)
+  const {
+    tasks,
+    loading,
+    error,
+    fetchTasks,
+    handleTaskUpdate,
+    getTaskById,
+    deleteTask,
+  } = CalendarLogic(projectId)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
 
   // filters가 변경될 때마다 fetchTasks 호출
@@ -220,6 +227,18 @@ export default function CalendarView({
     }
   }
 
+  const handleTaskDelete = async (taskId: string) => {
+    try {
+      await deleteTask(taskId)
+      // CalendarLogic의 tasks 상태 업데이트를 위해 fetchTasks 호출
+      await fetchTasks(filters)
+      handleModalClose()
+    } catch (error) {
+      console.error('태스크 삭제 실패:', error)
+      alert('태스크 삭제에 실패했습니다.')
+    }
+  }
+
   if (error) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-200px)]">
@@ -318,6 +337,7 @@ export default function CalendarView({
             members={members}
             onUpdate={updateTaskAndState}
             getTaskById={getTaskById}
+            deleteTask={handleTaskDelete}
           />
         </div>
       )}
