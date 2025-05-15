@@ -42,7 +42,7 @@ export default function PrivacyPage() {
             5. 개인정보 보호를 위한 노력
           </h2>
           <p>
-            CheckMate는 사용자 데이터를 안전하게 보호하기 위해 업계 표준의
+            checkmate는 사용자 데이터를 안전하게 보호하기 위해 업계 표준의
             보안조치를 적용하고 있습니다.
           </p>
           <p className="mt-6 text-xs text-gray-500">

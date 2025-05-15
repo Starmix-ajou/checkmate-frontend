@@ -21,7 +21,7 @@ export default function InvitePage() {
               <p className="text-sm">
                 <strong>한도연</strong> 님이 초대했어요.
               </p>
-              <Badge>CheckMate</Badge>
+              <Badge>checkmate</Badge>
             </div>
           </div>
 

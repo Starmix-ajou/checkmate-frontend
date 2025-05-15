@@ -18,7 +18,7 @@ import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
 type NavbarProps = {
-  setFilter: (filter: ProjectStatus) => void
+  setFilter?: (filter: ProjectStatus) => void
   currentFilter?: ProjectStatus
 }
 
@@ -59,7 +59,7 @@ export default function Navbar({ setFilter, currentFilter = '' }: NavbarProps) {
             priority
           />
         </Link>
-        {pathname === '/projects' && (
+        {setFilter && pathname === '/projects' && (
           <div className="flex gap-8">
             <button
               onClick={() => setFilter('')}

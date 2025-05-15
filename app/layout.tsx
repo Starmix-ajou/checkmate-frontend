@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'CheckMate',
-  description: '팀이 성장하는 순간, CheckMate가 함께합니다',
+  title: 'checkmate',
+  description: '팀이 성장하는 순간, checkmate가 함께합니다',
 }
 
 export default function RootLayout({
