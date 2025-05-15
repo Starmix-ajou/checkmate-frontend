@@ -2,16 +2,6 @@
 
 import CheckMateLogoSpinner from '@/components/CheckMateSpinner'
 import { phases } from '@/components/project/new/phases'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
-import { Checkbox } from '@/components/ui/checkbox'
-import { FileUpload } from '@/components/ui/file-upload'
-import { Input } from '@/components/ui/input'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { useProjectSSE } from '@/hooks/useProjectSSE'
 import {
   getSpecification,
@@ -19,20 +9,17 @@ import {
   putDefinitionFeedback,
   putSpecificationFeedback,
 } from '@/lib/api/projectCreation'
-import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { TeamMember } from '@/types/NewProjectTeamMember'
 import { Feature, Message, Phase } from '@/types/project-creation'
 import { ProjectDefinitionBody } from '@/types/project-definition'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
-import { ArrowUp, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
 
-import { DefinitionTable } from './DefinitionTable'
-import { FeatureTable } from './FeatureTable'
-import { TeamMemberTable } from './TeamMemberTable'
+import { ChatInput } from './ChatInput'
+import { ChatMessage } from './ChatMessage'
 
 type ChatPhaseProps = {
   phase: Phase
@@ -68,13 +55,11 @@ export default function ChatPhase({
   const [tableData, setTableData] = useState<TeamMember[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [modifiedFeatures, setModifiedFeatures] = useState<Feature[]>([])
-
   const [projectTitle, setProjectTitle] = useState('')
   const [projectDescription, setProjectDescription] = useState(formPhaseInput)
+  const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([])
 
   const user = useAuthStore((state) => state.user)
-
-  const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([])
 
   const { startSSE } = useProjectSSE({
     onMessage: (message) => {
@@ -166,7 +151,7 @@ export default function ChatPhase({
     if (!dateRange?.from) return console.warn('시작 날짜가 없습니다.')
 
     const members = tableData.map((member) => ({
-      email: member.email ? member.email : 'pjookim@ajou.ac.kr',
+      email: member.email,
       profile: {
         stacks: member.stacks,
         positions: member.positions,
@@ -278,9 +263,7 @@ export default function ChatPhase({
     switch (phase.id) {
       case 6:
         const eventSource = startSSE()
-        if (eventSource) {
-          await sendProjectDefinition()
-        }
+        if (eventSource) await sendProjectDefinition()
         break
       case 7:
         await sendDefinitionFeedback(messageText)
@@ -301,190 +284,6 @@ export default function ChatPhase({
     }
   }
 
-  const renderMessage = (msg: Message) => {
-    if (msg.tableData) {
-      return (
-        <div className="w-full max-w-2xl">
-          {msg.tableData.features && (
-            <div className="mb-4">
-              <h3 className="font-semibold mb-2">기능 목록</h3>
-              <DefinitionTable data={msg.tableData.features} />
-            </div>
-          )}
-          {msg.tableData.suggestions && (
-            <div>
-              <h3 className="font-semibold mb-2">제안</h3>
-              {msg.tableData.suggestions.map((suggestion, index) => (
-                <div key={index} className="mb-4">
-                  <p className="font-medium mb-1">{suggestion.question}</p>
-                  <ul className="list-none pl-5 space-y-2">
-                    {suggestion.answers.map((answer, ansIndex) => (
-                      <li key={ansIndex} className="flex items-center gap-2">
-                        <Checkbox
-                          id={`suggestion-${index}-${ansIndex}`}
-                          checked={selectedSuggestions.includes(answer)}
-                          onCheckedChange={(checked) =>
-                            handleSuggestionChange(answer, checked as boolean)
-                          }
-                        />
-                        <label
-                          htmlFor={`suggestion-${index}-${ansIndex}`}
-                          className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {answer}
-                        </label>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          )}
-          {msg.tableData.specifications && (
-            <div className="mb-4">
-              <h3 className="font-semibold mb-2">기능 명세</h3>
-              <FeatureTable
-                data={msg.tableData.specifications}
-                onDataChange={(newFeatures) =>
-                  handleFeatureChange(newFeatures, msg)
-                }
-                readOnly={false}
-              />
-            </div>
-          )}
-          {msg.tableData.teamMembers && (
-            <div className="mb-4">
-              <TeamMemberTable
-                data={msg.tableData.teamMembers}
-                onDataChange={() => {}}
-                readOnly={true}
-              />
-            </div>
-          )}
-        </div>
-      )
-    }
-
-    return (
-      <div
-        className={`px-3 py-2 rounded-lg text-md max-w-xs break-words ${
-          msg.sender === 'user'
-            ? 'bg-[#795548] text-white'
-            : 'bg-[#EFEAE8] text-gray-900'
-        }`}
-      >
-        {msg.text}
-      </div>
-    )
-  }
-
-  const renderInput = () => {
-    const renderSendButton = () => (
-      <Button
-        onClick={handleSendMessage}
-        className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-8 h-8 flex items-center justify-center"
-        disabled={
-          !input.trim() && !dateRange && !file && !skipFile && !tableData
-        }
-      >
-        <ArrowUp className="h-6 w-6" />
-      </Button>
-    )
-
-    switch (phase.inputType) {
-      case 'number':
-        return (
-          <div className="relative flex-1 flex gap-2">
-            <Input
-              type="number"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="숫자를 입력하세요"
-              className="flex-1"
-            />
-            {renderSendButton()}
-          </div>
-        )
-      case 'table':
-        return (
-          <div className="relative flex-1 flex gap-2">
-            <TeamMemberTable data={tableData} onDataChange={setTableData} />
-            {renderSendButton()}
-          </div>
-        )
-      case 'dateRange':
-        return (
-          <div className="relative flex-1 flex gap-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  id="date"
-                  variant="outline"
-                  className={cn(
-                    'flex-1 justify-start text-left font-normal',
-                    !dateRange && 'text-muted-foreground'
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateRange?.from ? (
-                    dateRange.to ? (
-                      <>
-                        {format(dateRange.from, 'PPP', { locale: ko })} -{' '}
-                        {format(dateRange.to, 'PPP', { locale: ko })}
-                      </>
-                    ) : (
-                      format(dateRange.from, 'PPP', { locale: ko })
-                    )
-                  ) : (
-                    <span>기간을 선택하세요</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  initialFocus
-                  mode="range"
-                  defaultMonth={dateRange?.from}
-                  selected={dateRange}
-                  onSelect={setDateRange}
-                  numberOfMonths={2}
-                />
-              </PopoverContent>
-            </Popover>
-            {renderSendButton()}
-          </div>
-        )
-      case 'file':
-        return (
-          <div className="relative flex-1 flex gap-2">
-            <FileUpload
-              value={file}
-              skip={skipFile}
-              onFileChange={setFile}
-              onSkipChange={setSkipFile}
-              accept=".pdf,.doc,.docx"
-              className="flex-1"
-            />
-            {renderSendButton()}
-          </div>
-        )
-      default:
-        return (
-          <div className="relative flex gap-2 flex-1">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="메시지를 입력하세요..."
-              className="flex-1 border border-input px-3 py-2 rounded-2xl bg-muted resize-none min-h-[24px] max-h-[calc(75dvh)] pb-10"
-              rows={2}
-              autoFocus
-            />
-            {renderSendButton()}
-          </div>
-        )
-    }
-  }
-
   return (
     <div className="flex flex-col">
       <div className="flex-1 overflow-y-auto space-y-4 pb-60">
@@ -493,7 +292,12 @@ export default function ChatPhase({
             key={index}
             className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            {renderMessage(msg)}
+            <ChatMessage
+              message={msg}
+              selectedSuggestions={selectedSuggestions}
+              onSuggestionChange={handleSuggestionChange}
+              onFeatureChange={handleFeatureChange}
+            />
           </div>
         ))}
         {isLoading && (
@@ -505,7 +309,20 @@ export default function ChatPhase({
 
       <div className="fixed bottom-0 left-0 w-full bg-white p-4 flex items-center gap-2">
         <div className="w-full max-w-4xl mx-auto flex gap-2">
-          {renderInput()}
+          <ChatInput
+            phase={phase}
+            input={input}
+            setInput={setInput}
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+            file={file}
+            setFile={setFile}
+            skipFile={skipFile}
+            setSkipFile={setSkipFile}
+            tableData={tableData}
+            setTableData={setTableData}
+            onSend={handleSendMessage}
+          />
         </div>
       </div>
     </div>
