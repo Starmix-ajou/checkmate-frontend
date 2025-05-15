@@ -12,6 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { useProjectSSE } from '@/hooks/useProjectSSE'
 import {
   getSpecification,
   postProjectDefinition,
@@ -22,9 +23,9 @@ import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { TeamMember } from '@/types/NewProjectTeamMember'
 import { Feature, Message, Phase } from '@/types/project-creation'
+import { ProjectDefinitionBody } from '@/types/project-definition'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
-import { EventSourcePolyfill } from 'event-source-polyfill'
 import { ArrowUp, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
@@ -65,7 +66,6 @@ export default function ChatPhase({
   const [file, setFile] = useState<File | null>(null)
   const [skipFile, setSkipFile] = useState(false)
   const [tableData, setTableData] = useState<TeamMember[]>([])
-  const [isSSEConnected, setIsSSEConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [modifiedFeatures, setModifiedFeatures] = useState<Feature[]>([])
 
@@ -75,6 +75,68 @@ export default function ChatPhase({
   const user = useAuthStore((state) => state.user)
 
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([])
+
+  const { startSSE } = useProjectSSE({
+    onMessage: (message) => {
+      addMessage('ai', message)
+      setIsLoading(false)
+      onNext()
+    },
+    onFeatureDefinition: (features, suggestions) => {
+      addMessage('ai', '기능 정의와 제안을 생성했습니다.', {
+        features,
+        suggestions,
+      })
+      setIsLoading(false)
+      onNext()
+    },
+    onDefinitionFeedback: async (features, isNextStep) => {
+      if (features.length > 0) {
+        addMessage('ai', '피드백에 따른 기능 정의를 생성했습니다.', {
+          features,
+        })
+      }
+
+      if (isNextStep) {
+        addMessage('ai', '위와 같은 기능 정의에 따라 기능 명세를 작성중입니다.')
+        if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
+
+        try {
+          await getSpecification(user.accessToken)
+          setIsLoading(false)
+          onNext()
+        } catch (error) {
+          console.error('명세 단계 전환 에러:', error)
+          setIsLoading(false)
+        }
+      }
+    },
+    onSpecificationFeedback: (features, isNextStep, projectId) => {
+      if (features.length > 0) {
+        addMessage('ai', '피드백에 따른 기능 명세를 생성했습니다.', {
+          specifications: features,
+        })
+      }
+
+      if (isNextStep) {
+        console.log('최종 명세서 검토 단계로 전환')
+        setIsLoading(false)
+        onSpecificationsComplete?.(features, projectId)
+        onNext()
+      }
+    },
+    onSpecification: (features) => {
+      if (features.length > 0) {
+        addMessage('ai', '기능 명세를 생성했습니다.', {
+          specifications: features,
+        })
+      }
+    },
+    onError: (error) => {
+      console.error('SSE 에러:', error)
+      setIsLoading(false)
+    },
+  })
 
   const handleSuggestionChange = (suggestion: string, checked: boolean) => {
     setSelectedSuggestions((prev) =>
@@ -112,11 +174,9 @@ export default function ChatPhase({
       },
     }))
 
-    const body = {
+    const body: ProjectDefinitionBody = {
       title: projectTitle,
-      description: projectDescription
-        ? projectDescription
-        : '스터디 그룹을 매칭하고 관리하는 서비스',
+      description: projectDescription,
       startDate: dateRange.from.toISOString().split('T')[0],
       endDate:
         dateRange.to?.toISOString().split('T')[0] ??
@@ -161,167 +221,6 @@ export default function ChatPhase({
       setModifiedFeatures([])
     } catch (error) {
       console.error('피드백 전송 에러:', error)
-    }
-  }
-
-  const startSSE = () => {
-    if (isSSEConnected) return
-    const token = user?.accessToken
-    if (!token) return console.warn('JWT 토큰이 존재하지 않습니다.')
-
-    setIsLoading(true)
-    const eventSource = new EventSourcePolyfill(
-      `${process.env.NEXT_PUBLIC_API_URL}/sse/subscribe`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'text/event-stream',
-        },
-      }
-    )
-
-    eventSource.onopen = async () => {
-      console.log('SSE 연결 성공')
-      setIsSSEConnected(true)
-      await sendProjectDefinition()
-    }
-
-    eventSource.onmessage = (event) => {
-      console.log(event)
-      if (event.data) {
-        addMessage('ai', event.data)
-        setIsLoading(false)
-        onNext()
-        eventSource.close()
-      }
-    }
-
-    eventSource.addEventListener('create-feature-definition', (event) => {
-      if ('data' in event) {
-        const message = event as MessageEvent
-        try {
-          const parsed = JSON.parse(message.data)
-          console.log('SSE 수신 (create-feature-definition):', parsed)
-
-          const features: Feature[] = parsed?.suggestion?.features ?? []
-          const suggestions = parsed?.suggestion?.suggestions ?? []
-
-          if (features.length > 0 || suggestions.length > 0) {
-            addMessage('ai', '기능 정의와 제안을 생성했습니다.', {
-              features,
-              suggestions,
-            })
-          }
-
-          setIsLoading(false)
-          onNext()
-        } catch (error) {
-          console.error('SSE 데이터 파싱 오류:', error)
-          setIsLoading(false)
-        }
-      }
-    })
-
-    eventSource.addEventListener(
-      'feedback-feature-definition',
-      async (event) => {
-        if ('data' in event) {
-          const message = event as MessageEvent
-          try {
-            const parsed = JSON.parse(message.data)
-            console.log('SSE 수신 (feedback-feature-definition):', parsed)
-
-            const features: Feature[] = parsed?.features ?? []
-            const isNextStep = parsed?.isNextStep ?? false
-
-            if (features.length > 0) {
-              addMessage('ai', '피드백에 따른 기능 정의를 생성했습니다.', {
-                features,
-              })
-            }
-
-            if (isNextStep) {
-              addMessage(
-                'ai',
-                '위와 같은 기능 정의에 따라 기능 명세를 작성중입니다.'
-              )
-              if (!user?.accessToken)
-                return console.warn('JWT 토큰이 없습니다.')
-
-              try {
-                await getSpecification(user.accessToken)
-                setIsLoading(false)
-                onNext()
-              } catch (error) {
-                console.error('명세 단계 전환 에러:', error)
-                setIsLoading(false)
-              }
-            }
-          } catch (error) {
-            console.error('SSE 데이터 파싱 오류:', error)
-            setIsLoading(false)
-          }
-        }
-      }
-    )
-
-    eventSource.addEventListener('feedback-feature-specification', (event) => {
-      if ('data' in event) {
-        const message = event as MessageEvent
-        try {
-          const parsed = JSON.parse(message.data)
-          console.log('SSE 수신 (feedback-feature-specification):', parsed)
-
-          const features = parsed?.features ?? []
-          const isNextStep = parsed?.isNextStep ?? false
-          const projectId = parsed?.projectId ?? ''
-
-          if (features.length > 0) {
-            addMessage('ai', '피드백에 따른 기능 명세를 생성했습니다.', {
-              specifications: features,
-            })
-          }
-
-          if (isNextStep) {
-            if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
-            console.log('최종 명세서 검토 단계로 전환')
-            setIsLoading(false)
-            onSpecificationsComplete?.(features, projectId)
-            onNext()
-          }
-        } catch (error) {
-          console.error('SSE 데이터 파싱 오류:', error)
-          setIsLoading(false)
-        }
-      }
-    })
-
-    eventSource.addEventListener('create-feature-specification', (event) => {
-      if ('data' in event) {
-        const message = event as MessageEvent
-        try {
-          const parsed = JSON.parse(message.data)
-          console.log('SSE 수신 (create-feature-specification):', parsed)
-
-          const features = parsed?.features ?? []
-
-          if (features.length > 0) {
-            addMessage('ai', '기능 명세를 생성했습니다.', {
-              specifications: features,
-            })
-          }
-        } catch (error) {
-          console.error('SSE 데이터 파싱 오류:', error)
-          setIsLoading(false)
-        }
-      }
-    })
-
-    eventSource.onerror = (err) => {
-      console.error('SSE 연결 오류:', err)
-      eventSource.close()
-      setIsSSEConnected(false)
-      setIsLoading(false)
     }
   }
 
@@ -374,29 +273,35 @@ export default function ChatPhase({
     setFile(null)
     setSkipFile(false)
 
-    const currentIndex = phases.findIndex((p) => p.id === phase.id)
-    const nextPhase = phases[currentIndex + 1]
-
     setIsLoading(true)
-    if (!nextPhase || nextPhase.id > 6) {
-      if (phase.id === 7) {
+
+    switch (phase.id) {
+      case 6:
+        const eventSource = startSSE()
+        if (eventSource) {
+          await sendProjectDefinition()
+        }
+        break
+      case 7:
         await sendDefinitionFeedback(messageText)
-      } else if (phase.id === 8) {
+        break
+      case 8:
         await sendSpecificationFeedback(messageText)
-      } else {
-        startSSE()
-      }
-    } else {
-      setTimeout(() => {
-        addMessage('ai', nextPhase.question)
-        onNext()
-        setIsLoading(false)
-      }, 1000)
+        break
+      default:
+        const currentIndex = phases.findIndex((p) => p.id === phase.id)
+        const nextPhase = phases[currentIndex + 1]
+        if (nextPhase) {
+          setTimeout(() => {
+            addMessage('ai', nextPhase.question)
+            onNext()
+            setIsLoading(false)
+          }, 1000)
+        }
     }
   }
 
-  const renderMessage = (msg: Message, index: number) => {
-    console.log(index)
+  const renderMessage = (msg: Message) => {
     if (msg.tableData) {
       return (
         <div className="w-full max-w-2xl">
@@ -588,7 +493,7 @@ export default function ChatPhase({
             key={index}
             className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            {renderMessage(msg, index)}
+            {renderMessage(msg)}
           </div>
         ))}
         {isLoading && (

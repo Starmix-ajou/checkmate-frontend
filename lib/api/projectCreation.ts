@@ -1,5 +1,4 @@
 import { Feature } from '@/types/project-creation'
-import { TeamMember } from '@/types/NewProjectTeamMember'
 import { ProjectDefinitionBody } from '@/types/project-definition'
 
 export const postProjectDefinition = async (
@@ -41,7 +40,8 @@ export const putDefinitionFeedback = async (
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          feedback: feedback + '\n 선택한 기능 목록: ' + selectedSuggestions.join(', '),
+          feedback:
+            feedback + '\n 선택한 기능 목록: ' + selectedSuggestions.join(', '),
         }),
       }
     )
@@ -66,7 +66,8 @@ export const putSpecificationFeedback = async (
       )
       .join('\n')
 
-    const fullFeedback = feedback + '\n 수정된 기능 명세:\n' + modifiedFeaturesText
+    const fullFeedback =
+      feedback + '\n 수정된 기능 명세:\n' + modifiedFeaturesText
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/project/specification`,

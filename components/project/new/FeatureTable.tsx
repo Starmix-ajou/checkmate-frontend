@@ -1,5 +1,6 @@
 import { Input } from '@/components/ui/input'
 import { Feature } from '@/types/project-creation'
+import '@/types/table'
 import { CellContext, ColumnDef } from '@tanstack/react-table'
 
 import { GenericEditableTable } from './GenericEditableTable'
@@ -11,7 +12,7 @@ function EditableCell({
   table,
 }: CellContext<Feature, unknown>) {
   const value = getValue() as string
-  const readOnly = (table.options.meta as any)?.readOnly
+  const readOnly = table.options.meta?.readOnly
 
   return readOnly ? (
     <div className="w-full py-2">{value}</div>
