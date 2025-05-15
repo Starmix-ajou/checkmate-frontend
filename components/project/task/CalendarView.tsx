@@ -5,6 +5,7 @@ import { Member } from '@/types/project'
 import { Task } from '@/types/userTask'
 import { format, getDay, isSameDay, parse, startOfWeek } from 'date-fns'
 import { ko } from 'date-fns/locale'
+import { Check, Pencil, Pickaxe } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Calendar, View, dateFnsLocalizer } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
@@ -34,10 +35,28 @@ type Event = {
 }
 
 // 상태 스타일 매핑 추가
-const statusStyleMap: Record<Task['status'], { bg: string; text: string }> = {
-  TODO: { bg: '#F8F8F7', text: '#858380' },
-  IN_PROGRESS: { bg: '#F3F9FC', text: '#5093BC' },
-  DONE: { bg: '#F6FAF6', text: '#5C9771' },
+const statusStyleMap: Record<
+  Task['status'],
+  { bg: string; text: string; displayText: string; icon: React.ReactNode }
+> = {
+  TODO: {
+    bg: '#F8F8F7',
+    text: '#858380',
+    displayText: 'To Do',
+    icon: <Pencil size={14} color="#858380" />,
+  },
+  IN_PROGRESS: {
+    bg: '#F3F9FC',
+    text: '#5093BC',
+    displayText: 'In Progress',
+    icon: <Pickaxe size={14} color="#5093BC" />,
+  },
+  DONE: {
+    bg: '#F6FAF6',
+    text: '#5C9771',
+    displayText: 'Done',
+    icon: <Check size={14} color="#5C9771" />,
+  },
 }
 
 // 메시지 한국어 설정
@@ -219,16 +238,21 @@ export default function CalendarView({
         view={view}
         components={{
           event: ({ event }) => (
-            <div className="flex items-center gap-2">
-              <span>{event.title}</span>
+            <div className="group flex items-center gap-2">
               <span
-                className="px-2 py-0.5 rounded-full text-xs"
+                className={event.task.status === 'DONE' ? 'line-through' : ''} //decoration-2 추기
+              >
+                {event.title}
+              </span>
+              <span
+                className="px-2 py-0.5 rounded-full text-xs flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                 style={{
                   backgroundColor: statusStyleMap[event.task.status].bg,
                   color: statusStyleMap[event.task.status].text,
                 }}
               >
-                {event.task.status}
+                {statusStyleMap[event.task.status].icon}
+                {statusStyleMap[event.task.status].displayText}
               </span>
             </div>
           ),
