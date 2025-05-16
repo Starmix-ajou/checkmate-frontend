@@ -1,5 +1,6 @@
 'use client'
 
+import LoadingCheckMate from '@/components/LoadingCheckMate'
 import {
   ClientSideSuspense,
   LiveblocksProvider,
@@ -15,7 +16,13 @@ export function Room({ children }: { children: ReactNode }) {
       }
     >
       <RoomProvider id="my-room">
-        <ClientSideSuspense fallback={<div>Loading…</div>}>
+        <ClientSideSuspense
+          fallback={
+            <div>
+              <LoadingCheckMate loading={true} />
+            </div>
+          }
+        >
           {children}
         </ClientSideSuspense>
       </RoomProvider>
