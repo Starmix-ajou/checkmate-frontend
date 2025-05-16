@@ -56,19 +56,15 @@ export const putDefinitionFeedback = async (
 export const putSpecificationFeedback = async (
   accessToken: string,
   feedback: string,
-  modifiedFeatures: Feature[]
+  body: {
+    feedback: string
+    createdFeatures: Feature[]
+    modifiedFeatures: Feature[]
+    deletedFeatures: string[]
+  }
 ) => {
   try {
-    const modifiedFeaturesText = modifiedFeatures
-      .map(
-        (feature) =>
-          `기능명:${feature.name}+사용사례:${feature.useCase}+입력:${feature.input}+출력:${feature.output}`
-      )
-      .join('\n')
-
-    const fullFeedback =
-      feedback + '\n 수정된 기능 명세:\n' + modifiedFeaturesText
-
+    console.log(body)
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/project/specification`,
       {
@@ -77,9 +73,7 @@ export const putSpecificationFeedback = async (
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({
-          feedback: fullFeedback,
-        }),
+        body: JSON.stringify(body),
       }
     )
 
