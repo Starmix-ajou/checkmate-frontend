@@ -55,6 +55,7 @@ export default function ChatPhase({
   const [tableData, setTableData] = useState<TeamMember[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [modifiedFeatures, setModifiedFeatures] = useState<Feature[]>([])
+  const [originalFeatures, setOriginalFeatures] = useState<Feature[]>([])
   const [projectTitle, setProjectTitle] = useState('')
   const [projectDescription, setProjectDescription] = useState(formPhaseInput)
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([])
@@ -112,6 +113,7 @@ export default function ChatPhase({
     },
     onSpecification: (features) => {
       if (features.length > 0) {
+        setOriginalFeatures(features)
         addMessage('ai', '기능 명세를 생성했습니다.', {
           specifications: features,
         })
@@ -194,15 +196,56 @@ export default function ChatPhase({
     }
   }
 
+  const analyzeFeatureChanges = (original: Feature[], modified: Feature[]) => {
+    const addedFeatures: Feature[] = []
+    const modifiedFeatures: Feature[] = []
+    const deletedFeatureIds: string[] = []
+
+    // 삭제된 기능 찾기
+    original.forEach((origFeature) => {
+      const exists = modified.some(
+        (modFeature) => modFeature.name === origFeature.name
+      )
+      if (!exists) {
+        deletedFeatureIds.push(origFeature.featureId)
+      }
+    })
+
+    // 추가된 기능과 수정된 기능 찾기
+    modified.forEach((modFeature) => {
+      const origFeature = original.find(
+        (orig) => orig.featureId === modFeature.featureId
+      )
+      if (!origFeature) {
+        addedFeatures.push(modFeature)
+      } else if (
+        origFeature.useCase !== modFeature.useCase ||
+        origFeature.input !== modFeature.input ||
+        origFeature.output !== modFeature.output
+      ) {
+        modifiedFeatures.push(modFeature)
+      }
+    })
+
+    return {
+      added: addedFeatures,
+      modified: modifiedFeatures,
+      deleted: deletedFeatureIds,
+    }
+  }
+
   const sendSpecificationFeedback = async (feedback: string) => {
     if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
 
     try {
-      await putSpecificationFeedback(
-        user.accessToken,
-        feedback,
-        modifiedFeatures
-      )
+      const changes = analyzeFeatureChanges(originalFeatures, modifiedFeatures)
+
+      await putSpecificationFeedback(user.accessToken, feedback, {
+        feedback: feedback,
+        createdFeatures: changes.added,
+        modifiedFeatures: changes.modified,
+        deletedFeatures: changes.deleted,
+      })
       setModifiedFeatures([])
     } catch (error) {
       console.error('피드백 전송 에러:', error)

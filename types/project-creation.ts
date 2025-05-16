@@ -23,6 +23,7 @@ export type Phase = {
 }
 
 export type Feature = {
+  featureId: string
   name: string
   useCase: string
   input: string
