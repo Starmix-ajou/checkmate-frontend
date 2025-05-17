@@ -9,9 +9,9 @@ interface PageProps {
 }
 
 async function getMeetingNote(meetingId: string) {
-  // TODO: API 호출로 meeting note 데이터 가져오기
+  console.log(meetingId)
   return {
-    title: '1차 정기 회의', // 임시 데이터
+    title: '1차 정기 회의',
   }
 }
 
