@@ -1,10 +1,11 @@
+import { Button } from '@/components/ui/button'
 import { FilePlus } from 'lucide-react'
 
 const MeetingNotesAdd = () => {
   return (
-    <button className="ml-4 p-2 rounded-full hover:bg-gray-50 transition">
-      <FilePlus className="text-black hover:text-yellow-500" size={32} />
-    </button>
+    <Button variant='cm' className='px-4'>
+      회의록 작성
+    </Button>
   )
 }
 

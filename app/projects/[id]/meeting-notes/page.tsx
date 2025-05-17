@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Project } from '@/types/project'
-import { CircleX, Search, SlidersHorizontal } from 'lucide-react'
+import { CircleX, SearchIcon, SlidersHorizontalIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -120,36 +120,37 @@ export default function MeetingNotesPage() {
             )}
           </div>
 
-          {/* 필터 & 검색 & 추가 버튼 */}
-          <div className="flex items-center gap-4 mb-6">
-            <Button
-              variant="default"
-              className="bg-black text-white flex items-center gap-2 rounded-3xl"
-            >
-              <SlidersHorizontal size={20} />
-              Filter
-            </Button>
-
-            <div className="flex items-center border-2 border-black rounded-lg px-3 py-2 w-80">
-              <Search size={16} className="text-black" />
-              <input
-                type="text"
-                className="flex-1 bg-transparent outline-none px-2 text-black"
-                placeholder="Search"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-              {searchText && (
-                <CircleX
-                  size={16}
-                  className="text-black cursor-pointer"
-                  onClick={() => setSearchText('')}
-                />
-              )}
-            </div>
-
-            {/* 회의록 추가 버튼 */}
+          <div className="flex items-center justify-between gap-4 mb-6">
             <MeetingNotesAdd />
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                className="flex items-center justify-center w-8 h-8"
+              >
+                <SlidersHorizontalIcon />
+              </Button>
+              <div
+                className={`flex items-center transition-all duration-300 ease-in-out bg-[#F7F7F7] rounded-full`}
+              >
+                <button className="p-2">
+                  <SearchIcon />
+                </button>
+                <input
+                  type="text"
+                  className={`outline-none text-black-01 text-base font-medium placeholder-gray-01 placeholder-base transition-all duration-300 ease-in-out`}
+                  placeholder="검색"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                />
+                {searchText && (
+                  <CircleX
+                    size={16}
+                    className="text-gray-01 cursor-pointer shrink-0 absolute right-3"
+                    onClick={() => setSearchText('')}
+                  />
+                )}
+              </div>
+            </div>
           </div>
 
           <MeetingNotesList meetings={mockMeetings} projectId={id as string} />
