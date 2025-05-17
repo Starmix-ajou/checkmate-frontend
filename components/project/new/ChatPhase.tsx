@@ -81,10 +81,12 @@ export default function ChatPhase({
         addMessage('ai', '피드백에 따른 기능 정의를 생성했습니다.', {
           features,
         })
+        setIsLoading(false)
       }
 
       if (isNextStep) {
         addMessage('ai', '위와 같은 기능 정의에 따라 기능 명세를 작성중입니다.')
+        setIsLoading(true)
         if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
 
         try {
@@ -102,6 +104,7 @@ export default function ChatPhase({
         addMessage('ai', '피드백에 따른 기능 명세를 생성했습니다.', {
           specifications: features,
         })
+        setIsLoading(false)
       }
 
       if (isNextStep) {
@@ -201,17 +204,15 @@ export default function ChatPhase({
     const modifiedFeatures: Feature[] = []
     const deletedFeatureIds: string[] = []
 
-    // 삭제된 기능 찾기
     original.forEach((origFeature) => {
       const exists = modified.some(
-        (modFeature) => modFeature.name === origFeature.name
+        (modFeature) => modFeature.featureId === origFeature.featureId
       )
       if (!exists) {
         deletedFeatureIds.push(origFeature.featureId)
       }
     })
 
-    // 추가된 기능과 수정된 기능 찾기
     modified.forEach((modFeature) => {
       const origFeature = original.find(
         (orig) => orig.featureId === modFeature.featureId
