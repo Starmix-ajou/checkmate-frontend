@@ -13,7 +13,9 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { getMeetings } from '@/lib/api/meetingNotes'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { Meeting } from '@/types/meeting'
 import { Project } from '@/types/project'
 import { CircleX, SearchIcon, SlidersHorizontalIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
@@ -21,66 +23,47 @@ import { useEffect, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
-const mockMeetings = [
-  {
-    id: '1',
-    title: '첫 번째 스프린트 회의',
-    scrumMaster: '김평주',
-    createdAt: '2024-03-20',
-  },
-  {
-    id: '2',
-    title: '두 번째 스프린트 회의',
-    scrumMaster: '한도연',
-    createdAt: '2024-03-21',
-  },
-  {
-    id: '3',
-    title: '세 번째 스프린트 회의',
-    scrumMaster: '조성연',
-    createdAt: '2024-03-22',
-  },
-  {
-    id: '4',
-    title: '네 번째 스프린트 회의',
-    scrumMaster: '박승연',
-    createdAt: '2024-03-23',
-  },
-]
-
 export default function MeetingNotesPage() {
   const { id } = useParams()
   const user = useAuthStore((state) => state.user)
   const [searchText, setSearchText] = useState('')
   const [project, setProject] = useState<Project | null>(null)
+  const [meetings, setMeetings] = useState<Meeting[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user?.accessToken || !id) return
+    if (!user?.accessToken || !id) {
+      setLoading(false)
+      return
+    }
 
-    const fetchProjectDetails = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/project/${id}`, {
-          headers: {
-            Accept: '*/*',
-            Authorization: `Bearer ${user?.accessToken}`,
-          },
-        })
+        const [projectResponse, meetingsResponse] = await Promise.all([
+          fetch(`${API_BASE_URL}/project/${id}`, {
+            headers: {
+              Accept: '*/*',
+              Authorization: `Bearer ${user.accessToken}`,
+            },
+          }),
+          getMeetings(user.accessToken, id as string),
+        ])
 
-        if (!response.ok) {
+        if (!projectResponse.ok) {
           throw new Error('프로젝트 상세 정보 불러오기 실패')
         }
 
-        const data = await response.json()
-        setProject(data)
+        const projectData = await projectResponse.json()
+        setProject(projectData)
+        setMeetings(meetingsResponse)
       } catch (error) {
-        console.error(error)
+        console.error('데이터 로딩 중 오류 발생:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchProjectDetails()
+    fetchData()
   }, [id, user?.accessToken])
 
   return (
@@ -153,7 +136,7 @@ export default function MeetingNotesPage() {
             </div>
           </div>
 
-          <MeetingNotesList meetings={mockMeetings} projectId={id as string} />
+          <MeetingNotesList meetings={meetings} projectId={id as string} />
         </div>
       </div>
     </>

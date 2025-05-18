@@ -7,17 +7,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Meeting } from '@/types/meeting'
 import { useRouter } from 'next/navigation'
 
-interface MeetingNote {
-  id: string
-  title: string
-  scrumMaster: string
-  createdAt: string
-}
-
 interface MeetingNotesListProps {
-  meetings: MeetingNote[]
+  meetings: Meeting[]
   projectId: string
 }
 
@@ -27,8 +21,12 @@ export default function MeetingNotesList({
 }: MeetingNotesListProps) {
   const router = useRouter()
 
-  const handleRowClick = (meetingId: string) => {
-    router.push(`/projects/${projectId}/meeting-notes/${meetingId}`)
+  const handleRowClick = (meeting: Meeting) => {
+    router.push(
+      `/projects/${projectId}/meeting-notes/${meeting.meetingId}?title=${encodeURIComponent(
+        meeting.title
+      )}&roomId=${meeting.meetingId}`
+    )
   }
 
   return (
@@ -47,16 +45,16 @@ export default function MeetingNotesList({
         <TableBody>
           {meetings.map((meeting) => (
             <TableRow
-              key={meeting.id}
+              key={meeting.meetingId}
               className="cursor-pointer hover:bg-gray-100"
-              onClick={() => handleRowClick(meeting.id)}
+              onClick={() => handleRowClick(meeting)}
             >
               <TableCell onClick={(e) => e.stopPropagation()}>
                 <Checkbox />
               </TableCell>
               <TableCell>{meeting.title}</TableCell>
-              <TableCell>{meeting.scrumMaster}</TableCell>
-              <TableCell>{meeting.createdAt}</TableCell>
+              <TableCell>{meeting.master.name}</TableCell>
+              <TableCell>{meeting.timestamp}</TableCell>
             </TableRow>
           ))}
         </TableBody>

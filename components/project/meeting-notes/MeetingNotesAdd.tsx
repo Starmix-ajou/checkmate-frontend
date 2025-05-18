@@ -15,11 +15,15 @@ const MeetingNotesAdd = () => {
 
     try {
       setIsLoading(true)
-      const response = await getCreateMeeting(
+      const meetingNote = await getCreateMeeting(
         user.accessToken,
         params.id as string
       )
-      router.push(`/projects/${params.id}/meeting-notes/${response.meetingId}`)
+      router.push(
+        `/projects/${params.id}/meeting-notes/${meetingNote.meetingId}?title=${encodeURIComponent(
+          meetingNote.title
+        )}&roomId=${meetingNote.meetingId}`
+      )
     } catch (error) {
       console.error('회의 생성 중 오류가 발생했습니다:', error)
     } finally {
