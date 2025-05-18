@@ -362,7 +362,7 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
           <CardTitle>데일리 스크럼</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-cm-gray">
             오늘의 데일리 스크럼을 시작해보세요.
           </div>
         </CardContent>

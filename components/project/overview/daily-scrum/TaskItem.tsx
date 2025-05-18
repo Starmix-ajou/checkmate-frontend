@@ -45,7 +45,7 @@ export function TaskItem({
           {isCurrentUserSelected && (
             <button
               onClick={onRemove}
-              className="text-gray-500 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity ml-2"
+              className="text-cm-gray hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity ml-2"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -62,7 +62,7 @@ export function TaskItem({
         {isCurrentUserSelected && !hasUserDailyScrum && (
           <button
             onClick={onEdit}
-            className="text-gray-500 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="text-cm-gray hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
           >
             <Pencil className="w-4 h-4" />
           </button>

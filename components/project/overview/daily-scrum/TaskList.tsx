@@ -82,7 +82,7 @@ export function TaskList({
               </div>
               <button
                 onClick={onCancelAdd}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-cm-gray hover:text-gray-700"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -91,7 +91,7 @@ export function TaskList({
         ) : isCurrentUserSelected && !hasUserDailyScrum ? (
           <button
             onClick={onAddClick}
-            className="text-sm text-gray-500 hover:underline text-left"
+            className="text-sm text-cm-gray hover:underline text-left"
           >
             + Add
           </button>

@@ -230,7 +230,7 @@ export default function MyTaskCard({ projectId }: MyTaskCardProps) {
         <CardTitle>내 작업</CardTitle>
         <Link
           href={`/projects/${projectId}/task`}
-          className="text-xs text-gray-500 hover:text-gray-700 flex items-center"
+          className="text-xs text-cm-gray hover:text-gray-700 flex items-center"
         >
           더보기 <ChevronRight className="h-4 w-4" />
         </Link>
@@ -295,7 +295,7 @@ export default function MyTaskCard({ projectId }: MyTaskCardProps) {
                 </span>
               </div>
               <div className="w-[20%] mr-3">
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-cm-gray">
                   {formatDate(task.endDate)}
                 </span>
               </div>
