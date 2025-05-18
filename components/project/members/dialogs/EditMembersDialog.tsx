@@ -51,11 +51,11 @@ export function EditMembersDialog({
           선택된 멤버 정보 수정
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>멤버 정보 수정</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4 py-4 overflow-y-auto flex-1">
           {members.map((member) => (
             <div key={member.userId} className="space-y-4">
               <h4 className="font-medium">{member.name}</h4>
@@ -194,7 +194,7 @@ export function EditMembersDialog({
             </div>
           ))}
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex-shrink-0">
           <Button
             onClick={() =>
               members.forEach((member) => handleUpdateMember(member.userId))
