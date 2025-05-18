@@ -5,17 +5,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { Member } from '@/types/project'
 import { format } from 'date-fns'
 import { Calendar, ChevronDown, Clock, User } from 'lucide-react'
 import Image from 'next/image'
 import { useState } from 'react'
-
-interface Member {
-  userId: string
-  name: string
-  email: string
-  profileImageUrl?: string
-}
 
 interface MeetingNoteDetailsProps {
   createdAt: Date
