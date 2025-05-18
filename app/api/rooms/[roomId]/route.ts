@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { roomId: string } }
-) {
-  const roomId = await params.roomId
+export async function GET(request: NextRequest) {
+  const url = new URL(request.url)
+  const pathname = url.pathname
+  const segments = pathname.split('/')
+  const roomId = segments[segments.length - 1]
 
   if (!roomId) {
     return NextResponse.json({ error: 'roomId가 필요합니다.' }, { status: 400 })
   }
 
-  if (!process.env.LIVEBLOCKS_SECRET_KEY || !process.env.LIVEBLOCKS_API_URL) {
+  const secretKey = process.env.LIVEBLOCKS_SECRET_KEY
+  const apiUrl = process.env.LIVEBLOCKS_API_URL
+
+  if (!secretKey || !apiUrl) {
     return NextResponse.json(
       { error: '서버 설정이 올바르지 않습니다.' },
       { status: 500 }
@@ -18,14 +21,11 @@ export async function GET(
   }
 
   try {
-    const response = await fetch(
-      `${process.env.LIVEBLOCKS_API_URL}/rooms/${roomId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.LIVEBLOCKS_SECRET_KEY}`,
-        },
-      }
-    )
+    const response = await fetch(`${apiUrl}/rooms/${roomId}`, {
+      headers: {
+        Authorization: `Bearer ${secretKey}`,
+      },
+    })
 
     if (!response.ok) {
       const errorText = await response.text()
