@@ -103,7 +103,7 @@ export default function ProjectOverview() {
               projectId={id as string}
             />
             <MyTaskCard tasks={tasks} projectId={id as string} />
-            <ScheduleCard schedules={schedules} />
+            <ScheduleCard schedules={schedules} projectId={id as string} />
           </div>
         </div>
       </div>
