@@ -213,6 +213,11 @@ export default function ScheduleCard({ projectId }: ScheduleCardProps) {
     return schedules
       .filter((schedule) => schedule.date === targetDate)
       .flatMap((schedule) => schedule.tasks)
+      .sort((a, b) => {
+        const dateA = new Date(a.endDate).getTime()
+        const dateB = new Date(b.endDate).getTime()
+        return dateA - dateB
+      })
   }
 
   // 날짜 클릭 핸들러
