@@ -4,12 +4,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { ProjectStatus } from '@/types/project'
-import { LogOut, User } from 'lucide-react'
+import { FileText, LogOut, Shield, User } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -127,6 +128,21 @@ export default function Navbar({ setFilter, currentFilter = '' }: NavbarProps) {
           >
             <LogOut className="w-4 h-4" />
             로그아웃
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => router.push('/terms')}
+          >
+            <FileText className="w-4 h-4" />
+            이용약관
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => router.push('/privacy')}
+          >
+            <Shield className="w-4 h-4" />
+            개인정보처리방침
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
