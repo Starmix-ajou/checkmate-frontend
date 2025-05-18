@@ -20,23 +20,27 @@ export default function CheckMateLogoSpinner({
     >
       <div
         className="cm-square cm-dark"
-        style={{
-          width: `${squareSize}px`,
-          height: `${squareSize}px`,
-          '--border-radius': `${borderRadius}px`,
-          '--animation-distance': `${animationDistance}px`,
-          animation: `rotateA 2.5s infinite cubic-bezier(0.25, 0.75, 0.5, 1)`,
-        } as React.CSSProperties}
+        style={
+          {
+            width: `${squareSize}px`,
+            height: `${squareSize}px`,
+            '--border-radius': `${borderRadius}px`,
+            '--animation-distance': `${animationDistance}px`,
+            animation: `rotateA 2.5s infinite cubic-bezier(0.25, 0.75, 0.5, 1)`,
+          } as React.CSSProperties
+        }
       ></div>
       <div
         className="cm-square cm-light"
-        style={{
-          width: `${squareSize}px`,
-          height: `${squareSize}px`,
-          '--border-radius': `${borderRadius}px`,
-          '--animation-distance': `${animationDistance}px`,
-          animation: `rotateB 2.5s infinite cubic-bezier(0.25, 0.75, 0.5, 1)`,
-        } as React.CSSProperties}
+        style={
+          {
+            width: `${squareSize}px`,
+            height: `${squareSize}px`,
+            '--border-radius': `${borderRadius}px`,
+            '--animation-distance': `${animationDistance}px`,
+            animation: `rotateB 2.5s infinite cubic-bezier(0.25, 0.75, 0.5, 1)`,
+          } as React.CSSProperties
+        }
       ></div>
     </div>
   )
