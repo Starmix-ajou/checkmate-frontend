@@ -199,7 +199,10 @@ export default function MyTaskCard({ projectId }: MyTaskCardProps) {
               <Skeleton className="h-4 w-[20%]" />
             </div>
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex justify-between p-2 border-b">
+              <div
+                key={i}
+                className="flex justify-between p-2 border-b border-[#DCDCDC]"
+              >
                 <div className="w-[60%] mr-3">
                   <Skeleton className="h-5 w-full" />
                 </div>
@@ -271,18 +274,21 @@ export default function MyTaskCard({ projectId }: MyTaskCardProps) {
         />
       </div>
       <CardContent>
-        <ScrollArea className="h-40">
-          <div className="flex justify-between px-4 py-1 border-b border-[#DCDCDC]">
-            <span className="w-[60%] text-xs font-base text-gray-01 mr-3">
-              작업
-            </span>
-            <span className="w-[20%] text-xs font-base text-gray-01 mr-3">
-              마감일
-            </span>
-            <span className="w-[20%] text-xs font-base text-gray-01">상태</span>
-          </div>
+        <div className="flex justify-between px-4 py-1 border-b border-[#DCDCDC] bg-white">
+          <span className="w-[60%] text-xs font-base text-gray-01 mr-3">
+            작업
+          </span>
+          <span className="w-[20%] text-xs font-base text-gray-01 mr-3">
+            마감일
+          </span>
+          <span className="w-[20%] text-xs font-base text-gray-01">상태</span>
+        </div>
+        <ScrollArea className="h-[200px]">
           {filteredTasks.map((task, index) => (
-            <div key={index} className="flex justify-between p-2 border-b">
+            <div
+              key={index}
+              className="flex justify-between p-2 border-b border-[#DCDCDC]"
+            >
               <div className="w-[60%] mr-3">
                 <span className="font-base text-[#0F0F0F] text-sm">
                   {task.title}
@@ -300,7 +306,7 @@ export default function MyTaskCard({ projectId }: MyTaskCardProps) {
                       ? 'bg-cm-green-light text-[#5C9771]'
                       : task.status === 'IN_PROGRESS'
                         ? 'bg-[#F3F9FC] text-[#5093BC]'
-                        : 'bg-m-gray-light text-cm-gray'
+                        : 'bg-cm-gray-light text-cm-gray'
                   }`}
                 >
                   {formatStatus(task.status)}

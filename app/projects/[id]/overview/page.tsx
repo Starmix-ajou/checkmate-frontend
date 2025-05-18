@@ -56,11 +56,6 @@ export default function ProjectOverview() {
     fetchProjectDetails()
   }, [id, user?.accessToken])
 
-  const schedules = [
-    { title: 'User Story Mapping 회의', time: '15:00 to 16:15' },
-    { title: 'SW 캡스톤디자인 수업', time: '16:30 to 17:45' },
-  ]
-
   return (
     <>
       <LoadingCheckMate size={64} loading={loading} />
@@ -93,7 +88,7 @@ export default function ProjectOverview() {
               projectId={id as string}
             />
             <MyTaskCard projectId={id as string} />
-            <ScheduleCard schedules={schedules} projectId={id as string} />
+            <ScheduleCard projectId={id as string} />
           </div>
         </div>
       </div>
