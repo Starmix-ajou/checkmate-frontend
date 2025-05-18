@@ -275,21 +275,21 @@ export default function TaskModal({
           <div className="grid gap-4">
             {/* 에픽 정보 */}
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Epic</h3>
+              <h3 className="text-sm font-medium text-cm-gray mb-2">Epic</h3>
               {task.epic?.title && (
                 <p className="text-base font-medium text-gray-700 mt-2">
                   {task.epic.title}
                 </p>
               )}
               {task.epic?.description && (
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-cm-gray mt-1">
                   {task.epic.description}
                 </p>
               )}
             </div>
             {/* 제목 */}
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">
+              <h3 className="text-sm font-medium text-cm-gray mb-2">
                 Task Title
               </h3>
               <input
@@ -302,7 +302,7 @@ export default function TaskModal({
 
             {/* 담당자 */}
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">
+              <h3 className="text-sm font-medium text-cm-gray mb-2">
                 Assignee
               </h3>
               <Popover open={isAssigneeOpen} onOpenChange={setIsAssigneeOpen}>
@@ -322,7 +322,7 @@ export default function TaskModal({
                         <div className="text-sm font-medium">
                           {selectedAssignee?.name || '담당자 선택'}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-cm-gray">
                           {selectedAssignee?.email}
                         </div>
                       </div>
@@ -354,7 +354,7 @@ export default function TaskModal({
                           <div className="text-sm font-medium">
                             {member.name}
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-cm-gray">
                             {member.email}
                           </div>
                         </div>
@@ -367,7 +367,7 @@ export default function TaskModal({
 
             {/* 상태 */}
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Status</h3>
+              <h3 className="text-sm font-medium text-cm-gray mb-2">Status</h3>
               <div
                 className={`inline-block text-sm font-normal px-3 py-1.5 rounded-sm cursor-pointer ${statusStyleMap[status]}`}
                 onClick={cycleStatus}
@@ -378,7 +378,7 @@ export default function TaskModal({
 
             {/* 우선순위 */}
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">
+              <h3 className="text-sm font-medium text-cm-gray mb-2">
                 Priority
               </h3>
               <div
@@ -391,7 +391,7 @@ export default function TaskModal({
 
             {/* 기간 */}
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">
+              <h3 className="text-sm font-medium text-cm-gray mb-2">
                 Duration
               </h3>
               <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
@@ -446,7 +446,7 @@ export default function TaskModal({
 
             {/* 설명 */}
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">
+              <h3 className="text-sm font-medium text-cm-gray mb-2">
                 Description
               </h3>
               <textarea

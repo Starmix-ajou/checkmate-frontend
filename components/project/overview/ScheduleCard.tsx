@@ -242,7 +242,7 @@ export default function ScheduleCard({ projectId }: ScheduleCardProps) {
           <CardTitle>스케줄</CardTitle>
           <Link
             href={`/projects/${projectId}/task?view=calendar`}
-            className="text-xs text-gray-500 hover:text-gray-700 flex items-center"
+            className="text-xs text-cm-gray hover:text-gray-700 flex items-center"
           >
             더보기 <ChevronRight className="h-4 w-4" />
           </Link>
@@ -292,30 +292,38 @@ export default function ScheduleCard({ projectId }: ScheduleCardProps) {
           <span className="w-[20%] text-xs font-base text-gray-01">상태</span>
         </div>
         <ScrollArea className="h-[148px]">
-          {getFilteredTasks().map((task, index) => (
-            <div
-              key={index}
-              className="flex justify-between p-2 border-b border-[#DCDCDC]"
-            >
-              <div className="w-[60%] mr-3">
-                <span className="font-base text-[#0F0F0F] text-sm">
-                  {task.title}
-                </span>
+          {getFilteredTasks().length > 0 ? (
+            getFilteredTasks().map((task, index) => (
+              <div
+                key={index}
+                className="flex justify-between p-2 border-b border-[#DCDCDC]"
+              >
+                <div className="w-[60%] mr-3">
+                  <span className="font-base text-[#0F0F0F] text-sm">
+                    {task.title}
+                  </span>
+                </div>
+                <div className="w-[20%] mr-3">
+                  <span className="text-xs text-cm-gray">
+                    {formatDate(task.endDate)}
+                  </span>
+                </div>
+                <div className="w-[20%]">
+                  <span
+                    className={`px-2 py-1 text-xs rounded-sm ${getStatusStyle(task.status)}`}
+                  >
+                    {formatStatus(task.status)}
+                  </span>
+                </div>
               </div>
-              <div className="w-[20%] mr-3">
-                <span className="text-xs text-gray-500">
-                  {formatDate(task.endDate)}
-                </span>
-              </div>
-              <div className="w-[20%]">
-                <span
-                  className={`px-2 py-1 text-xs rounded-sm ${getStatusStyle(task.status)}`}
-                >
-                  {formatStatus(task.status)}
-                </span>
-              </div>
+            ))
+          ) : (
+            <div className="flex justify-center mt-6">
+              <span className="text-xs text-cm-gray font-medium">
+                해당 날짜에 예정된 작업이 없습니다.
+              </span>
             </div>
-          ))}
+          )}
         </ScrollArea>
       </CardContent>
     </Card>
