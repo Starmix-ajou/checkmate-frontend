@@ -69,7 +69,13 @@ export function FeatureTable({
       onDataChange={onDataChange}
       addButtonText="기능 추가"
       emptyStateText="기능이 없습니다."
-      defaultRow={{ name: '', useCase: '', input: '', output: '' }}
+      defaultRow={{
+        featureId: '',
+        name: '',
+        useCase: '',
+        input: '',
+        output: '',
+      }}
       readOnly={readOnly}
     />
   )
