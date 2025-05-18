@@ -239,7 +239,7 @@ export default function KanbanView({
               </div>
             }
             columnKey="todo"
-            bg="bg-[#F8F8F7] rounded-none"
+            bg="bg-cm-gray-light rounded-none"
             tasks={filteredColumns.todo}
             onTaskSelect={handleTaskSelect}
             onTaskUpdate={updateTaskAndState}
@@ -277,7 +277,7 @@ export default function KanbanView({
               </div>
             }
             columnKey="done"
-            bg="bg-[#F6FAF6] rounded-none"
+            bg="bg-cm-green-light rounded-none"
             tasks={filteredColumns.done}
             onTaskSelect={handleTaskSelect}
             onTaskUpdate={updateTaskAndState}
