@@ -8,7 +8,7 @@ import Link from 'next/link'
 interface Task {
   title: string
   date: string
-  status: 'Completed' | 'On Progress'
+  status: 'Done' | 'In Progress'
 }
 
 interface MyTaskCardProps {
@@ -83,21 +83,36 @@ export default function MyTaskCard({ tasks, projectId }: MyTaskCardProps) {
       </div>
       <CardContent>
         <ScrollArea className="h-40">
+          <div className="flex justify-between px-4 py-1 border-b border-[#DCDCDC]">
+            <span className="w-[55%] text-xs font-base text-gray-01 mr-3">
+              작업
+            </span>
+            <span className="w-[22%] text-xs font-base text-gray-01 mr-3">
+              마감일
+            </span>
+            <span className="w-[23%] text-xs font-base text-gray-01">상태</span>
+          </div>
           {tasks.map((task, index) => (
             <div key={index} className="flex justify-between p-2 border-b">
-              <div className="flex gap-2">
-                <span className="font-semibold">{task.title}</span>
+              <div className="w-[55%] mr-3">
+                <span className="font-base text-[#0F0F0F] text-sm">
+                  {task.title}
+                </span>
+              </div>
+              <div className="w-[22%] mr-3">
                 <span className="text-xs text-gray-500">{task.date}</span>
               </div>
-              <span
-                className={`px-2 py-1 text-xs rounded ${
-                  task.status === 'Completed'
-                    ? 'bg-green-500 text-white'
-                    : 'bg-red-500 text-white'
-                }`}
-              >
-                {task.status}
-              </span>
+              <div className="w-[23%]">
+                <span
+                  className={`px-2 py-1 text-xs rounded ${
+                    task.status === 'Done'
+                      ? 'bg-green-500 text-white'
+                      : 'bg-red-500 text-white'
+                  }`}
+                >
+                  {task.status}
+                </span>
+              </div>
             </div>
           ))}
         </ScrollArea>
