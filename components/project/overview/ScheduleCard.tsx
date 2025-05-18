@@ -16,7 +16,7 @@ export default function ScheduleCard({ schedules }: ScheduleCardProps) {
   return (
     <Card className="col-span-2">
       <CardHeader>
-        <CardTitle>Schedule</CardTitle>
+        <CardTitle>스케줄</CardTitle>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-40">

@@ -394,7 +394,7 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
 
   return (
     <>
-      <Card className="col-span-2 row-span-2 pt-4">
+      <Card className="col-span-2 row-span-2 pt-4 min-h-80">
         <CardHeader className="flex flex-row items-center justify-between h-8">
           <CardTitle>데일리 스크럼</CardTitle>
           {isEditMode && (
