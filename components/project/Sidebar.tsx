@@ -24,6 +24,7 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { useProjectStore } from '@/stores/useProjectStore'
 import {
   Bell,
+  BookUser,
   BookmarkCheck,
   ChevronDown,
   Home,
@@ -67,6 +68,11 @@ export default function ProjectSidebar() {
       title: 'Meeting Notes',
       url: `/projects/${id}/meeting-notes`,
       icon: NotebookPen,
+    },
+    {
+      title: 'Members',
+      url: `/projects/${id}/members`,
+      icon: BookUser,
     },
     {
       title: 'Settings',
