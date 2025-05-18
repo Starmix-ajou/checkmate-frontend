@@ -18,6 +18,8 @@ jobs:
         run: npm install
 
       - name: Run Build
+        env:
+          LIVEBLOCKS_SECRET_KEY: ${{ secrets.LIVEBLOCKS_SECRET_KEY }}
         run: npm run build
 
       - name: Set up Git Config
