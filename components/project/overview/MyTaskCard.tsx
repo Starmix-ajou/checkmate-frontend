@@ -104,10 +104,12 @@ export default function MyTaskCard({ tasks, projectId }: MyTaskCardProps) {
               </div>
               <div className="w-[23%]">
                 <span
-                  className={`px-2 py-1 text-xs rounded ${
+                  className={`px-2 py-1 text-xs rounded-sm ${
                     task.status === 'Done'
-                      ? 'bg-green-500 text-white'
-                      : 'bg-red-500 text-white'
+                      ? 'bg-cm-green-light text-[#5C9771]'
+                      : task.status === 'In Progress'
+                        ? 'bg-[#F3F9FC] text-[#5093BC]'
+                        : 'bg-m-gray-light text-cm-gray'
                   }`}
                 >
                   {task.status}
