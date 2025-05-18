@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
@@ -173,7 +174,47 @@ export default function MyTaskCard({ projectId }: MyTaskCardProps) {
     : []
 
   if (loading) {
-    return <div>로딩 중...</div>
+    return (
+      <Card className="col-span-2 row-span-2">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>내 작업</CardTitle>
+          <div className="flex items-center">
+            <Skeleton className="h-4 w-12" />
+            <Skeleton className="h-4 w-4 ml-1" />
+          </div>
+        </CardHeader>
+        <div className="flex justify-center gap-3 px-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex flex-col items-center">
+              <Skeleton className="h-4 w-8 mb-2" />
+              <Skeleton className="w-[52px] h-[52px] rounded-full" />
+            </div>
+          ))}
+        </div>
+        <CardContent>
+          <ScrollArea className="h-40">
+            <div className="flex justify-between px-4 py-1 border-b border-[#DCDCDC]">
+              <Skeleton className="h-4 w-[60%]" />
+              <Skeleton className="h-4 w-[20%] mx-3" />
+              <Skeleton className="h-4 w-[20%]" />
+            </div>
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex justify-between p-2 border-b">
+                <div className="w-[60%] mr-3">
+                  <Skeleton className="h-5 w-full" />
+                </div>
+                <div className="w-[20%] mr-3">
+                  <Skeleton className="h-4 w-full" />
+                </div>
+                <div className="w-[20%]">
+                  <Skeleton className="h-6 w-20" />
+                </div>
+              </div>
+            ))}
+          </ScrollArea>
+        </CardContent>
+      </Card>
+    )
   }
 
   if (error) {
