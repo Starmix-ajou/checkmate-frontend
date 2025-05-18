@@ -17,7 +17,7 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { Project } from '@/types/project'
 import { Task } from '@/types/userTask'
 import { CircleX, Search } from 'lucide-react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
@@ -31,11 +31,14 @@ type FilterOption = {
 
 export default function TasksPage() {
   const { id } = useParams()
+  const searchParams = useSearchParams()
   const projectId = id as string
   const [searchText, setSearchText] = useState('')
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const [isSearchFocused, setIsSearchFocused] = useState(false)
-  const [isToggled, setIsToggled] = useState(false)
+  const [isToggled, setIsToggled] = useState(
+    searchParams.get('view') === 'calendar'
+  )
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<FilterOption>({
