@@ -158,9 +158,9 @@ export default function TaskModal({
   }
 
   const statusStyleMap: Record<'TODO' | 'IN_PROGRESS' | 'DONE', string> = {
-    TODO: 'bg-[#F8F8F7] text-[#858380]',
+    TODO: 'bg-cm-gray-light text-cm-gray',
     IN_PROGRESS: 'bg-[#F3F9FC] text-[#5093BC]',
-    DONE: 'bg-[#F6FAF6] text-[#5C9771]',
+    DONE: 'bg-cm-green-light text-[#5C9771]',
   }
 
   const priorityStyleMap: Record<Task['priority'], string> = {

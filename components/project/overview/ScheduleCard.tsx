@@ -25,7 +25,7 @@ export default function ScheduleCard({
         <CardTitle>스케줄</CardTitle>
         <Link
           href={`/projects/${projectId}/task?view=calendar`}
-          className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
+          className="text-xs text-gray-500 hover:text-gray-700 flex items-center"
         >
           더보기 <ChevronRight className="h-4 w-4" />
         </Link>
