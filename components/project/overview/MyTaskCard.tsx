@@ -76,6 +76,19 @@ const formatDate = (dateString: string) => {
   return `${month}. ${day}`
 }
 
+const formatStatus = (status: string) => {
+  switch (status) {
+    case 'TODO':
+      return 'To Do'
+    case 'IN_PROGRESS':
+      return 'In Progress'
+    case 'DONE':
+      return 'Done'
+    default:
+      return status
+  }
+}
+
 export default function MyTaskCard({ projectId }: MyTaskCardProps) {
   const [taskCounts, setTaskCounts] = useState<TaskCountResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -122,14 +135,41 @@ export default function MyTaskCard({ projectId }: MyTaskCardProps) {
     fetchTaskCounts()
   }, [projectId, user?.accessToken])
 
+  const getStatusPriority = (status: string) => {
+    switch (status) {
+      case 'IN_PROGRESS':
+        return 0
+      case 'TODO':
+        return 1
+      case 'DONE':
+        return 2
+      default:
+        return 3
+    }
+  }
+
+  const sortTasks = (tasks: Task[]) => {
+    return [...tasks].sort((a, b) => {
+      // 먼저 status 우선순위로 정렬
+      const statusDiff =
+        getStatusPriority(a.status) - getStatusPriority(b.status)
+      if (statusDiff !== 0) return statusDiff
+
+      // status가 같은 경우 마감일로 정렬
+      const dateA = new Date(a.endDate)
+      const dateB = new Date(b.endDate)
+      return dateA.getTime() - dateB.getTime()
+    })
+  }
+
   const filteredTasks = taskCounts
     ? selectedStatus === 'ALL'
-      ? taskCounts.total.tasks
+      ? sortTasks(taskCounts.total.tasks)
       : selectedStatus === 'TODO'
-        ? taskCounts.todo.tasks
+        ? sortTasks(taskCounts.todo.tasks)
         : selectedStatus === 'IN_PROGRESS'
-          ? taskCounts.inProgress.tasks
-          : taskCounts.done.tasks
+          ? sortTasks(taskCounts.inProgress.tasks)
+          : sortTasks(taskCounts.done.tasks)
     : []
 
   if (loading) {
@@ -192,27 +232,27 @@ export default function MyTaskCard({ projectId }: MyTaskCardProps) {
       <CardContent>
         <ScrollArea className="h-40">
           <div className="flex justify-between px-4 py-1 border-b border-[#DCDCDC]">
-            <span className="w-[55%] text-xs font-base text-gray-01 mr-3">
+            <span className="w-[60%] text-xs font-base text-gray-01 mr-3">
               작업
             </span>
-            <span className="w-[22%] text-xs font-base text-gray-01 mr-3">
+            <span className="w-[20%] text-xs font-base text-gray-01 mr-3">
               마감일
             </span>
-            <span className="w-[23%] text-xs font-base text-gray-01">상태</span>
+            <span className="w-[20%] text-xs font-base text-gray-01">상태</span>
           </div>
           {filteredTasks.map((task, index) => (
             <div key={index} className="flex justify-between p-2 border-b">
-              <div className="w-[55%] mr-3">
+              <div className="w-[60%] mr-3">
                 <span className="font-base text-[#0F0F0F] text-sm">
                   {task.title}
                 </span>
               </div>
-              <div className="w-[22%] mr-3">
+              <div className="w-[20%] mr-3">
                 <span className="text-xs text-gray-500">
                   {formatDate(task.endDate)}
                 </span>
               </div>
-              <div className="w-[23%]">
+              <div className="w-[20%]">
                 <span
                   className={`px-2 py-1 text-xs rounded-sm ${
                     task.status === 'DONE'
@@ -222,7 +262,7 @@ export default function MyTaskCard({ projectId }: MyTaskCardProps) {
                         : 'bg-m-gray-light text-cm-gray'
                   }`}
                 >
-                  {task.status}
+                  {formatStatus(task.status)}
                 </span>
               </div>
             </div>
