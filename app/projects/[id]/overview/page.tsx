@@ -59,11 +59,11 @@ export default function ProjectOverview() {
   const tasks: {
     title: string
     date: string
-    status: 'Completed' | 'On Progress'
+    status: 'Done' | 'In Progress'
   }[] = [
-    { title: '로그인 UI 구현', date: '30 Mar', status: 'Completed' },
-    { title: 'PR Template 구성', date: '30 Mar', status: 'On Progress' },
-    { title: '대시보드 UI 구현', date: '30 Mar', status: 'On Progress' },
+    { title: '로그인 UI 구현', date: '04. 09', status: 'Done' },
+    { title: 'PR Template 구성', date: '04. 09', status: 'In Progress' },
+    { title: '대시보드 UI 구현', date: '04. 09', status: 'In Progress' },
   ]
 
   const schedules = [
