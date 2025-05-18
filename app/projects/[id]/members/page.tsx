@@ -67,7 +67,9 @@ export default function MembersPage() {
                 {loading ? (
                   <Skeleton className="h-4 w-[100px]" />
                 ) : (
-                  <BreadcrumbPage>{project?.title}</BreadcrumbPage>
+                  <BreadcrumbLink href={`/projects/${id}/overview`}>
+                    {project?.title}
+                  </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
               <BreadcrumbSeparator />
