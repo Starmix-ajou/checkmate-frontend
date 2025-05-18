@@ -1,5 +1,5 @@
-import { useState } from 'react'
 import { Member } from '@/types/project'
+import { useState } from 'react'
 
 export function useMemberSelection(members: Member[]) {
   const [selectedMembers, setSelectedMembers] = useState<Set<string>>(new Set())
@@ -32,4 +32,4 @@ export function useMemberSelection(members: Member[]) {
     handleSelectAll,
     handleSelectMember,
   }
-} 
+}
