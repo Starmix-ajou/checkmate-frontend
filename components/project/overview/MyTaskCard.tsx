@@ -2,17 +2,30 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { useAuthStore } from '@/stores/useAuthStore'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 interface Task {
   title: string
-  date: string
-  status: 'Done' | 'In Progress'
+  endDate: string
+  status: 'TODO' | 'IN_PROGRESS' | 'DONE'
+}
+
+interface TaskCount {
+  count: number
+  tasks: Task[]
+}
+
+interface TaskCountResponse {
+  total: TaskCount
+  todo: TaskCount
+  inProgress: TaskCount
+  done: TaskCount
 }
 
 interface MyTaskCardProps {
-  tasks: Task[]
   projectId: string
 }
 
@@ -21,14 +34,32 @@ interface StatusCircleProps {
   bgColor: string
   count?: number
   textColor: string
+  isSelected: boolean
+  borderColor: string
+  onClick: () => void
 }
 
-function StatusCircle({ label, bgColor, count, textColor }: StatusCircleProps) {
+type StatusFilter = 'ALL' | 'TODO' | 'IN_PROGRESS' | 'DONE'
+
+function StatusCircle({
+  label,
+  bgColor,
+  count,
+  textColor,
+  isSelected,
+  borderColor,
+  onClick,
+}: StatusCircleProps) {
   return (
-    <div className="flex flex-col items-center">
+    <div
+      className="flex flex-col items-center cursor-pointer"
+      onClick={onClick}
+    >
       <span className="text-xs mb-2">{label}</span>
       <div
-        className={`w-[52px] h-[52px] rounded-full ${bgColor} flex items-center justify-center`}
+        className={`w-[52px] h-[52px] rounded-full ${bgColor} flex items-center justify-center ${
+          isSelected ? `border-2 ${borderColor}` : ''
+        }`}
       >
         <span className={`text-base px-3 py-2 font-medium ${textColor}`}>
           {count}
@@ -38,11 +69,76 @@ function StatusCircle({ label, bgColor, count, textColor }: StatusCircleProps) {
   )
 }
 
-export default function MyTaskCard({ tasks, projectId }: MyTaskCardProps) {
-  const todoCount = 5
-  const inProgressCount = 3
-  const doneCount = 2
-  const totalCount = todoCount + inProgressCount + doneCount
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${month}. ${day}`
+}
+
+export default function MyTaskCard({ projectId }: MyTaskCardProps) {
+  const [taskCounts, setTaskCounts] = useState<TaskCountResponse | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ALL')
+  const user = useAuthStore((state) => state.user)
+
+  useEffect(() => {
+    const fetchTaskCounts = async () => {
+      if (!user?.accessToken) {
+        console.log('인증 토큰이 없습니다.')
+        setLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/task/count?projectId=${projectId}`,
+          {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${user.accessToken}`,
+            },
+            credentials: 'include',
+          }
+        )
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const data: TaskCountResponse = await response.json()
+        setTaskCounts(data)
+      } catch (error) {
+        console.error('태스크 카운트 조회 실패:', error)
+        setError('태스크 정보를 불러오는데 실패했습니다.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTaskCounts()
+  }, [projectId, user?.accessToken])
+
+  const filteredTasks = taskCounts
+    ? selectedStatus === 'ALL'
+      ? taskCounts.total.tasks
+      : selectedStatus === 'TODO'
+        ? taskCounts.todo.tasks
+        : selectedStatus === 'IN_PROGRESS'
+          ? taskCounts.inProgress.tasks
+          : taskCounts.done.tasks
+    : []
+
+  if (loading) {
+    return <div>로딩 중...</div>
+  }
+
+  if (error) {
+    return <div>에러: {error}</div>
+  }
 
   return (
     <Card className="col-span-2 row-span-2">
@@ -59,26 +155,38 @@ export default function MyTaskCard({ tasks, projectId }: MyTaskCardProps) {
         <StatusCircle
           label="Total"
           bgColor="bg-cm-light"
-          count={totalCount}
+          count={taskCounts?.total.count || 0}
           textColor="text-cm-900"
+          isSelected={selectedStatus === 'ALL'}
+          borderColor="border-cm-900"
+          onClick={() => setSelectedStatus('ALL')}
         />
         <StatusCircle
           label="To Do"
           bgColor="bg-cm-gray-light"
-          count={todoCount}
+          count={taskCounts?.todo.count || 0}
           textColor="text-cm-gray"
+          isSelected={selectedStatus === 'TODO'}
+          borderColor="border-cm-gray"
+          onClick={() => setSelectedStatus('TODO')}
         />
         <StatusCircle
           label="In Progress"
           bgColor="bg-[#F3F9FC]"
-          count={inProgressCount}
+          count={taskCounts?.inProgress.count || 0}
           textColor="text-[#5093BC]"
+          isSelected={selectedStatus === 'IN_PROGRESS'}
+          borderColor="border-[#5093BC]"
+          onClick={() => setSelectedStatus('IN_PROGRESS')}
         />
         <StatusCircle
           label="Done"
           bgColor="bg-cm-green-light"
-          count={doneCount}
+          count={taskCounts?.done.count || 0}
           textColor="text-[#5C9771]"
+          isSelected={selectedStatus === 'DONE'}
+          borderColor="border-[#5C9771]"
+          onClick={() => setSelectedStatus('DONE')}
         />
       </div>
       <CardContent>
@@ -92,7 +200,7 @@ export default function MyTaskCard({ tasks, projectId }: MyTaskCardProps) {
             </span>
             <span className="w-[23%] text-xs font-base text-gray-01">상태</span>
           </div>
-          {tasks.map((task, index) => (
+          {filteredTasks.map((task, index) => (
             <div key={index} className="flex justify-between p-2 border-b">
               <div className="w-[55%] mr-3">
                 <span className="font-base text-[#0F0F0F] text-sm">
@@ -100,14 +208,16 @@ export default function MyTaskCard({ tasks, projectId }: MyTaskCardProps) {
                 </span>
               </div>
               <div className="w-[22%] mr-3">
-                <span className="text-xs text-gray-500">{task.date}</span>
+                <span className="text-xs text-gray-500">
+                  {formatDate(task.endDate)}
+                </span>
               </div>
               <div className="w-[23%]">
                 <span
                   className={`px-2 py-1 text-xs rounded-sm ${
-                    task.status === 'Done'
+                    task.status === 'DONE'
                       ? 'bg-cm-green-light text-[#5C9771]'
-                      : task.status === 'In Progress'
+                      : task.status === 'IN_PROGRESS'
                         ? 'bg-[#F3F9FC] text-[#5093BC]'
                         : 'bg-m-gray-light text-cm-gray'
                   }`}
