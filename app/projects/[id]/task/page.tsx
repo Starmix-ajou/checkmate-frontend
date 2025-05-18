@@ -154,7 +154,7 @@ export default function TasksPage() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex justify-between items-center mb-3 mt-2">
+        <div className="flex justify-between items-top mt-2">
           <h1 className="text-3xl font-bold gap-4 text-black-01">
             {loading ? <Skeleton className="h-8 w-[200px]" /> : projectTitle}
           </h1>
