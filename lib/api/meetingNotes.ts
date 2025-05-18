@@ -1,5 +1,19 @@
 import { Meeting } from '@/types/meeting'
 
+interface LiveblocksRoom {
+  type: string
+  id: string
+  lastConnectionAt: string
+  createdAt: string
+  metadata: {
+    name: string[]
+    type: string[]
+  }
+  defaultAccesses: string[]
+  groupsAccesses: Record<string, string[]>
+  usersAccesses: Record<string, string[]>
+}
+
 export const getMeetings = async (
   accessToken: string,
   projectId: string
@@ -50,6 +64,37 @@ export const getCreateMeeting = async (
     return response.json()
   } catch (error) {
     console.error('회의 생성 에러:', error)
+    throw error
+  }
+}
+
+export const getRoomDetails = async (
+  roomId: string
+): Promise<{ createdAt: Date; updatedAt: Date }> => {
+  if (!roomId) {
+    throw new Error('roomId가 필요합니다.')
+  }
+
+  try {
+    const response = await fetch(`/api/rooms/${roomId}`)
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || '회의실 정보 조회 실패')
+    }
+
+    const room: LiveblocksRoom = await response.json()
+
+    if (!room.createdAt || !room.lastConnectionAt) {
+      throw new Error('회의실 정보가 올바르지 않습니다.')
+    }
+
+    return {
+      createdAt: new Date(room.createdAt),
+      updatedAt: new Date(room.lastConnectionAt),
+    }
+  } catch (error) {
+    console.error('회의실 정보 조회 에러:', error)
     throw error
   }
 }

@@ -1,17 +1,12 @@
-import { BlockNoteEditor } from '@blocknote/core'
 import { useCreateThread } from '@liveblocks/react'
 import { Thread } from '@liveblocks/react-ui'
 import { Composer } from '@liveblocks/react-ui/primitives'
 import { useThreads } from '@liveblocks/react/suspense'
 import { ArrowUp } from 'lucide-react'
 
-export function Threads({ editor }: { editor: BlockNoteEditor | null }) {
+export function Threads() {
   const { threads } = useThreads({ query: { resolved: false } })
   const createThread = useCreateThread()
-
-  if (!editor) {
-    return null
-  }
 
   return (
     <div className="h-full overflow-y-auto">
