@@ -56,16 +56,6 @@ export default function ProjectOverview() {
     fetchProjectDetails()
   }, [id, user?.accessToken])
 
-  const tasks: {
-    title: string
-    date: string
-    status: 'Done' | 'In Progress'
-  }[] = [
-    { title: '로그인 UI 구현', date: '04. 09', status: 'Done' },
-    { title: 'PR Template 구성', date: '04. 09', status: 'In Progress' },
-    { title: '대시보드 UI 구현', date: '04. 09', status: 'In Progress' },
-  ]
-
   const schedules = [
     { title: 'User Story Mapping 회의', time: '15:00 to 16:15' },
     { title: 'SW 캡스톤디자인 수업', time: '16:30 to 17:45' },
@@ -102,7 +92,7 @@ export default function ProjectOverview() {
               loading={loading}
               projectId={id as string}
             />
-            <MyTaskCard tasks={tasks} projectId={id as string} />
+            <MyTaskCard projectId={id as string} />
             <ScheduleCard schedules={schedules} projectId={id as string} />
           </div>
         </div>
