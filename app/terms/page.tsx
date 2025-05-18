@@ -1,11 +1,24 @@
 'use client'
 
 import { Card, CardContent } from '@/components/ui/card'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export default function TermsPage() {
   return (
     <main className="max-w-3xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-4">이용 약관</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-3xl font-bold">이용약관</h1>
+        <Link href="/projects">
+          <Image
+            src="/logo.svg"
+            alt="checkmate"
+            width={128}
+            height={30}
+            priority
+          />
+        </Link>
+      </div>
       <Card>
         <CardContent className="space-y-4 text-sm leading-relaxed">
           <p>
