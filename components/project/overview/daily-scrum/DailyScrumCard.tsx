@@ -301,7 +301,7 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
         <Skeleton className="h-5 w-32" />
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-[1fr_2fr_2fr] gap-2 items-start">
+        <div className="grid grid-cols-[1fr_2fr_2fr] gap-2 items-start min-h-[72px]">
           <div className="grid grid-cols-2 gap-2">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="flex flex-col items-center gap-1">
@@ -315,7 +315,7 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
               <Skeleton className="h-6 w-full mb-2" />
               <div className="flex flex-col gap-2">
                 {[1, 2, 3].map((j) => (
-                  <Skeleton key={j} className="h-10 w-full" />
+                  <Skeleton key={j} className="h-12 w-full" />
                 ))}
               </div>
             </div>
@@ -394,7 +394,7 @@ export default function DailyScrumCard({ projectId }: DailyScrumCardProps) {
 
   return (
     <>
-      <Card className="col-span-2 row-span-2 pt-4 min-h-80">
+      <Card className="col-span-2 row-span-2 pt-4 min-h-72">
         <CardHeader className="flex flex-row items-center justify-between h-8">
           <CardTitle>데일리 스크럼</CardTitle>
           {isEditMode && (
