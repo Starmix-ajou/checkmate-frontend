@@ -2,6 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { ChevronRight } from 'lucide-react'
+import Link from 'next/link'
 
 interface Task {
   title: string
@@ -11,13 +13,20 @@ interface Task {
 
 interface MyTaskCardProps {
   tasks: Task[]
+  projectId: string
 }
 
-export default function MyTaskCard({ tasks }: MyTaskCardProps) {
+export default function MyTaskCard({ tasks, projectId }: MyTaskCardProps) {
   return (
-    <Card className="col-span-2">
-      <CardHeader>
-        <CardTitle>My Task</CardTitle>
+    <Card className="col-span-2 row-span-2">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>내 작업</CardTitle>
+        <Link
+          href={`/projects/${projectId}/task`}
+          className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
+        >
+          더보기 <ChevronRight className="h-4 w-4" />
+        </Link>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-40">
