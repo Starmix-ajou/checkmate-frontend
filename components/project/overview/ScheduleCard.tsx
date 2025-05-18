@@ -319,7 +319,7 @@ export default function ScheduleCard({ projectId }: ScheduleCardProps) {
             ))
           ) : (
             <div className="flex justify-center mt-6">
-              <span className="text-xs text-cm-gray font-medium">
+              <span className="text-sm text-cm-gray font-medium">
                 해당 날짜에 예정된 작업이 없습니다.
               </span>
             </div>
