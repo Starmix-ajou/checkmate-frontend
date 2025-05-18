@@ -1,6 +1,7 @@
 'use client'
 
 import LoadingCheckMate from '@/components/LoadingCheckMate'
+import { Member } from '@/types/project'
 import {
   ClientSideSuspense,
   LiveblocksProvider,
@@ -11,14 +12,28 @@ import { ReactNode } from 'react'
 interface RoomProps {
   children: ReactNode
   roomId: string
+  projectId: string
+  members: Member[]
 }
 
-export function Room({ children, roomId }: RoomProps) {
+export function Room({ children, roomId, projectId, members }: RoomProps) {
+  const resolveUsers = async ({ userIds }: { userIds: string[] }) => {
+    return userIds.map((userId) => {
+      const member = members.find((m) => m.email === userId)
+      if (!member) return undefined
+
+      return {
+        name: member.name,
+        avatar: member.profileImageUrl || '',
+        color: '#000000',
+      }
+    })
+  }
+
   return (
     <LiveblocksProvider
-      publicApiKey={
-        'pk_dev_JJsc7mR8OClG96a_IuD4Q3pJ-KCyM2cz4xoruF8k99gIHA2rL7ubXeeTBWsqqYvo'
-      }
+      authEndpoint={`/api/liveblocks-auth?projectId=${projectId}&roomId=${roomId}`}
+      resolveUsers={resolveUsers}
     >
       <RoomProvider id={roomId}>
         <ClientSideSuspense

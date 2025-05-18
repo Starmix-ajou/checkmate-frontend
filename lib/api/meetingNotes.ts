@@ -1,5 +1,4 @@
-import { Meeting } from "@/types/meeting"
-
+import { Meeting } from '@/types/meeting'
 
 export const getMeetings = async (
   accessToken: string,

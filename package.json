@@ -17,6 +17,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@hookform/resolvers": "^5.0.1",
     "@liveblocks/client": "^2.22.2",
+    "@liveblocks/node": "^2.24.2",
     "@liveblocks/react": "^2.22.2",
     "@liveblocks/react-blocknote": "^2.22.2",
     "@liveblocks/react-ui": "^2.22.2",
