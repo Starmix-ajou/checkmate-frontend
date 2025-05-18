@@ -11,4 +11,4 @@ declare module '@tanstack/react-table' {
     updateData: TableUpdateData<TData>
     readOnly?: boolean
   }
-} 
+}
