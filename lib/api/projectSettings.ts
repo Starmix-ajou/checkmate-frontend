@@ -6,6 +6,7 @@ interface UpdateProjectSettingsParams {
   description: string
   imageUrl: string
   endDate: string
+  accessToken: string
 }
 
 export const putProjectSettings = async ({
@@ -14,11 +15,13 @@ export const putProjectSettings = async ({
   description,
   imageUrl,
   endDate,
+  accessToken,
 }: UpdateProjectSettingsParams) => {
   const response = await fetch(`${API_BASE_URL}/project/${projectId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify({
       title,
@@ -31,21 +34,22 @@ export const putProjectSettings = async ({
   if (!response.ok) {
     throw new Error('프로젝트 설정 업데이트에 실패했습니다')
   }
-
-  return response.json()
 }
 
 interface deleteProjectParams {
   projectId: string
+  accessToken: string
 }
 
 export const deleteProject = async ({
   projectId,
+  accessToken,
 }: deleteProjectParams) => {
   const response = await fetch(`${API_BASE_URL}/project/${projectId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
     },
   })
 
