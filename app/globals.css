@@ -54,6 +54,7 @@
   --color-cm-gray-light: oklch(0.98 0.0013 106.42); /*#f8f8f7*/
   --color-cm-gray: oklch(0.61 0.0051 78.29); /*#858380*/
   --color-cm-blue: oklch(0.64 0.0921 237.47); /*#5194bd*/
+  --color-neutral-95: oklch(0.6895 0 0);
 }
 
 :root {
@@ -64,7 +65,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: oklch(0.3 0.0358 30.2);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.94 0.0061 43.33);
   --secondary-foreground: oklch(0.205 0 0);
