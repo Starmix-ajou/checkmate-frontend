@@ -46,9 +46,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
+import { toast } from 'react-toastify'
 import * as z from 'zod'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
@@ -67,6 +68,7 @@ export default function SettingsPage() {
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -77,37 +79,36 @@ export default function SettingsPage() {
     },
   })
 
+  const fetchProjectDetails = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/project/${id}`, {
+        headers: {
+          Accept: '*/*',
+          Authorization: `Bearer ${user?.accessToken}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('프로젝트 상세 정보 불러오기 실패')
+      }
+
+      const data = await response.json()
+      setProject(data)
+      form.reset({
+        title: data.title || '',
+        description: data.description || '',
+        endDate: data.endDate || '',
+        deleteConfirmation: '',
+      })
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (!user?.accessToken || !id) return
-
-    const fetchProjectDetails = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/project/${id}`, {
-          headers: {
-            Accept: '*/*',
-            Authorization: `Bearer ${user?.accessToken}`,
-          },
-        })
-
-        if (!response.ok) {
-          throw new Error('프로젝트 상세 정보 불러오기 실패')
-        }
-
-        const data = await response.json()
-        setProject(data)
-        form.reset({
-          title: data.title || '',
-          description: data.description || '',
-          endDate: data.endDate || '',
-          deleteConfirmation: '',
-        })
-      } catch (error) {
-        console.error(error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchProjectDetails()
   }, [id, user?.accessToken, form])
 
@@ -121,9 +122,11 @@ export default function SettingsPage() {
           ? URL.createObjectURL(values.image[0])
           : project?.imageUrl || '',
         endDate: values.endDate,
+        accessToken: user?.accessToken || '',
       })
 
       toast.success('프로젝트가 성공적으로 업데이트되었습니다')
+      await fetchProjectDetails()
     } catch (error) {
       console.error(error)
       toast.error('프로젝트 업데이트에 실패했습니다')
@@ -140,10 +143,11 @@ export default function SettingsPage() {
     try {
       await deleteProject({
         projectId: id as string,
+        accessToken: user?.accessToken || '',
       })
 
       toast.success('프로젝트가 성공적으로 삭제되었습니다')
-      window.location.href = '/projects'
+      router.push('/projects')
     } catch (error) {
       console.error(error)
       toast.error('프로젝트 삭제에 실패했습니다')
