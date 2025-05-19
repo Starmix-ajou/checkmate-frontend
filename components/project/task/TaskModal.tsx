@@ -9,7 +9,15 @@ import { Member } from '@/types/project'
 import { Task } from '@/types/userTask'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
-import { ChevronDown, Trash2, X } from 'lucide-react'
+import {
+  ArrowUp,
+  ChevronDown,
+  Eraser,
+  PencilLine,
+  Trash2,
+  User,
+  X,
+} from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { DayPicker, getDefaultClassNames } from 'react-day-picker'
@@ -67,6 +75,15 @@ export default function TaskModal({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isVisible, setIsVisible] = useState(false)
+  const [comment, setComment] = useState('')
+  const [comments, setComments] = useState<
+    Array<{
+      id: string
+      content: string
+      author: string
+      date: string
+    }>
+  >([])
 
   useEffect(() => {
     if (isOpen) {
@@ -198,6 +215,38 @@ export default function TaskModal({
         console.error('태스크 삭제 실패:', error)
         alert('태스크 삭제에 실패했습니다.')
       }
+    }
+  }
+
+  const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setComment(e.target.value)
+    const target = e.target
+    target.style.height = '40px'
+    target.style.height = target.scrollHeight + 'px'
+  }
+
+  const handleCommentSubmit = () => {
+    if (!comment.trim()) return
+
+    const newComment = {
+      id: Date.now().toString(),
+      content: comment,
+      author: selectedAssignee?.name || 'Unknown',
+      date: new Date().toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }),
+    }
+
+    setComments([...comments, newComment])
+    setComment('')
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleCommentSubmit()
     }
   }
 
@@ -455,6 +504,71 @@ export default function TaskModal({
                 className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
                 placeholder="Add a description..."
               />
+            </div>
+
+            {/* 댓글 섹션 */}
+            <div className="border-t border-gray-200 pt-4">
+              <h3 className="text-sm font-medium text-cm-gray mb-4">Comment</h3>
+              <div className="space-y-4">
+                {/* 댓글 목록 */}
+                <div className="space-y-4">
+                  {comments.map((comment) => (
+                    <div key={comment.id} className="flex gap-3">
+                      <div className="w-6 h-6 rounded-full bg-cm-light flex-shrink-0 flex items-center justify-center">
+                        <User size={12} className="text-cm" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-medium">
+                            {comment.author}
+                          </span>
+                          <span className="text-xs text-cm-gray">
+                            {comment.date}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-700 mb-2">
+                          {comment.content}
+                        </p>
+                        <div className="flex items-center gap-4">
+                          <button className="text-xs text-cm-gray hover:text-gray-700 flex items-center gap-1">
+                            <PencilLine size={14} />
+                            수정
+                          </button>
+                          <button className="text-xs text-cm-gray hover:text-gray-700 flex items-center gap-1">
+                            <Eraser size={14} />
+                            삭제
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 댓글 입력 영역 */}
+                <div className="flex gap-3">
+                  <div className="w-6 h-6 rounded-full bg-cm-light flex-shrink-0 flex items-center justify-center">
+                    <User size={12} className="text-cm" />
+                  </div>
+                  <div className="flex-1 relative">
+                    <textarea
+                      className="w-full py-2 pl-5 pr-12 bg-cm-light border border-cm-light rounded-2xl focus:outline-none focus:ring-2 focus:ring-cm min-h-[40px] resize-none overflow-hidden"
+                      placeholder="코멘트 입력"
+                      value={comment}
+                      onChange={handleCommentChange}
+                      onKeyPress={handleKeyPress}
+                      style={{ height: '40px' }}
+                    />
+                    <div className="absolute inset-right-0 bottom-3.5 right-3">
+                      <button
+                        className="w-6 h-6 rounded-full bg-cm-900 flex items-center justify-center"
+                        onClick={handleCommentSubmit}
+                      >
+                        <ArrowUp size={14} className="text-white" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="flex justify-between items-center gap-2 mt-4">
