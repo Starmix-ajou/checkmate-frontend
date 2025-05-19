@@ -10,6 +10,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import {
   Dialog,
   DialogClose,
@@ -29,12 +30,21 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { TextField } from '@/components/ui/text-field'
+import { deleteProject, putProjectSettings } from '@/lib/api/projectSettings'
+import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Project } from '@/types/project'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { format } from 'date-fns'
+import { CalendarIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -45,9 +55,10 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 const formSchema = z.object({
   title: z.string().min(1, '프로젝트 이름을 입력해주세요'),
-  description: z.string().optional(),
+  description: z.string().min(1, '프로젝트 설명을 입력해주세요'),
   image: z.any().optional(),
   deleteConfirmation: z.string().optional(),
+  endDate: z.string().min(1, '프로젝트 종료일을 입력해주세요'),
 })
 
 export default function SettingsPage() {
@@ -87,6 +98,7 @@ export default function SettingsPage() {
         form.reset({
           title: data.title || '',
           description: data.description || '',
+          endDate: data.endDate || '',
           deleteConfirmation: '',
         })
       } catch (error) {
@@ -101,22 +113,15 @@ export default function SettingsPage() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const formData = new FormData()
-      formData.append('title', values.title)
-      if (values.description) formData.append('description', values.description)
-      if (values.image?.[0]) formData.append('image', values.image[0])
-
-      const response = await fetch(`${API_BASE_URL}/project/${id}`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${user?.accessToken}`,
-        },
-        body: formData,
+      await putProjectSettings({
+        projectId: id as string,
+        title: values.title,
+        description: values.description,
+        imageUrl: values.image?.[0]
+          ? URL.createObjectURL(values.image[0])
+          : project?.imageUrl || '',
+        endDate: values.endDate,
       })
-
-      if (!response.ok) {
-        throw new Error('프로젝트 업데이트 실패')
-      }
 
       toast.success('프로젝트가 성공적으로 업데이트되었습니다')
     } catch (error) {
@@ -133,16 +138,9 @@ export default function SettingsPage() {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/project/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${user?.accessToken}`,
-        },
+      await deleteProject({
+        projectId: id as string,
       })
-
-      if (!response.ok) {
-        throw new Error('프로젝트 삭제 실패')
-      }
 
       toast.success('프로젝트가 성공적으로 삭제되었습니다')
       window.location.href = '/projects'
@@ -268,13 +266,62 @@ export default function SettingsPage() {
                   )}
                 />
 
+                <FormField<z.infer<typeof formSchema>>
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>프로젝트 종료일</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={'outline'}
+                              className={cn(
+                                'w-[240px] pl-3 text-left font-normal',
+                                !field.value && 'text-muted-foreground'
+                              )}
+                            >
+                              {field.value ? (
+                                format(new Date(field.value), 'PPP')
+                              ) : (
+                                <span>날짜를 선택하세요</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={
+                              field.value ? new Date(field.value) : undefined
+                            }
+                            onSelect={(date) =>
+                              field.onChange(date?.toISOString())
+                            }
+                            disabled={(date) =>
+                              date < new Date() || date < new Date('1900-01-01')
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormDescription>
+                        프로젝트의 예상 종료일을 설정하세요.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <Separator className="my-8" />
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-lg font-semibold text-destructive">
-                        위험 존 ⚠️
+                        위험 구역 ⚠️
                       </h3>
                       <p className="text-sm text-muted-foreground">
                         프로젝트를 삭제하면 모든 데이터가 영구적으로 삭제됩니다.
