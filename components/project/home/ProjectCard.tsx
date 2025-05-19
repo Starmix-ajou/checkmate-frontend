@@ -36,7 +36,7 @@ const pastelColors = [
 const getColorFromString = (str: string) => {
   let hash = 0
   for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash)
+    hash = str.charCodeAt(i) + ((hash << 11) - hash)
   }
   const index = Math.abs(hash) % pastelColors.length
   return pastelColors[index]
@@ -67,6 +67,12 @@ const ProjectCard = ({
     return bg.darken(20).saturate(15).toString()
   }, [backgroundColor])
 
+  const getPositionColor = (position: string) => {
+    const bgColor = getColorFromString(position)
+    const textColor = tinycolor(bgColor).darken(40).saturate(40).toString()
+    return { bgColor, textColor }
+  }
+
   if (!today) return null
 
   const start = new Date(startDate)
@@ -89,7 +95,7 @@ const ProjectCard = ({
 
   return (
     <Link href={`/projects/${id}/overview`}>
-      <Card className="rounded-lg shadow-md transition hover:shadow-lg cursor-pointer w-90 max-w-md p-0 gap-0">
+      <Card className="rounded-lg shadow-md transition hover:shadow-lg cursor-pointer w-full gap-0 p-0">
         <div className="relative w-full h-40 rounded-t-lg overflow-hidden">
           {imageUrl ? (
             <Image
@@ -114,8 +120,22 @@ const ProjectCard = ({
         </div>
         <div className="p-4">
           <div className="text-lg font-semibold">{title}</div>
-          <div className="inline-block bg-orange-100 text-orange-600 text-xs font-medium px-2 py-1 rounded-md">
-            {position.join(', ')}
+          <div className="flex flex-wrap gap-2">
+            {position.map((pos) => {
+              const { bgColor, textColor } = getPositionColor(pos)
+              return (
+                <div
+                  key={pos}
+                  className="text-xs font-medium px-2 py-1 rounded-md"
+                  style={{
+                    backgroundColor: bgColor,
+                    color: textColor,
+                  }}
+                >
+                  {pos}
+                </div>
+              )
+            })}
           </div>
           <div className="text-sm text-gray-500">
             {startDate} ~ {endDate}
