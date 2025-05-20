@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Position, Stack } from '@/types/NewProjectTeamMember'
+import { Position } from '@/types/NewProjectTeamMember'
 import { Member } from '@/types/project'
 import { useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
@@ -17,7 +17,6 @@ const getEnumOptions = (e: object) =>
   Object.values(e).map((value) => ({ label: value, value }))
 
 const ROLE_OPTIONS = getEnumOptions(Position)
-const STACK_OPTIONS = getEnumOptions(Stack)
 
 interface EditMembersDialogProps {
   members: Member[]
@@ -28,9 +27,6 @@ export function EditMembersDialog({
   members,
   disabled,
 }: EditMembersDialogProps) {
-  const [editingMemberStacks, setEditingMemberStacks] = useState<
-    Record<string, Stack[]>
-  >({})
   const [editingMemberPositions, setEditingMemberPositions] = useState<
     Record<string, Position[]>
   >({})
@@ -39,7 +35,6 @@ export function EditMembersDialog({
     // TODO: API 호출 구현
     console.log('Update member:', {
       memberId,
-      stacks: editingMemberStacks[memberId],
       positions: editingMemberPositions[memberId],
     })
   }
@@ -60,71 +55,6 @@ export function EditMembersDialog({
             <div key={member.userId} className="space-y-4">
               <h4 className="font-medium">{member.name}</h4>
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">기술 스택</label>
-                  <CreatableSelect
-                    menuPlacement="auto"
-                    styles={{
-                      menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-                    }}
-                    options={STACK_OPTIONS.filter(
-                      (option) =>
-                        !(
-                          editingMemberStacks[member.userId] ||
-                          member.profiles[0]?.stacks ||
-                          []
-                        ).includes(option.value as Stack)
-                    )}
-                    value={null}
-                    onChange={(option) => {
-                      if (!option) return
-                      const newStack = option.value as Stack
-                      const currentStacks =
-                        editingMemberStacks[member.userId] ||
-                        member.profiles[0]?.stacks ||
-                        []
-                      if (!currentStacks.includes(newStack)) {
-                        setEditingMemberStacks({
-                          ...editingMemberStacks,
-                          [member.userId]: [...currentStacks, newStack],
-                        })
-                      }
-                    }}
-                    placeholder="스택을 추가하거나 입력하세요"
-                    className="w-full"
-                    isClearable
-                    formatCreateLabel={(inputValue) => `"${inputValue}" 추가`}
-                  />
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {(
-                      editingMemberStacks[member.userId] ||
-                      member.profiles[0]?.stacks ||
-                      []
-                    ).map((stack, idx) => (
-                      <Badge key={idx} className="flex items-center gap-1">
-                        {stack}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const currentStacks =
-                              editingMemberStacks[member.userId] ||
-                              member.profiles[0]?.stacks ||
-                              []
-                            setEditingMemberStacks({
-                              ...editingMemberStacks,
-                              [member.userId]: currentStacks.filter(
-                                (item) => item !== stack
-                              ),
-                            })
-                          }}
-                          className="ml-1 text-xs"
-                        >
-                          ✕
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">포지션</label>
                   <CreatableSelect

@@ -1,9 +1,9 @@
-import { Position, Stack } from './NewProjectTeamMember'
+import { Position } from './NewProjectTeamMember'
 
 export type TableUpdateData<TData> = (
   rowIndex: number,
   columnId: string,
-  value: string | TData | Position[] | Stack[]
+  value: string | TData | Position[]
 ) => void
 
 declare module '@tanstack/react-table' {

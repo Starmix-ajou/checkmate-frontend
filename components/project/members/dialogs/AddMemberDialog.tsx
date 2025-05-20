@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Position, Stack } from '@/types/NewProjectTeamMember'
+import { Position } from '@/types/NewProjectTeamMember'
 import { useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 
@@ -17,7 +17,6 @@ const getEnumOptions = (e: object) =>
   Object.values(e).map((value) => ({ label: value, value }))
 
 const ROLE_OPTIONS = getEnumOptions(Position)
-const STACK_OPTIONS = getEnumOptions(Stack)
 
 interface AddMemberDialogProps {
   open: boolean
@@ -26,19 +25,16 @@ interface AddMemberDialogProps {
 
 export function AddMemberDialog({ open, onOpenChange }: AddMemberDialogProps) {
   const [email, setEmail] = useState('')
-  const [stacks, setStacks] = useState<Stack[]>([])
   const [positions, setPositions] = useState<Position[]>([])
 
   const handleAddMember = async () => {
     // TODO: API 호출 구현
     console.log('Add member:', {
       email,
-      stacks,
       positions,
     })
     onOpenChange(false)
     setEmail('')
-    setStacks([])
     setPositions([])
   }
 
@@ -59,46 +55,6 @@ export function AddMemberDialog({ open, onOpenChange }: AddMemberDialogProps) {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="example@email.com"
             />
-          </div>
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">기술 스택</label>
-            <CreatableSelect
-              menuPlacement="auto"
-              styles={{
-                menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-              }}
-              options={STACK_OPTIONS.filter(
-                (option) => !stacks.includes(option.value as Stack)
-              )}
-              value={null}
-              onChange={(option) => {
-                if (!option) return
-                const newStack = option.value as Stack
-                if (!stacks.includes(newStack)) {
-                  setStacks([...stacks, newStack])
-                }
-              }}
-              placeholder="스택을 추가하거나 입력하세요"
-              className="w-full"
-              isClearable
-              formatCreateLabel={(inputValue) => `"${inputValue}" 추가`}
-            />
-            <div className="flex flex-wrap gap-1 mt-2">
-              {stacks.map((stack, idx) => (
-                <Badge key={idx} className="flex items-center gap-1">
-                  {stack}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStacks(stacks.filter((item) => item !== stack))
-                    }}
-                    className="ml-1 text-xs"
-                  >
-                    ✕
-                  </button>
-                </Badge>
-              ))}
-            </div>
           </div>
           <div className="grid gap-2">
             <label className="text-sm font-medium">포지션</label>

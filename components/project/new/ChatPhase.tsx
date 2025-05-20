@@ -35,7 +35,6 @@ function getInitialMemberData(userEmail: string): TeamMember[] {
   return [
     {
       email: userEmail,
-      stacks: [],
       positions: [],
     },
   ]
@@ -177,7 +176,6 @@ export default function ChatPhase({
     const members = tableData.map((member) => ({
       email: member.email,
       profile: {
-        stacks: member.stacks,
         positions: member.positions,
         projectId: 'temp',
       },

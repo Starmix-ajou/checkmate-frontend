@@ -22,7 +22,7 @@ export default function ProjectWizard() {
 
   const currentPhase: Phase = phases[currentPhaseIndex]
 
-  if (currentPhase.id === 9) {
+  if (currentPhase.id === 8) {
     return (
       <div className="mx-auto p-6 space-y-6 max-w-4xl w-full h-full">
         <CompletionPhase

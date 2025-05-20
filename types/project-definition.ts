@@ -1,3 +1,5 @@
+import { Profile } from './project'
+
 export interface ProjectDefinitionBody {
   title: string
   description: string
@@ -5,11 +7,7 @@ export interface ProjectDefinitionBody {
   endDate: string
   members: {
     email: string
-    profile: {
-      stacks: string[]
-      positions: string[]
-      projectId: string
-    }
+    profile: Profile
   }[]
   definitionUrl: string
 }
