@@ -13,6 +13,7 @@ const API_ENDPOINTS = {
 
 interface Author {
   userId: string
+  name: string
   email: string
   profileImageUrl: string
   profile: {
@@ -313,7 +314,7 @@ export default function TaskComment({ taskId }: TaskCommentProps) {
                     width={24}
                     height={24}
                     src={comment.author.profileImageUrl}
-                    alt={comment.author.email}
+                    alt={comment.author.name}
                     className="w-6 h-6 rounded-full"
                   />
                 ) : (
@@ -323,7 +324,7 @@ export default function TaskComment({ taskId }: TaskCommentProps) {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-sm font-medium">
-                    {comment.author.email}
+                    {comment.author.name}
                   </span>
                   <span className="text-xs text-cm-gray">
                     {new Date(comment.timestamp).toLocaleDateString('ko-KR', {
