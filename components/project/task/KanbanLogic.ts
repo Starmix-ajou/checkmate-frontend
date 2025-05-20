@@ -10,7 +10,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
-const EPICCUSTOM = '682b2986903793352a44be6f' //복숭아 심기의 epicId
+const EPICCUSTOM = '682c6163b1db4571f3c0490f' // 햄주트의 epicId
 
 // API 엔드포인트 상수
 const API_ENDPOINTS = {

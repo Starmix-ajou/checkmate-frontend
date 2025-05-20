@@ -298,7 +298,7 @@ export default function TaskModal({
                 type="text"
                 value={title}
                 onChange={handleTitleChange}
-                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm"
               />
             </div>
 
@@ -454,7 +454,7 @@ export default function TaskModal({
               <textarea
                 value={description}
                 onChange={handleDescriptionChange}
-                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px]"
                 placeholder="Add a description..."
               />
             </div>
@@ -471,7 +471,12 @@ export default function TaskModal({
                 삭제
               </Button>
               <div className="flex gap-2">
-                <Button onClick={handleSave}>수정 완료</Button>
+                <Button
+                  onClick={handleSave}
+                  className="bg-cm-900 hover:bg-cm-700"
+                >
+                  수정 완료
+                </Button>
               </div>
             </div>
           </div>
