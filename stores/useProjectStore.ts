@@ -7,7 +7,6 @@ interface ProjectMember {
   email: string
   profileImageUrl: string
   profiles: Array<{
-    stacks: string[]
     positions: string[]
     projectId: string
   }>
@@ -21,7 +20,6 @@ interface Project {
     imageUrl: string | null
   }
   profile: {
-    stacks: string[]
     positions: string[]
     projectId: string
   }

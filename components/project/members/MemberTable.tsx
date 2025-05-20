@@ -35,7 +35,6 @@ export function MemberTable({
           </TableHead>
           <TableHead>이름</TableHead>
           <TableHead>이메일</TableHead>
-          <TableHead>기술 스택</TableHead>
           <TableHead>포지션</TableHead>
         </TableRow>
       </TableHeader>
@@ -63,15 +62,6 @@ export function MemberTable({
               {member.name}
             </TableCell>
             <TableCell>{member.email}</TableCell>
-            <TableCell>
-              <div className="flex flex-wrap gap-1">
-                {member.profiles[0]?.stacks.map((stack) => (
-                  <Badge key={stack} variant="secondary">
-                    {stack}
-                  </Badge>
-                ))}
-              </div>
-            </TableCell>
             <TableCell>
               <div className="flex flex-wrap gap-1">
                 {member.profiles[0]?.positions.map((position) => (

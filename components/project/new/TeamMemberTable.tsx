@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Position, Stack, TeamMember } from '@/types/NewProjectTeamMember'
+import { Position, TeamMember } from '@/types/NewProjectTeamMember'
 import '@/types/table'
 import { CellContext, ColumnDef } from '@tanstack/react-table'
 import CreatableSelect from 'react-select/creatable'
@@ -11,7 +11,6 @@ const getEnumOptions = (e: object) =>
   Object.values(e).map((value) => ({ label: value, value }))
 
 const ROLE_OPTIONS = getEnumOptions(Position)
-const STACK_OPTIONS = getEnumOptions(Stack)
 
 function EditableCell({
   getValue,
@@ -77,58 +76,6 @@ function EditableCell({
     )
   }
 
-  if (column.id === 'stacks') {
-    const stacks = (value as Stack[]) || []
-    return (
-      <div className="flex flex-col gap-2">
-        {!readOnly && (
-          <CreatableSelect
-            menuPlacement="auto"
-            menuPortalTarget={
-              typeof document !== 'undefined' ? document.body : null
-            }
-            styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
-            options={STACK_OPTIONS.filter(
-              (option) => !stacks.includes(option.value as Stack)
-            )}
-            onChange={(option) => {
-              if (!option) return
-              const newValue = [...stacks, option.value as Stack]
-              table.options.meta?.updateData(row.index, column.id, newValue)
-            }}
-            placeholder="스택을 추가하거나 입력하세요"
-            className="w-full"
-            isClearable
-            formatCreateLabel={(inputValue) => `"${inputValue}" 추가`}
-          />
-        )}
-        <div className="flex flex-wrap gap-1">
-          {stacks.map((stack, idx) => (
-            <Badge key={idx} className="flex items-center gap-1">
-              {stack}
-              {!readOnly && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const newValue = stacks.filter((item) => item !== stack)
-                    table.options.meta?.updateData(
-                      row.index,
-                      column.id,
-                      newValue
-                    )
-                  }}
-                  className="ml-1 text-xs"
-                >
-                  ✕
-                </button>
-              )}
-            </Badge>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
   return readOnly || isLeader ? (
     <div className="w-full py-2">{value as string}</div>
   ) : (
@@ -154,11 +101,6 @@ const columns: ColumnDef<TeamMember>[] = [
     header: '역할',
     cell: EditableCell,
   },
-  {
-    accessorKey: 'stacks',
-    header: '기술 스택',
-    cell: EditableCell,
-  },
 ]
 
 export function TeamMemberTable({
@@ -178,7 +120,7 @@ export function TeamMemberTable({
       addButtonText="팀원 추가"
       emptyStateText="팀원이 없습니다."
       readOnly={readOnly}
-      defaultRow={{ email: '', stacks: [], positions: [] }}
+      defaultRow={{ email: '', positions: [] }}
       canDeleteRow={(rowIndex) => rowIndex !== 0}
     />
   )

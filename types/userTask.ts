@@ -1,3 +1,5 @@
+import { Profile } from './project'
+
 export type Sprint = {
   sprintId: string
   title: string
@@ -26,11 +28,7 @@ export type Task = {
     name: string
     email: string
     profileImageUrl: string
-    profiles: {
-      stacks: string[]
-      positions: string[]
-      projectId: string
-    }[]
+    profiles: Profile[]
     role: string
   }
   startDate: string

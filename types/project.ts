@@ -1,5 +1,4 @@
 export type Profile = {
-  stacks: string[]
   positions: string[]
   projectId: string
 }
@@ -56,11 +55,7 @@ export interface Task {
     email: string
     name: string
     profileImageUrl: string
-    profiles: {
-      stacks: string[]
-      positions: string[]
-      projectId: string
-    }[]
+    profiles: Profile[]
     role: string
   }
   startDate: string
