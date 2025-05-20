@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/stores/useAuthStore'
 import { ArrowUp, Eraser, PencilLine, User } from 'lucide-react'
+import { MessageSquareText, MessageSquareX } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 
@@ -336,21 +337,32 @@ export default function TaskComment({ taskId }: TaskCommentProps) {
                 {editingCommentId === comment.commentId ? (
                   <div className="space-y-2">
                     <textarea
-                      className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px]"
+                      className="w-full py-2 pl-5 pr-12 border border-cm-light rounded-2xl focus:outline-none focus:border focus:border-cm resize-none overflow-hidden"
+                      style={{ height: '40px' }}
                       value={editingMessage}
-                      onChange={(e) => setEditingMessage(e.target.value)}
+                      onChange={(e) => {
+                        setEditingMessage(e.target.value)
+                        if (e.target.value) {
+                          e.target.style.height = '40px'
+                          e.target.style.height = `${e.target.scrollHeight}px`
+                        } else {
+                          e.target.style.height = '40px'
+                        }
+                      }}
                     />
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-4">
                       <button
                         onClick={() => handleUpdateComment(comment.commentId)}
-                        className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                        className="text-xs text-cm-gray hover:text-gray-700 flex items-center gap-1"
                       >
+                        <MessageSquareText size={14} />
                         저장
                       </button>
                       <button
                         onClick={handleCancelEdit}
-                        className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                        className="text-xs text-cm-gray hover:text-gray-700 flex items-center gap-1"
                       >
+                        <MessageSquareX size={14} />
                         취소
                       </button>
                     </div>
@@ -385,9 +397,6 @@ export default function TaskComment({ taskId }: TaskCommentProps) {
 
         {/* 댓글 입력 영역 */}
         <div className="flex gap-3">
-          <div className="w-6 h-6 rounded-full bg-cm-light flex-shrink-0 flex items-center justify-center">
-            <User size={12} className="text-cm" />
-          </div>
           <div className="flex-1 relative">
             <textarea
               className="w-full py-2 pl-5 pr-12 bg-cm-light border border-cm-light rounded-2xl focus:outline-none focus:ring-2 focus:ring-cm min-h-[40px] resize-none overflow-hidden"
