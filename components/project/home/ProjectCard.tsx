@@ -83,7 +83,7 @@ const ProjectCard = ({
   const elapsedDays = Math.ceil(
     (today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
   )
-  const progress = Math.min((elapsedDays / totalDays) * 100, 100)
+  const progress = Math.max(0, Math.min((elapsedDays / totalDays) * 100, 100))
   const dDay = Math.ceil(
     (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
   )
