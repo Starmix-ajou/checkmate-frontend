@@ -9,23 +9,23 @@ interface Suggestion {
 
 interface UseProjectSSEProps {
   onMessage: (message: string) => void
-  onFeatureDefinition: (features: Feature[], suggestions: Suggestion[]) => void
-  onDefinitionFeedback: (features: Feature[], isNextStep: boolean) => void
-  onSpecificationFeedback: (
+  onCreateFeatureDefinition: (features: Feature[], suggestions: Suggestion[]) => void
+  onFeedbackFeatureDefinition: (features: Feature[], isNextStep: boolean) => void
+  onCreateFeatureSpecification: (features: Feature[]) => void
+  onFeedbackFeatureSpecification: (
     features: Feature[],
     isNextStep: boolean,
     projectId: string
   ) => void
-  onSpecification: (features: Feature[]) => void
   onError: (error: Error | MessageEvent) => void
 }
 
 export const useProjectSSE = ({
   onMessage,
-  onFeatureDefinition,
-  onDefinitionFeedback,
-  onSpecificationFeedback,
-  onSpecification,
+  onCreateFeatureDefinition,
+  onFeedbackFeatureDefinition,
+  onFeedbackFeatureSpecification,
+  onCreateFeatureSpecification,
   onError,
 }: UseProjectSSEProps) => {
   const user = useAuthStore((state) => state.user)
@@ -70,7 +70,7 @@ export const useProjectSSE = ({
             parsed?.suggestion?.suggestions ?? []
 
           if (features.length > 0 || suggestions.length > 0) {
-            onFeatureDefinition(features, suggestions)
+            onCreateFeatureDefinition(features, suggestions)
           }
         } catch (error) {
           console.error('SSE 데이터 파싱 오류:', error)
@@ -92,7 +92,7 @@ export const useProjectSSE = ({
             const isNextStep = parsed?.isNextStep ?? false
 
             if (features.length > 0) {
-              onDefinitionFeedback(features, isNextStep)
+              onFeedbackFeatureDefinition(features, isNextStep)
             }
           } catch (error) {
             console.error('SSE 데이터 파싱 오류:', error)
@@ -113,8 +113,8 @@ export const useProjectSSE = ({
           const isNextStep = parsed?.isNextStep ?? false
           const projectId = parsed?.projectId ?? ''
 
-          if (features.length > 0) {
-            onSpecificationFeedback(features, isNextStep, projectId)
+          if (features.length > 0 || isNextStep) {
+            onFeedbackFeatureSpecification(features, isNextStep, projectId)
           }
         } catch (error) {
           console.error('SSE 데이터 파싱 오류:', error)
@@ -133,7 +133,7 @@ export const useProjectSSE = ({
           const features = parsed?.features ?? []
 
           if (features.length > 0) {
-            onSpecification(features)
+            onCreateFeatureSpecification(features)
           }
         } catch (error) {
           console.error('SSE 데이터 파싱 오류:', error)

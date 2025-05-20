@@ -72,7 +72,7 @@ export default function ChatPhase({
       setIsLoading(false)
       onNext()
     },
-    onFeatureDefinition: (features, suggestions) => {
+    onCreateFeatureDefinition: (features, suggestions) => {
       addMessage('ai', '기능 정의와 제안을 생성했습니다.', {
         features,
         suggestions,
@@ -80,7 +80,7 @@ export default function ChatPhase({
       setIsLoading(false)
       onNext()
     },
-    onDefinitionFeedback: async (features, isNextStep) => {
+    onFeedbackFeatureDefinition: async (features, isNextStep) => {
       if (features.length > 0) {
         addMessage('ai', '피드백에 따른 기능 정의를 생성했습니다.', {
           features,
@@ -103,24 +103,10 @@ export default function ChatPhase({
         }
       }
     },
-    onSpecificationFeedback: (features, isNextStep, projectId) => {
-      if (features.length > 0) {
-        addMessage('ai', '피드백에 따른 기능 명세를 생성했습니다.', {
-          specifications: features,
-        })
-        setIsLoading(false)
-      }
-
-      if (isNextStep) {
-        console.log('최종 명세서 검토 단계로 전환')
-        setIsLoading(false)
-        onSpecificationsComplete?.(features, projectId)
-        onNext()
-      }
-    },
-    onSpecification: (features) => {
+    onCreateFeatureSpecification: (features) => {
       if (features.length > 0) {
         setOriginalFeatures(features)
+        setModifiedFeatures(features)
         addMessage('ai', '기능 명세를 생성했습니다.', {
           specifications: features,
         })
@@ -129,6 +115,28 @@ export default function ChatPhase({
     onError: (error) => {
       console.error('SSE 에러:', error)
       setIsLoading(false)
+    },
+    onFeedbackFeatureSpecification: (features, isNextStep, projectId) => {
+      console.log('onSpecificationFeedback 호출됨:', {
+        features,
+        isNextStep,
+        projectId,
+      })
+      setIsLoading(false)
+
+      if (features.length > 0) {
+        console.log('features 처리 중:', features)
+        addMessage('ai', '피드백에 따른 기능 명세를 생성했습니다.', {
+          specifications: features,
+        })
+      }
+
+      if (isNextStep) {
+        console.log('최종 명세서 검토 단계로 전환')
+        setIsLoading(false)
+        onSpecificationsComplete?.(features, projectId)
+        onNext()
+      }
     },
   })
 
@@ -139,9 +147,14 @@ export default function ChatPhase({
   }
 
   const handleFeatureChange = (features: Feature[], msg: Message) => {
+    console.log('handleFeatureChange 호출됨:', {
+      features,
+      currentModifiedFeatures: modifiedFeatures,
+      messageId: msg.text,
+    })
     setModifiedFeatures(features)
-    setMessages((prev) =>
-      prev.map((m) =>
+    setMessages((prev) => {
+      const updated = prev.map((m) =>
         m === msg
           ? {
               ...m,
@@ -152,7 +165,9 @@ export default function ChatPhase({
             }
           : m
       )
-    )
+      console.log('메시지 업데이트 후:', updated)
+      return updated
+    })
   }
 
   const sendProjectDefinition = async () => {
@@ -204,6 +219,7 @@ export default function ChatPhase({
   }
 
   const analyzeFeatureChanges = (original: Feature[], modified: Feature[]) => {
+    console.log('analyzeFeatureChanges 호출됨:', { original, modified })
     const addedFeatures: Feature[] = []
     const modifiedFeatures: Feature[] = []
     const deletedFeatureIds: string[] = []
@@ -221,14 +237,19 @@ export default function ChatPhase({
       const origFeature = original.find(
         (orig) => orig.featureId === modFeature.featureId
       )
+
       if (!origFeature) {
         addedFeatures.push(modFeature)
-      } else if (
-        origFeature.useCase !== modFeature.useCase ||
-        origFeature.input !== modFeature.input ||
-        origFeature.output !== modFeature.output
-      ) {
-        modifiedFeatures.push(modFeature)
+      } else {
+        const isModified =
+          origFeature.name !== modFeature.name ||
+          origFeature.useCase !== modFeature.useCase ||
+          origFeature.input !== modFeature.input ||
+          origFeature.output !== modFeature.output
+
+        if (isModified) {
+          modifiedFeatures.push(modFeature)
+        }
       }
     })
 
