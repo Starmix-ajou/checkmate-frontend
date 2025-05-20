@@ -55,7 +55,7 @@ export default function SprintPeriodCard({
     (today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
   )
   const remainingDays = totalDays - elapsedDays
-  const progress = Math.min((elapsedDays / totalDays) * 100, 100)
+  const progress = Math.max(0, Math.min((elapsedDays / totalDays) * 100, 100))
 
   return (
     <Card className="col-span-2 gap-2">
@@ -77,7 +77,7 @@ export default function SprintPeriodCard({
           <Progress value={progress} className="w-full h-2 rounded-full" />
 
           <div className="text-right text-xs text-gray-500 font-medium mt-1">
-            D-{remainingDays > 0 ? remainingDays : 0}
+            {remainingDays < 0 ? 'Done' : `D-${remainingDays}`}
           </div>
         </div>
 
