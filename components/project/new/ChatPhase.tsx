@@ -15,7 +15,7 @@ import { Feature, Message, Phase } from '@/types/project-creation'
 import { ProjectDefinitionBody } from '@/types/project-definition'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { DateRange } from 'react-day-picker'
 
 import { ChatInput } from './ChatInput'
@@ -31,12 +31,14 @@ type ChatPhaseProps = {
   ) => void
 }
 
-function getInitialMemberData(count: number = 1): TeamMember[] {
-  return Array.from({ length: count }, () => ({
-    email: '',
-    stacks: [],
-    positions: [],
-  }))
+function getInitialMemberData(userEmail: string): TeamMember[] {
+  return [
+    {
+      email: userEmail,
+      stacks: [],
+      positions: [],
+    },
+  ]
 }
 
 export default function ChatPhase({
@@ -45,6 +47,7 @@ export default function ChatPhase({
   formPhaseInput,
   onSpecificationsComplete,
 }: ChatPhaseProps) {
+  const lastMessageRef = useRef<HTMLDivElement>(null)
   const [messages, setMessages] = useState<Message[]>([
     { sender: 'ai', text: phase.question },
   ])
@@ -52,15 +55,16 @@ export default function ChatPhase({
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [file, setFile] = useState<File | null>(null)
   const [skipFile, setSkipFile] = useState(false)
-  const [tableData, setTableData] = useState<TeamMember[]>([])
+  const user = useAuthStore((state) => state.user)
+  const [tableData, setTableData] = useState<TeamMember[]>(
+    user?.email ? getInitialMemberData(user.email) : []
+  )
   const [isLoading, setIsLoading] = useState(false)
   const [modifiedFeatures, setModifiedFeatures] = useState<Feature[]>([])
   const [originalFeatures, setOriginalFeatures] = useState<Feature[]>([])
   const [projectTitle, setProjectTitle] = useState('')
   const [projectDescription, setProjectDescription] = useState(formPhaseInput)
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([])
-
-  const user = useAuthStore((state) => state.user)
 
   const { startSSE } = useProjectSSE({
     onMessage: (message) => {
@@ -282,11 +286,6 @@ export default function ChatPhase({
       messageText = skipFile
         ? '파일 업로드를 건너뜁니다.'
         : `파일 업로드: ${file?.name}`
-    } else if (phase.inputType === 'number') {
-      const memberCount = Number(input)
-      if (!isNaN(memberCount) && memberCount > 0) {
-        setTableData(getInitialMemberData(memberCount))
-      }
     }
 
     if (phase.id === 1) setProjectDescription(input)
@@ -305,14 +304,14 @@ export default function ChatPhase({
     setIsLoading(true)
 
     switch (phase.id) {
-      case 6:
+      case 5:
         const eventSource = startSSE()
         if (eventSource) await sendProjectDefinition()
         break
-      case 7:
+      case 6:
         await sendDefinitionFeedback(messageText)
         break
-      case 8:
+      case 7:
         await sendSpecificationFeedback(messageText)
         break
       default:
@@ -328,27 +327,46 @@ export default function ChatPhase({
     }
   }
 
+  const scrollToTop = () => {
+    const element = lastMessageRef.current
+    if (element) {
+      const offset = 50
+      const rect = element.getBoundingClientRect()
+      const scrollTop = window.scrollY + rect.top - offset
+      window.scrollTo({ top: scrollTop, behavior: 'smooth' })
+    }
+  }
+
+  useEffect(() => {
+    scrollToTop()
+  }, [messages])
+
   return (
     <div className="flex flex-col">
       <div className="flex-1 overflow-y-auto space-y-4 pb-60">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <ChatMessage
-              message={msg}
-              selectedSuggestions={selectedSuggestions}
-              onSuggestionChange={handleSuggestionChange}
-              onFeatureChange={handleFeatureChange}
-            />
-          </div>
-        ))}
+        {messages.map((msg, index) => {
+          const isLast = index === messages.length - 1
+          return (
+            <div
+              key={index}
+              ref={isLast ? lastMessageRef : null}
+              className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <ChatMessage
+                message={msg}
+                selectedSuggestions={selectedSuggestions}
+                onSuggestionChange={handleSuggestionChange}
+                onFeatureChange={handleFeatureChange}
+              />
+            </div>
+          )
+        })}
         {isLoading && (
           <div className="flex justify-start">
             <CheckMateLogoSpinner size={24} />
           </div>
         )}
+        <div ref={lastMessageRef} />
       </div>
 
       <div className="fixed bottom-0 left-0 w-full bg-white p-4 flex items-center gap-2">

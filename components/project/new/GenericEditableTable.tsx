@@ -28,6 +28,7 @@ interface GenericEditableTableProps<T> {
   emptyStateText?: string
   defaultRow?: T
   readOnly?: boolean
+  canDeleteRow?: (rowIndex: number) => boolean
 }
 
 export function GenericEditableTable<T>({
@@ -38,6 +39,7 @@ export function GenericEditableTable<T>({
   emptyStateText = 'No results.',
   defaultRow,
   readOnly = false,
+  canDeleteRow = () => true,
 }: GenericEditableTableProps<T>) {
   const table = useReactTable<T>({
     data,
@@ -105,7 +107,7 @@ export function GenericEditableTable<T>({
                         )}
                       </TableCell>
                     ))}
-                    {!readOnly && (
+                    {!readOnly && canDeleteRow(row.index) && (
                       <TableCell className="text-center">
                         <Button
                           variant="ghost"
@@ -115,6 +117,9 @@ export function GenericEditableTable<T>({
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </TableCell>
+                    )}
+                    {!readOnly && !canDeleteRow(row.index) && (
+                      <TableCell className="text-center" />
                     )}
                   </TableRow>
                 ))}

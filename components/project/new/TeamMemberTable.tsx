@@ -21,6 +21,7 @@ function EditableCell({
 }: CellContext<TeamMember, unknown>) {
   const value = getValue()
   const readOnly = table.options.meta?.readOnly
+  const isLeader = row.index === 0 && column.id === 'email'
 
   if (column.id === 'positions') {
     const positions = (value as Position[]) || []
@@ -128,7 +129,7 @@ function EditableCell({
     )
   }
 
-  return readOnly ? (
+  return readOnly || isLeader ? (
     <div className="w-full py-2">{value as string}</div>
   ) : (
     <Input
@@ -178,6 +179,7 @@ export function TeamMemberTable({
       emptyStateText="팀원이 없습니다."
       readOnly={readOnly}
       defaultRow={{ email: '', stacks: [], positions: [] }}
+      canDeleteRow={(rowIndex) => rowIndex !== 0}
     />
   )
 }
