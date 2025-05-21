@@ -17,7 +17,12 @@ interface RoomProps {
 
 export function Room({ children, roomId, projectId, members }: RoomProps) {
   useEffect(() => {
-    console.log('[Room] props changed:', { children, roomId, projectId, members })
+    console.log('[Room] props changed:', {
+      children,
+      roomId,
+      projectId,
+      members,
+    })
   }, [children, roomId, projectId, members])
   const resolveUsers = useCallback(
     async ({ userIds }: { userIds: string[] }) => {
@@ -40,6 +45,9 @@ export function Room({ children, roomId, projectId, members }: RoomProps) {
     <LiveblocksProvider
       authEndpoint={`/api/liveblocks-auth?projectId=${projectId}&roomId=${roomId}`}
       resolveUsers={resolveUsers}
+      unstable_streamData={true}
+      lostConnectionTimeout={30000}
+      backgroundKeepAliveTimeout={15 * 60 * 1000}
     >
       <RoomProvider id={roomId} initialPresence={{}}>
         <ClientSideSuspense fallback={null}>{children}</ClientSideSuspense>
