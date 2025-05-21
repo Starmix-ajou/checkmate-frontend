@@ -69,9 +69,11 @@ export default function ChatPhase({
     onMessage: (message) => {
       addMessage('ai', message)
       setIsLoading(false)
+      onNext()
     },
     onCreateFeatureDefinition: (features, suggestions) => {
-      addMessage('ai', '기능 정의와 제안을 생성했습니다.', {
+      addMessage('ai', '생성된 기능 정의를 확인해주세요.')
+      addMessage('ai', '', {
         features,
         suggestions,
       })
@@ -80,7 +82,8 @@ export default function ChatPhase({
     },
     onFeedbackFeatureDefinition: async (features, isNextStep) => {
       if (features.length > 0) {
-        addMessage('ai', '피드백에 따른 기능 정의를 생성했습니다.', {
+        addMessage('ai', '요청하신 기능 정의를 생성했습니다.')
+        addMessage('ai', '', {
           features,
         })
         setIsLoading(false)
@@ -105,7 +108,8 @@ export default function ChatPhase({
       if (features.length > 0) {
         setOriginalFeatures(features)
         setModifiedFeatures(features)
-        addMessage('ai', '기능 명세를 생성했습니다.', {
+        addMessage('ai', '생성된 기능 명세를 확인해주세요.')
+        addMessage('ai', '', {
           specifications: features,
         })
       }
@@ -124,7 +128,8 @@ export default function ChatPhase({
 
       if (features.length > 0) {
         console.log('features 처리 중:', features)
-        addMessage('ai', '피드백에 따른 기능 명세를 생성했습니다.', {
+        addMessage('ai', '요청하신 기능 명세를 생성했습니다.')
+        addMessage('ai', '', {
           specifications: features,
         })
       }
@@ -323,7 +328,6 @@ export default function ChatPhase({
 
     switch (phase.id) {
       case 5:
-        onNext()
         const eventSource = startSSE()
         if (eventSource) await sendProjectDefinition()
         break
