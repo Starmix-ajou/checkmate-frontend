@@ -20,7 +20,7 @@ export function ChatMessage({
 }: ChatMessageProps) {
   if (message.tableData) {
     return (
-      <div className="w-full max-w-2xl">
+      <div className="min-w-lg max-w-full">
         {message.tableData.features && (
           <div className="mb-4">
             <h3 className="font-semibold mb-2">기능 목록</h3>

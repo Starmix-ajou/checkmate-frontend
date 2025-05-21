@@ -22,7 +22,7 @@ function EditableCell({
       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
         table.options.meta?.updateData(row.index, column.id, e.target.value)
       }
-      className="w-full"
+      className="w-full text-xs"
       placeholder={`${column.id}을(를) 입력하세요`}
     />
   )

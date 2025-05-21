@@ -13,7 +13,7 @@ import { Phase } from '@/types/project-creation'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { ArrowUp, CalendarIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { DateRange } from 'react-day-picker'
 
 import { TeamMemberTable } from './TeamMemberTable'
@@ -50,6 +50,14 @@ export function ChatInput({
   isLoading = false,
 }: ChatInputProps) {
   const [emailError, setEmailError] = useState<string>('')
+  const shouldAutoSend = useRef(false)
+
+  useEffect(() => {
+    if (shouldAutoSend.current && input) {
+      shouldAutoSend.current = false
+      onSend()
+    }
+  }, [input, onSend])
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -83,6 +91,11 @@ export function ChatInput({
     onSend()
   }
 
+  const handleQuickResponse = (response: string) => {
+    shouldAutoSend.current = true
+    setInput(response)
+  }
+
   const isSendButtonDisabled = () => {
     if (isLoading) return true
     if (phase.inputType === 'table') {
@@ -103,6 +116,24 @@ export function ChatInput({
       <ArrowUp className="h-6 w-6" />
     </Button>
   )
+
+  const renderQuickResponses = () => {
+    if (phase.id < 6) return null
+
+    return (
+      <div className="flex gap-2 mb-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-sm"
+          onClick={() => handleQuickResponse('좋아요. 이대로 진행해 주세요.')}
+          disabled={isLoading}
+        >
+          좋아요. 이대로 진행해 주세요.
+        </Button>
+      </div>
+    )
+  }
 
   switch (phase.inputType) {
     case 'number':
@@ -188,7 +219,7 @@ export function ChatInput({
               }}
               accept=".pdf,.doc,.docx"
               className="flex-1"
-              disabled={skipFile}
+              disabled={skipFile || isLoading}
             />
           </div>
           {renderSendButton()}
@@ -196,16 +227,21 @@ export function ChatInput({
       )
     default:
       return (
-        <div className="relative flex gap-2 flex-1">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="메시지를 입력하세요..."
-            className="flex-1 border border-input px-3 py-2 rounded-2xl bg-muted resize-none min-h-[24px] max-h-[calc(75dvh)] pb-10"
-            rows={2}
-            autoFocus
-          />
-          {renderSendButton()}
+        <div className="relative flex flex-col gap-2 flex-1">
+          {renderQuickResponses()}
+          <div className="relative flex gap-2">
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={
+                phase.id >= 6 ? phase.question : '메시지를 입력해 주세요'
+              }
+              className="flex-1 border border-input px-3 py-2 rounded-2xl bg-muted resize-none min-h-[24px] max-h-[calc(75dvh)] pb-10 placeholder:text-muted-foreground/70"
+              rows={2}
+              autoFocus
+            />
+            {renderSendButton()}
+          </div>
         </div>
       )
   }

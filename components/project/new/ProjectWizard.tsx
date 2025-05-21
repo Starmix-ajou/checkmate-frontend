@@ -34,7 +34,7 @@ export default function ProjectWizard() {
   }
 
   return (
-    <div className="mx-auto p-6 space-y-6 max-w-4xl w-full h-full">
+    <div className="mx-auto p-2 space-y-6 max-w-4xl w-full h-full">
       {currentPhase.type === 'form' ? (
         <FormPhase
           phase={currentPhase}
