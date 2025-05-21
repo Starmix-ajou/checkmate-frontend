@@ -200,8 +200,8 @@ export default function TasksPage() {
             <button
               className={`text-base font-medium mr-2 px-2 py-3.5 border-b-2 transition ${
                 isToggled
-                  ? 'text-gray-01 border-transparent'
-                  : 'text-black-01 border-black-01'
+                  ? 'text-cm-100 border-transparent'
+                  : 'text-cm-900 border-cm-900'
               }`}
               onClick={() => setIsToggled(false)}
             >
@@ -210,8 +210,8 @@ export default function TasksPage() {
             <button
               className={`text-base font-medium px-2 py-3.5 border-b-2 transition ${
                 isToggled
-                  ? 'text-black-01 border-black-01'
-                  : 'text-gray-01 border-transparent'
+                  ? 'text-cm-900 border-cm-900'
+                  : 'text-cm-100 border-transparent'
               }`}
               onClick={() => setIsToggled(true)}
             >

@@ -36,7 +36,6 @@ export const Calendar: React.FC<CalendarProps> = ({
   const getCalendarValuesForYear = () => {
     const topValues: ReactNode[] = []
     const bottomValues: ReactNode[] = []
-    const topDefaultHeight = headerHeight * 0.5
     for (let i = 0; i < dateSetup.dates.length; i++) {
       const date = dateSetup.dates[i]
       const bottomValue = date.getFullYear()
@@ -69,7 +68,7 @@ export const Calendar: React.FC<CalendarProps> = ({
             y1Line={0}
             y2Line={headerHeight}
             xText={xText}
-            yText={topDefaultHeight * 0.9}
+            yText={20}
           />
         )
       }
@@ -170,7 +169,6 @@ export const Calendar: React.FC<CalendarProps> = ({
     const topValues: ReactNode[] = []
     const bottomValues: ReactNode[] = []
     let weeksCount: number = 1
-    const topDefaultHeight = headerHeight * 0.5
     const dates = dateSetup.dates
     for (let i = dates.length - 1; i >= 0; i--) {
       const date = dates[i]
@@ -186,7 +184,7 @@ export const Calendar: React.FC<CalendarProps> = ({
         <text
           key={date.getTime()}
           y={headerHeight * 0.8}
-          x={columnWidth * (i + +rtl)}
+          x={columnWidth * (i + +rtl) + columnWidth * 0.5}
           className={styles.calendarBottomText}
         >
           {bottomValue}
@@ -202,9 +200,9 @@ export const Calendar: React.FC<CalendarProps> = ({
               value={topValue}
               x1Line={columnWidth * i + weeksCount * columnWidth}
               y1Line={0}
-              y2Line={topDefaultHeight}
+              y2Line={headerHeight}
               xText={columnWidth * i + columnWidth * weeksCount * 0.5}
-              yText={topDefaultHeight * 0.9}
+              yText={20}
             />
           )
         }
@@ -390,7 +388,26 @@ export const Calendar: React.FC<CalendarProps> = ({
         height={headerHeight}
         className={styles.calendarHeader}
       />
+      <line
+        x1={0}
+        y1={headerHeight * 0.5}
+        x2={columnWidth * dateSetup.dates.length}
+        y2={headerHeight * 0.5}
+        stroke="#d6cac6"
+        strokeWidth={1}
+      />
       {bottomValues} {topValues}
+      {dateSetup.dates.map((date, i) => (
+        <line
+          key={`vertical-line-${date.getTime()}`}
+          x1={columnWidth * (i + 1)}
+          y1={headerHeight * 0.5}
+          x2={columnWidth * (i + 1)}
+          y2={headerHeight}
+          stroke="#d6cac6"
+          strokeWidth={1}
+        />
+      ))}
     </g>
   )
 }
