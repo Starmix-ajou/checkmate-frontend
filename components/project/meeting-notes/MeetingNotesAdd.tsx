@@ -19,6 +19,21 @@ const MeetingNotesAdd = () => {
         user.accessToken,
         params.id as string
       )
+
+      const response = await fetch('/api/rooms', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          roomId: meetingNote.meetingId,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Liveblocks 룸 생성 실패')
+      }
+
       router.push(
         `/projects/${params.id}/meeting-notes/${meetingNote.meetingId}?title=${encodeURIComponent(
           meetingNote.title
