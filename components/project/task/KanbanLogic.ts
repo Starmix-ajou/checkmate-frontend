@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/stores/useAuthStore'
-import { ColumnType, Task } from '@/types/userTask'
+import { ColumnType, Task, TaskCreateRequest } from '@/types/userTask'
 import {
   DragOverEvent,
   MouseSensor,
@@ -27,6 +27,7 @@ type TaskUpdateData = Partial<{
   endDate: string
   priority: Task['priority']
   epicId: string
+  projectId: string
 }>
 
 type TaskFilters = {
@@ -191,7 +192,12 @@ export function KanbanLogic(projectId: string) {
 
     try {
       setLoading(true) // 로딩 시작
-      console.log('태스크 수정 요청 데이터:', { taskId, ...taskData })
+      const requestData = {
+        ...taskData,
+        projectId: projectId,
+      }
+      console.log('태스크 수정 요청 데이터:', { taskId, ...requestData })
+
       const response = await fetch(`${API_ENDPOINTS.TASKS}/${taskId}`, {
         method: 'PUT',
         headers: {
@@ -200,9 +206,10 @@ export function KanbanLogic(projectId: string) {
           Authorization: `Bearer ${user.accessToken}`,
         },
         credentials: 'include',
-        body: JSON.stringify(taskData),
+        body: JSON.stringify(requestData),
       })
 
+      console.log('서버 응답 상태:', response.status)
       console.log(
         '서버 응답 헤더:',
         Object.fromEntries(response.headers.entries())
@@ -210,12 +217,21 @@ export function KanbanLogic(projectId: string) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null)
+        console.error('서버 에러 응답:', errorData)
         throw new Error(
           errorData?.message || `HTTP error! status: ${response.status}`
         )
       }
 
-      console.log('태스크 수정 성공')
+      // 응답이 있는 경우에만 JSON 파싱 시도
+      const contentType = response.headers.get('content-type')
+      if (contentType && contentType.includes('application/json')) {
+        const responseData = await response.json()
+        console.log('태스크 수정 성공 응답:', responseData)
+      } else {
+        console.log('태스크 수정 성공 (응답 없음)')
+      }
+
       // PUT 성공 후 전체 Task 목록을 다시 불러와서 setColumns 갱신
       await fetchTasks({
         priority: 'ALL',
@@ -256,9 +272,19 @@ export function KanbanLogic(projectId: string) {
         return `${year}-${month}-${day}`
       }
 
+      // 필수 필드 확인
+      if (!task.title || !task.status || !task.startDate || !task.endDate) {
+        console.error('태스크에 필수 필드가 누락되었습니다:', task)
+        return
+      }
+
+      // 현재 태스크의 정보를 가져와서 epicId 확인
+      const currentTask = await getTaskById(taskId)
+      const currentEpicId = currentTask.epic.epicId
+
       const updateData: TaskUpdateData = {
         title: data.title || task.title,
-        description: data.description || task.description,
+        description: data.description || task.description || '',
         status: data.status || task.status,
         assigneeEmail: data.assigneeEmail || user?.email || '',
         startDate: data.startDate
@@ -268,9 +294,11 @@ export function KanbanLogic(projectId: string) {
           ? formatDateToLocal(data.endDate)
           : formatDateToLocal(task.endDate),
         priority: data.priority || task.priority || 'MEDIUM',
-        epicId: data.epicId || EPICCUSTOM,
+        epicId: data.epicId || currentEpicId || EPICCUSTOM,
+        projectId: projectId,
       }
 
+      console.log('태스크 업데이트 데이터:', updateData)
       await updateTask(taskId, updateData)
 
       // 성공적으로 업데이트된 후 로컬 상태도 업데이트
@@ -286,10 +314,11 @@ export function KanbanLogic(projectId: string) {
       })
     } catch (error) {
       console.error('태스크 업데이트 실패:', error)
+      throw error
     }
   }
 
-  const handleDragOver = (event: DragOverEvent) => {
+  const handleDragOver = async (event: DragOverEvent) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
 
@@ -338,7 +367,11 @@ export function KanbanLogic(projectId: string) {
             ? 'IN_PROGRESS'
             : 'DONE'
 
-      updateTask(moved.taskId, {
+      // 현재 태스크의 정보를 가져와서 epicId 확인
+      const currentTask = await getTaskById(moved.taskId)
+      const currentEpicId = currentTask.epic.epicId
+
+      const updateData: TaskUpdateData = {
         title: moved.title,
         description: moved.description,
         status: newStatus,
@@ -346,8 +379,11 @@ export function KanbanLogic(projectId: string) {
         startDate: moved.startDate,
         endDate: moved.endDate,
         priority: moved.priority || 'MEDIUM',
-        epicId: EPICCUSTOM,
-      }).catch((error) => {
+        epicId: currentEpicId || EPICCUSTOM,
+        projectId: projectId,
+      }
+
+      updateTask(moved.taskId, updateData).catch((error) => {
         console.error('태스크 상태 업데이트 실패:', error)
         // 실패 시 원래 상태로 되돌림
         setColumns((prev) => ({
@@ -364,18 +400,7 @@ export function KanbanLogic(projectId: string) {
   }
 
   const createTask = useCallback(
-    async (
-      taskData: TaskUpdateData & {
-        title: string
-        description: string
-        status: Task['status']
-        assigneeEmail: string
-        startDate: string
-        endDate: string
-        priority: Task['priority']
-        epicId: string
-      }
-    ): Promise<Task> => {
+    async (taskData: TaskCreateRequest): Promise<Task> => {
       if (!user?.accessToken) {
         throw new Error('인증 토큰이 없습니다.')
       }
@@ -390,10 +415,7 @@ export function KanbanLogic(projectId: string) {
             Authorization: `Bearer ${user.accessToken}`,
           },
           credentials: 'include',
-          body: JSON.stringify({
-            ...taskData,
-            priority: taskData.priority || 'MEDIUM', // 기본값 설정
-          }),
+          body: JSON.stringify(taskData),
         })
 
         console.log(
@@ -427,9 +449,7 @@ export function KanbanLogic(projectId: string) {
         }
 
         const tasks: Task[] = await tasksResponse.json()
-        if (!Array.isArray(tasks)) {
-          throw new Error('서버로부터 받은 Task 목록이 올바른 형식이 아닙니다.')
-        }
+        console.log('서버에서 받은 전체 태스크 목록:', tasks)
 
         // Task 목록을 상태에 따라 분류
         const newColumns: Record<ColumnType, Task[]> = {
@@ -514,7 +534,7 @@ export function KanbanLogic(projectId: string) {
               ? 'DONE'
               : 'TODO'
 
-        await createTask({
+        const taskData: TaskCreateRequest = {
           title: 'New Task',
           description: '',
           status: initialStatus,
@@ -522,13 +542,16 @@ export function KanbanLogic(projectId: string) {
           startDate: today,
           endDate: nextWeek,
           priority: 'MEDIUM',
+          projectId: projectId,
           epicId: EPICCUSTOM,
-        })
+        }
+
+        await createTask(taskData)
       } catch (error) {
         console.error('태스크 생성 실패:', error)
       }
     },
-    [user?.email, createTask]
+    [user?.email, createTask, projectId]
   )
 
   useEffect(() => {
