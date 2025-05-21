@@ -9,13 +9,13 @@ export function Threads() {
   const createThread = useCreateThread()
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="space-y-4">
+    <div className="h-full overflow-y-auto relative flex flex-col">
+      <div className="space-y-4 overflow-y-auto flex-1">
         {threads.map((thread) => (
           <Thread key={thread.id} thread={thread} />
         ))}
       </div>
-      <div className="mt-4">
+      <div className="">
         <Composer.Form
           onComposerSubmit={({ body }, event) => {
             event.preventDefault()

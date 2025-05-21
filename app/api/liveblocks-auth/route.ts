@@ -25,6 +25,11 @@ export async function POST(request: Request) {
   }
 
   const userEmail = session.user.email
+  const accessToken = session.accessToken
+
+  if (!accessToken) {
+    return new Response('Access token missing', { status: 401 })
+  }
 
   const url = new URL(request.url)
   const projectId = url.searchParams.get('projectId')
@@ -34,30 +39,26 @@ export async function POST(request: Request) {
     return new Response('Missing projectId or roomId', { status: 400 })
   }
 
-  const projectResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/project/${projectId}`,
-    {
-      headers: {
-        Accept: '*/*',
-        Authorization: `Bearer ${session.accessToken}`,
-      },
+  let project
+  try {
+    const projectResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/project/${projectId}`,
+      {
+        headers: {
+          Accept: '*/*',
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+      }
+    )
+
+    if (!projectResponse.ok) {
+      return new Response('Failed to fetch project members', { status: 500 })
     }
-  )
-
-  if (!projectResponse.ok) {
-    return new Response('Failed to fetch project members', { status: 500 })
+    project = await projectResponse.json()
+  } catch (e) {
+    console.error('[Liveblocks Auth] Project fetch error:', e)
+    return new Response('Failed to fetch project info', { status: 500 })
   }
-
-  const project = await projectResponse.json()
-
-  const liveblocksSession = liveblocks.prepareSession(userEmail, {
-    userInfo: {
-      name: session.user.name ?? '',
-      color: generateColorFromName(session.user.name ?? ''),
-      avatar: session.user.image ?? '',
-    },
-  })
-
   const isProjectMember = project.members.some(
     (member: Member) => member.email === userEmail
   )
@@ -66,6 +67,13 @@ export async function POST(request: Request) {
     return new Response('Not a project member', { status: 403 })
   }
 
+  const liveblocksSession = liveblocks.prepareSession(userEmail, {
+    userInfo: {
+      name: session.user.name ?? '',
+      color: generateColorFromName(session.user.name ?? ''),
+      avatar: session.user.image ?? '',
+    },
+  })
   liveblocksSession.allow(roomId, liveblocksSession.FULL_ACCESS)
 
   const { status, body } = await liveblocksSession.authorize()

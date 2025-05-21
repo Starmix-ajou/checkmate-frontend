@@ -81,15 +81,17 @@ export default function MeetingNotePage() {
               <Editor />
             </div>
           </div>
-          <div className="w-96 flex flex-col gap-4">
-            <MeetingNoteDetails
-              createdAt={roomInfo.createdAt}
-              updatedAt={roomInfo.updatedAt}
-              members={members}
-              initialScrumMaster={members[0]}
-              onScrumMasterChange={handleScrumMasterChange}
-            />
-            <div className="flex-1 rounded-lg border p-4">
+          <div className="w-96 flex flex-col gap-4 max-h-[calc(100vh-148px)]">
+            <div className="h-fit">
+              <MeetingNoteDetails
+                createdAt={roomInfo.createdAt}
+                updatedAt={roomInfo.updatedAt}
+                members={members}
+                initialScrumMaster={members[0]}
+                onScrumMasterChange={handleScrumMasterChange}
+              />
+            </div>
+            <div className="flex-1 min-h-0 rounded-lg border p-4 flex flex-col overflow-auto">
               <h3 className="text-lg font-semibold mb-4">코멘트</h3>
               <Threads />
             </div>
