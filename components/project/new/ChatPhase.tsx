@@ -69,7 +69,6 @@ export default function ChatPhase({
     onMessage: (message) => {
       addMessage('ai', message)
       setIsLoading(false)
-      onNext()
     },
     onCreateFeatureDefinition: (features, suggestions) => {
       addMessage('ai', '기능 정의와 제안을 생성했습니다.', {
@@ -324,6 +323,7 @@ export default function ChatPhase({
 
     switch (phase.id) {
       case 5:
+        onNext()
         const eventSource = startSSE()
         if (eventSource) await sendProjectDefinition()
         break
@@ -337,9 +337,9 @@ export default function ChatPhase({
         const currentIndex = phases.findIndex((p) => p.id === phase.id)
         const nextPhase = phases[currentIndex + 1]
         if (nextPhase) {
+          onNext()
           setTimeout(() => {
             addMessage('ai', nextPhase.question)
-            onNext()
             setIsLoading(false)
           }, 1000)
         }
@@ -403,6 +403,7 @@ export default function ChatPhase({
             tableData={tableData}
             setTableData={setTableData}
             onSend={handleSendMessage}
+            isLoading={isLoading}
           />
         </div>
       </div>

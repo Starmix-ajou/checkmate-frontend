@@ -13,6 +13,7 @@ import { Phase } from '@/types/project-creation'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { ArrowUp, CalendarIcon } from 'lucide-react'
+import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
 
 import { TeamMemberTable } from './TeamMemberTable'
@@ -30,6 +31,7 @@ type ChatInputProps = {
   tableData: TeamMember[]
   setTableData: (value: TeamMember[]) => void
   onSend: () => void
+  isLoading?: boolean
 }
 
 export function ChatInput({
@@ -45,12 +47,58 @@ export function ChatInput({
   tableData,
   setTableData,
   onSend,
+  isLoading = false,
 }: ChatInputProps) {
+  const [emailError, setEmailError] = useState<string>('')
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  const validateTableData = (): boolean => {
+    if (tableData.length === 0) {
+      setEmailError('최소 한 명의 팀 멤버를 추가해주세요.')
+      return false
+    }
+
+    for (const member of tableData) {
+      if (!validateEmail(member.email)) {
+        setEmailError('유효한 이메일 주소를 입력해주세요.')
+        return false
+      }
+      if (member.positions.length === 0) {
+        setEmailError('모든 멤버의 역할을 선택해주세요.')
+        return false
+      }
+    }
+    setEmailError('')
+    return true
+  }
+
+  const handleSend = () => {
+    if (phase.inputType === 'table' && !validateTableData()) {
+      return
+    }
+    onSend()
+  }
+
+  const isSendButtonDisabled = () => {
+    if (isLoading) return true
+    if (phase.inputType === 'table') {
+      return tableData.length === 0
+    }
+    if (phase.inputType === 'file') {
+      return !file && !skipFile
+    }
+    return !input.trim() && !dateRange && !file && !skipFile && !tableData
+  }
+
   const renderSendButton = () => (
     <Button
-      onClick={onSend}
+      onClick={handleSend}
       className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-8 h-8 flex items-center justify-center"
-      disabled={!input.trim() && !dateRange && !file && !skipFile && !tableData}
+      disabled={isSendButtonDisabled()}
     >
       <ArrowUp className="h-6 w-6" />
     </Button>
@@ -73,7 +121,12 @@ export function ChatInput({
     case 'table':
       return (
         <div className="relative flex-1 flex gap-2">
-          <TeamMemberTable data={tableData} onDataChange={setTableData} />
+          <div className="flex flex-col gap-2 flex-1">
+            <TeamMemberTable data={tableData} onDataChange={setTableData} />
+            {emailError && (
+              <p className="text-sm text-red-500 mt-1">{emailError}</p>
+            )}
+          </div>
           {renderSendButton()}
         </div>
       )
@@ -122,14 +175,22 @@ export function ChatInput({
     case 'file':
       return (
         <div className="relative flex-1 flex gap-2">
-          <FileUpload
-            value={file}
-            skip={skipFile}
-            onFileChange={setFile}
-            onSkipChange={setSkipFile}
-            accept=".pdf,.doc,.docx"
-            className="flex-1"
-          />
+          <div className="flex flex-col gap-2 flex-1">
+            <FileUpload
+              value={file}
+              skip={skipFile}
+              onFileChange={setFile}
+              onSkipChange={(value) => {
+                setSkipFile(value)
+                if (value) {
+                  setFile(null)
+                }
+              }}
+              accept=".pdf,.doc,.docx"
+              className="flex-1"
+              disabled={skipFile}
+            />
+          </div>
           {renderSendButton()}
         </div>
       )
