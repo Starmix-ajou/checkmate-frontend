@@ -114,26 +114,25 @@ export const StandardTooltipContent: React.FC<{
   fontSize: string
   fontFamily: string
 }> = ({ task, fontSize, fontFamily }) => {
-  const style = {
-    fontSize,
-    fontFamily,
+  const formatDate = (date: Date | null) => {
+    if (!date) return '-'
+    return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`
   }
+
   return (
-    <div className={styles.tooltipDefaultContainer} style={style}>
-      <b style={{ fontSize: fontSize + 6 }}>{`${
-        task.name
-      }: ${task.start.getDate()}-${
-        task.start.getMonth() + 1
-      }-${task.start.getFullYear()} - ${task.end.getDate()}-${
-        task.end.getMonth() + 1
-      }-${task.end.getFullYear()}`}</b>
-      {task.end.getTime() - task.start.getTime() !== 0 && (
+    <div
+      className={styles.tooltipDefaultContainer}
+      style={{ fontSize, fontFamily }}
+    >
+      <b
+        style={{ fontSize: fontSize + 6 }}
+      >{`${task.name}: ${formatDate(task.start)} - ${formatDate(task.end)}`}</b>
+      {task.end && task.start && (
         <p className={styles.tooltipDefaultContainerParagraph}>{`Duration: ${~~(
           (task.end.getTime() - task.start.getTime()) /
           (1000 * 60 * 60 * 24)
         )} day(s)`}</p>
       )}
-
       <p className={styles.tooltipDefaultContainerParagraph}>
         {!!task.progress && `Progress: ${task.progress} %`}
       </p>
