@@ -5,7 +5,7 @@ import { TaskListHeader } from './task-list-header'
 import { TaskListTable } from './task-list-table'
 import styles from './task-list.module.css'
 
-export interface TaskListProps {
+export type TaskListProps = {
   headerHeight: number
   rowWidth: string
   fontFamily: string

@@ -14,8 +14,8 @@ export interface Task {
   id: string
   type: TaskType
   name: string
-  start: Date
-  end: Date
+  start: Date | null
+  end: Date | null
   /**
    * From 0 to 100
    */
