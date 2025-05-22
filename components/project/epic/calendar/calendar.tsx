@@ -3,7 +3,7 @@ import {
   getDaysInMonth,
   getLocalDayOfWeek,
   getLocaleMonth,
-  getWeekNumberISO8601,
+  getWeekNumberInMonth,
 } from '@/helpers/date-helper'
 import { DateSetup } from '@/types/date-setup'
 import { ViewMode } from '@/types/public-types'
@@ -175,10 +175,10 @@ export const Calendar: React.FC<CalendarProps> = ({
       let topValue = ''
       if (i === 0 || date.getMonth() !== dates[i - 1].getMonth()) {
         // top
-        topValue = `${getLocaleMonth(date, locale)}, ${date.getFullYear()}`
+        topValue = getLocaleMonth(date, locale)
       }
       // bottom
-      const bottomValue = `W${getWeekNumberISO8601(date)}`
+      const bottomValue = `W${getWeekNumberInMonth(date)}`
 
       bottomValues.push(
         <text
