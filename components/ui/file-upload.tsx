@@ -13,6 +13,7 @@ interface FileUploadProps {
   skip?: boolean
   className?: string
   accept?: string
+  disabled?: boolean
 }
 
 export function FileUpload({
@@ -22,28 +23,34 @@ export function FileUpload({
   value,
   skip,
   accept,
+  disabled,
 }: FileUploadProps) {
   const [isDragging, setIsDragging] = React.useState(false)
 
   const handleFileChange = (selectedFile: File | null) => {
+    if (disabled) return
     onFileChange?.(selectedFile)
   }
 
   const handleRemove = () => {
+    if (disabled) return
     onFileChange?.(null)
   }
 
   const handleDragOver = (e: React.DragEvent) => {
+    if (disabled) return
     e.preventDefault()
     setIsDragging(true)
   }
 
   const handleDragLeave = (e: React.DragEvent) => {
+    if (disabled) return
     e.preventDefault()
     setIsDragging(false)
   }
 
   const handleDrop = (e: React.DragEvent) => {
+    if (disabled) return
     e.preventDefault()
     setIsDragging(false)
     const droppedFile = e.dataTransfer.files[0]
@@ -57,15 +64,17 @@ export function FileUpload({
       <div
         className={cn(
           'flex min-h-[120px] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors',
-          isDragging
+          isDragging && !disabled
             ? 'border-primary bg-primary/10'
             : 'border-muted-foreground/25 hover:border-primary/50',
+          disabled && 'opacity-50 cursor-not-allowed pointer-events-none',
           className
         )}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => {
+          if (disabled) return
           const input = document.createElement('input')
           input.type = 'file'
           input.accept = accept || '*/*'
@@ -88,6 +97,7 @@ export function FileUpload({
                 e.stopPropagation()
                 handleRemove()
               }}
+              disabled={disabled}
             >
               <X className="h-4 w-4" />
             </Button>

@@ -19,6 +19,13 @@ const MeetingNotesAdd = () => {
         user.accessToken,
         params.id as string
       )
+
+      await fetch('/api/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId: meetingNote.meetingId }),
+      })
+
       router.push(
         `/projects/${params.id}/meeting-notes/${meetingNote.meetingId}?title=${encodeURIComponent(
           meetingNote.title

@@ -2,173 +2,190 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
+import { useSprintSSE } from '@/hooks/useSprintSSE'
 import {
-  DndContext,
-  DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
-  PointerSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core'
+  createSprint,
+  getIncompletedTasks,
+  getProjectMembers,
+  updateSprint,
+} from '@/lib/api/sprintConfiguration'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { Member } from '@/types/project'
 import {
-  SortableContext,
-  arrayMove,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+  Epic,
+  IncompletedTask,
+  SprintResponse,
+  SprintUpdateRequest,
+  TaskRow,
+} from '@/types/sprint'
 import {
   ColumnDef,
-  Row,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { GripVertical, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { EventSourcePolyfill } from 'event-source-polyfill'
+import { usePathname, useRouter } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 
 import { DetailTaskTable } from './DetailTaskTable'
 import LoadingScreen from './LoadingScreen'
 import { SprintReviewTable } from './SprintReviewTable'
 
-interface IncompletedTask {
-  id: number
-  title: string
-  position: string
-  selected: boolean
-}
-
-interface Epic {
-  id: number
-  title: string
-  period: string
-  task: TaskRow[]
-}
-
-const initialEpics: Epic[] = [
-  {
-    id: 1,
-    title: '회원가입 및 로그인',
-    period: '04. 01 ~ 04. 10',
-    task: [
-      {
-        title: '이메일 회원가입 기능 구현',
-        position: 'Frontend',
-        assignee: '한도연',
-        period: '04. 01 ~ 04. 02',
-      },
-      {
-        title: '소셜 로그인 백엔드 연동',
-        position: 'Backend',
-        assignee: '조성연',
-        period: '04. 01 ~ 04. 02',
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: '그룹 매칭 시스템',
-    period: '04. 11 ~ 04. 20',
-    task: [
-      {
-        title: '매칭 알고리즘 설계',
-        position: 'AI',
-        assignee: '박승연',
-        period: '04. 01 ~ 04. 02',
-      },
-      {
-        title: '매칭 결과 UI 구현',
-        position: 'Frontend',
-        assignee: '김평주',
-        period: '04. 01 ~ 04. 02',
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: '새로운 시스템',
-    period: '04. 21 ~ 04. 30',
-    task: [
-      {
-        title: '시스템 구조도 작성',
-        position: 'Backend',
-        assignee: '조성연',
-        period: '04. 01 ~ 04. 02',
-      },
-      {
-        title: '디자인 시안 제작',
-        position: 'AI',
-        assignee: '박승연',
-        period: '04. 01 ~ 04. 02',
-      },
-    ],
-  },
-]
-
-interface TaskRow {
-  title: string
-  position: string
-  assignee: string
-  period: string
-}
-
-const initialIncompletedTasks: IncompletedTask[] = [
-  {
-    id: 1,
-    title: '로그인 페이지 구현',
-    position: '프론트엔드',
-    selected: false,
-  },
-  { id: 2, title: 'API 연동', position: '백엔드', selected: false },
-]
-
-function SortableRow({
-  row,
-  children,
-  isDragging = false,
-}: {
-  row: Row<Epic>
-  children: React.ReactNode
-  isDragging?: boolean
-}) {
-  const { setNodeRef, transform, transition, attributes, listeners } =
-    useSortable({
-      id: row.original.id,
-      animateLayoutChanges: () => false,
-    })
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0 : 1,
-  }
-
-  return (
-    <TableRow
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="h-12"
-    >
-      {children}
-    </TableRow>
-  )
-}
-
 export default function SprintWizard() {
+  const pathname = usePathname()
+  const router = useRouter()
+  const projectId = pathname?.split('/')[2]
+  const user = useAuthStore((state) => state.user)
   const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [members, setMembers] = useState<Member[]>([])
   const [incompletedTasks, setIncompletedTasks] = useState<IncompletedTask[]>(
-    initialIncompletedTasks
+    []
   )
-  const [epics, setEpics] = useState<Epic[]>(initialEpics)
-  const sensors = useSensors(useSensor(PointerSensor))
-  const [activeId, setActiveId] = useState<number | null>(null)
+  const [epics, setEpics] = useState<Epic[]>([])
+  const [eventSource, setEventSource] = useState<EventSourcePolyfill | null>(
+    null
+  )
+  const [feedbackData, setFeedbackData] = useState<Epic[]>([])
 
-  const [activeItem, setActiveItem] = useState<Epic | null>(null)
+  const { startSSE } = useSprintSSE({
+    onMessage: () => {},
+    onSprintCreation: (data: string) => {
+      setLoading(false)
+      const messageData = typeof data === 'string' ? JSON.parse(data) : data
+
+      try {
+        const formattedEpics: Epic[] = messageData.map(
+          (item: SprintResponse, index: number) => ({
+            id: index + 1,
+            epicId: item.epic.epicId,
+            title: item.epic.title,
+            description: item.epic.description,
+            startDate: item.epic.startDate,
+            endDate: item.epic.endDate,
+            task: item.tasks.map((task) => ({
+              title: task.title,
+              position:
+                task.assignee.profiles.find((p) => p.projectId === projectId)
+                  ?.positions[0] || 'Unknown',
+              assignee: task.assignee.email,
+              startDate: task.startDate,
+              endDate: task.endDate,
+              description: task.description,
+              priority: task.priority,
+              status: task.status,
+            })),
+          })
+        )
+
+        setEpics(formattedEpics)
+        setStep(1)
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : '알 수 없는 오류'
+        toast.error(`에픽 데이터 처리 중 오류가 발생했습니다: ${errorMessage}`)
+      }
+    },
+    onFeedback: (data: string) => {
+      setLoading(false)
+      const messageData = typeof data === 'string' ? JSON.parse(data) : data
+
+      try {
+        const formattedData: Epic[] = messageData.map(
+          (item: SprintResponse, index: number) => ({
+            id: index + 1,
+            epicId: item.epic.epicId,
+            title: item.epic.title,
+            description: item.epic.description,
+            startDate: item.epic.startDate,
+            endDate: item.epic.endDate,
+            task: item.tasks.map((task) => ({
+              title: task.title,
+              position:
+                task.assignee.profiles.find((p) => p.projectId === projectId)
+                  ?.positions[0] || 'Unknown',
+              assignee: task.assignee.email,
+              startDate: task.startDate,
+              endDate: task.endDate,
+              description: task.description,
+              priority: task.priority,
+              status: task.status,
+            })),
+          })
+        )
+
+        setFeedbackData(formattedData)
+        setStep(2)
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : '알 수 없는 오류'
+        toast.error(
+          `피드백 데이터 처리 중 오류가 발생했습니다: ${errorMessage}`
+        )
+      }
+    },
+    onError: (err: Error | MessageEvent) => {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : '서버와의 연결에 문제가 발생했습니다'
+      toast.error(errorMessage)
+      setLoading(false)
+    },
+  })
+
+  useEffect(() => {
+    return () => {
+      if (eventSource) {
+        eventSource.close()
+      }
+    }
+  }, [eventSource])
+
+  const loadIncompletedTasks = useCallback(async () => {
+    if (!projectId || !user?.accessToken) return
+
+    try {
+      setLoading(true)
+      const tasks = await getIncompletedTasks(projectId)
+      setIncompletedTasks(tasks)
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : '알 수 없는 오류'
+      toast.error(
+        `완료되지 않은 태스크를 불러오는데 실패했습니다: ${errorMessage}`
+      )
+    } finally {
+      setLoading(false)
+    }
+  }, [projectId, user?.accessToken])
+
+  const loadProjectMembers = useCallback(async () => {
+    if (!projectId || !user?.accessToken) return
+
+    try {
+      const memberData = await getProjectMembers(projectId)
+      if (Array.isArray(memberData)) {
+        setMembers(memberData)
+      } else {
+        console.error('멤버 데이터가 배열이 아닙니다:', memberData)
+        toast.error('멤버 데이터 형식이 올바르지 않습니다.')
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : '알 수 없는 오류'
+      toast.error(`멤버 정보를 불러오는데 실패했습니다: ${errorMessage}`)
+    }
+  }, [projectId, user?.accessToken])
+
+  useEffect(() => {
+    if (projectId && user?.accessToken) {
+      loadIncompletedTasks()
+      loadProjectMembers()
+    }
+  }, [projectId, user?.accessToken, loadIncompletedTasks, loadProjectMembers])
 
   const loadingMessages = [
     <>
@@ -188,32 +205,56 @@ export default function SprintWizard() {
     </>,
   ]
 
-  const goToNextStep = () => {
+  const goToNextStep = async () => {
+    if (!projectId || !user?.accessToken) return
+
     setLoading(true)
-    setTimeout(() => {
+    try {
+      if (step === 0) {
+        const selectedTaskIds = incompletedTasks
+          .filter((task) => task.selected)
+          .map((task) => task.taskId)
+
+        if (eventSource) {
+          eventSource.close()
+        }
+
+        const newEventSource = startSSE()
+        if (!newEventSource) {
+          throw new Error('SSE 연결에 실패했습니다.')
+        }
+        setEventSource(newEventSource)
+
+        await createSprint(projectId, selectedTaskIds)
+      } else if (step === 1) {
+        const updateData: SprintUpdateRequest[] = epics.map((epic) => ({
+          epicId: epic.epicId || '',
+          tasks: epic.task.map((task) => ({
+            title: task.title,
+            description: task.description || '',
+            status: task.status || 'TODO',
+            assigneeEmail: task.assignee,
+            startDate: task.startDate,
+            endDate: task.endDate,
+            priority: task.priority || 'MEDIUM',
+          })),
+        }))
+
+        if (!eventSource || eventSource.readyState === EventSource.CLOSED) {
+          const newEventSource = startSSE()
+          if (!newEventSource) {
+            throw new Error('SSE 연결에 실패했습니다.')
+          }
+          setEventSource(newEventSource)
+        }
+
+        await updateSprint(projectId, updateData)
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : '알 수 없는 오류'
+      toast.error(`스프린트 처리 중 오류가 발생했습니다: ${errorMessage}`)
       setLoading(false)
-      setStep((prev) => prev + 1)
-    }, 2000)
-  }
-
-  const handleDragStart = (event: DragStartEvent) => {
-    const id = event.active.id as number
-    setActiveId(id)
-    const item = epics.find((epic) => epic.id === id) || null
-    setActiveItem(item)
-  }
-
-  const handleDeleteEpic = (index: number) => {
-    setEpics((prev) => prev.filter((_, i) => i !== index))
-  }
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    setActiveId(null)
-    if (active.id !== over?.id) {
-      const oldIndex = epics.findIndex((epic) => epic.id === active.id)
-      const newIndex = epics.findIndex((epic) => epic.id === over?.id)
-      setEpics((items) => arrayMove(items, oldIndex, newIndex))
     }
   }
 
@@ -246,67 +287,15 @@ export default function SprintWizard() {
     },
   ]
 
-  const epicColumns: ColumnDef<Epic>[] = [
-    {
-      id: 'drag',
-      header: () => null,
-      cell: () => (
-        <div className="cursor-move">
-          <GripVertical className="w-4 h-4 text-muted-foreground" />
-        </div>
-      ),
-    },
-    {
-      accessorKey: 'id',
-      header: '에픽 번호',
-      cell: ({ row }) => (
-        <Badge variant="secondary" className="text-xs px-2 py-1">
-          Epic {row.index + 1}
-        </Badge>
-      ),
-    },
-    {
-      accessorKey: 'title',
-      header: '에픽명',
-      cell: ({ row }) => (
-        <div className="font-medium">{row.original.title}</div>
-      ),
-    },
-    {
-      accessorKey: 'period',
-      header: '기간',
-      cell: ({ row }) => <div>{row.original.period}</div>,
-    },
-    {
-      id: 'delete',
-      header: () => null,
-      cell: ({ row }) => (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => handleDeleteEpic(row.index)}
-        >
-          <Trash2 className="w-4 h-4 text-red-500" />
-        </Button>
-      ),
-    },
-  ]
-
   const incompletedTasksTable = useReactTable({
     data: incompletedTasks,
     columns: incompletedTaskColumns,
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const epicTable = useReactTable({
-    data: epics,
-    columns: epicColumns,
-    getCoreRowModel: getCoreRowModel(),
-  })
-
   const handleSelect = (index: number) => {
-    setIncompletedTasks((prevIncompletedTasks) => {
-      const updated = [...prevIncompletedTasks]
+    setIncompletedTasks((prev) => {
+      const updated = [...prev]
       updated[index] = {
         ...updated[index],
         selected: !updated[index].selected,
@@ -323,10 +312,15 @@ export default function SprintWizard() {
     )
   }
 
+  const handleComplete = async () => {
+    if (!projectId) return
+    router.push(`/projects/${projectId}/overview`)
+  }
+
   return (
     <div className="p-6 space-y-6 max-w-4xl w-full mx-auto">
       <div className="w-full flex space-x-2 justify-center mb-16">
-        {[0, 1, 2, 3].map((s) => (
+        {[0, 1, 2].map((s) => (
           <div
             key={s}
             className={`w-2 h-2 rounded-full ${s <= step ? 'bg-cm' : 'bg-cm-100/50'}`}
@@ -351,7 +345,11 @@ export default function SprintWizard() {
                 <Table>
                   <TableBody>
                     {incompletedTasksTable.getRowModel().rows.map((row) => (
-                      <TableRow key={row.original.id}>
+                      <TableRow
+                        key={row.original.id}
+                        onClick={() => handleSelect(row.index)}
+                        className="cursor-pointer hover:bg-muted/50"
+                      >
                         {row.getVisibleCells().map((cell) => {
                           const widthClass =
                             {
@@ -377,121 +375,65 @@ export default function SprintWizard() {
                   </TableBody>
                 </Table>
               </div>
-              <Button variant="cm" onClick={goToNextStep} className="mt-8">
-                다음
+              <Button
+                variant="cm"
+                onClick={goToNextStep}
+                className="mt-8"
+                disabled={loading}
+              >
+                {loading ? '스프린트 생성 중...' : '다음'}
               </Button>
             </div>
           )}
 
           {step === 1 && (
             <div className="text-center">
-              <h2 className="text-3xl font-bold mb-8">스프린트 구성 완료!</h2>
-              <div className="text-lg text-gray-700 mb-4">
-                구성된 Epic을 수정할 수 있어요.
-              </div>
-              <div className="border-y">
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragStart={handleDragStart}
-                  onDragEnd={handleDragEnd}
-                >
-                  <SortableContext
-                    items={epics.map((e) => e.id)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <Table>
-                      <TableBody>
-                        {epicTable.getRowModel().rows.map((row) => {
-                          return (
-                            <SortableRow
-                              key={row.original.id}
-                              row={row}
-                              isDragging={activeId === row.original.id}
-                            >
-                              {row.getVisibleCells().map((cell) => {
-                                const widthClass =
-                                  {
-                                    drag: 'w-1/12',
-                                    id: 'w-1/12',
-                                    title: 'w-8/12',
-                                    period: 'w-1/12',
-                                    delete: 'w-1/12',
-                                  }[cell.column.id] ?? 'w-auto'
-
-                                return (
-                                  <TableCell
-                                    key={cell.id}
-                                    className={`text-left ${widthClass}`}
-                                  >
-                                    {flexRender(
-                                      cell.column.columnDef.cell,
-                                      cell.getContext()
-                                    )}
-                                  </TableCell>
-                                )
-                              })}
-                            </SortableRow>
-                          )
-                        })}
-                      </TableBody>
-                    </Table>
-                  </SortableContext>
-                  <DragOverlay>
-                    <Table>
-                      <TableBody>
-                        {activeItem && (
-                          <TableRow className="bg-white border border-gray-200 shadow-md h-12">
-                            <TableCell className="text-left">
-                              {activeItem.title}
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </DragOverlay>
-                </DndContext>
-              </div>
-              <Button variant="cm" onClick={goToNextStep} className="mt-8">
-                다음
-              </Button>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="text-center">
               <h2 className="text-3xl font-bold mb-8">
                 세부 태스크를 입력해 주세요.
               </h2>
               <div className="space-y-8">
-                {epics.map((epic) => (
-                  <div key={epic.id} className="space-y-4 p-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-xl font-bold">{epic.title}</h3>
-                      <span className="text-sm text-muted-foreground">
-                        {epic.period}
-                      </span>
-                    </div>
-
-                    <DetailTaskTable
-                      data={epic.task}
-                      onDataChange={(updatedTasks) =>
-                        handleTaskDataChange(epic.id, updatedTasks)
-                      }
-                    />
+                {epics.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    에픽 데이터를 불러오는 중입니다...
                   </div>
-                ))}
+                ) : (
+                  epics.map((epic) => (
+                    <div key={epic.epicId} className="space-y-4 p-4">
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-xl font-bold">{epic.title}</h3>
+                        <span className="text-sm text-muted-foreground">
+                          {epic.startDate?.split('-').slice(1).join('. ')} ~{' '}
+                          {epic.endDate?.split('-').slice(1).join('. ')}
+                        </span>
+                      </div>
+
+                      <DetailTaskTable
+                        data={epic.task}
+                        onDataChange={(updatedTasks) =>
+                          handleTaskDataChange(epic.id, updatedTasks)
+                        }
+                        projectId={projectId || ''}
+                        members={members}
+                      />
+                    </div>
+                  ))
+                )}
 
                 <div className="text-center">
-                  <Button variant="cm" onClick={goToNextStep} className="mt-8">
-                    다음
+                  <Button
+                    variant="cm"
+                    onClick={goToNextStep}
+                    className="mt-8"
+                    disabled={loading || epics.length === 0}
+                  >
+                    {loading ? '스프린트 수정 중...' : '다음'}
                   </Button>
                 </div>
               </div>
             </div>
           )}
 
-          {step === 3 && (
+          {step === 2 && (
             <div className="text-center">
               <h2 className="text-3xl font-bold mb-8">
                 스프린트 구성이 완료되었어요.
@@ -499,8 +441,8 @@ export default function SprintWizard() {
                 최종 검토해 주세요.
               </h2>
               <div className="space-y-8">
-                {epics.map((epic) => (
-                  <div key={epic.id} className="space-y-4 p-4">
+                {feedbackData.map((epic) => (
+                  <div key={epic.epicId} className="space-y-4 p-4">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary" className="text-sm">
@@ -509,7 +451,8 @@ export default function SprintWizard() {
                         <h3 className="text-xl font-bold">{epic.title}</h3>
                       </div>
                       <span className="text-sm text-muted-foreground">
-                        {epic.period}
+                        {epic.startDate?.split('-').slice(1).join('. ')} ~{' '}
+                        {epic.endDate?.split('-').slice(1).join('. ')}
                       </span>
                     </div>
 
@@ -518,10 +461,18 @@ export default function SprintWizard() {
                 ))}
 
                 <div className="text-center flex gap-2 justify-center">
-                  <Button variant="cmoutline" className="mt-8">
+                  <Button
+                    variant="cmoutline"
+                    onClick={() => setStep(1)}
+                    className="mt-8"
+                  >
                     수정
                   </Button>
-                  <Button variant="cm" className="mt-8">
+                  <Button
+                    variant="cm"
+                    onClick={handleComplete}
+                    className="mt-8"
+                  >
                     완료
                   </Button>
                 </div>

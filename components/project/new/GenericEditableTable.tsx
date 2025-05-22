@@ -128,7 +128,7 @@ export function GenericEditableTable<T>({
                     <TableCell
                       onClick={handleAddRow}
                       colSpan={columns.length + 1}
-                      className="text-center py-4 cursor-pointer hover:bg-gray-100 font-medium text-blue-500"
+                      className="text-center py-4 cursor-pointer hover:bg-gray-100 font-medium text-primary"
                     >
                       {addButtonText}
                     </TableCell>
