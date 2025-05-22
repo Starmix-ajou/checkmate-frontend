@@ -6,9 +6,11 @@ import { useSprintSSE } from '@/hooks/useSprintSSE'
 import {
   createSprint,
   getIncompletedTasks,
+  getProjectMembers,
   updateSprint,
 } from '@/lib/api/sprintConfiguration'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { Member } from '@/types/project'
 import {
   Epic,
   IncompletedTask,
@@ -38,6 +40,7 @@ export default function SprintWizard() {
   const user = useAuthStore((state) => state.user)
   const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [members, setMembers] = useState<Member[]>([])
   const [incompletedTasks, setIncompletedTasks] = useState<IncompletedTask[]>(
     []
   )
@@ -159,11 +162,30 @@ export default function SprintWizard() {
     }
   }, [projectId, user?.accessToken])
 
+  const loadProjectMembers = useCallback(async () => {
+    if (!projectId || !user?.accessToken) return
+
+    try {
+      const memberData = await getProjectMembers(projectId)
+      if (Array.isArray(memberData)) {
+        setMembers(memberData)
+      } else {
+        console.error('멤버 데이터가 배열이 아닙니다:', memberData)
+        toast.error('멤버 데이터 형식이 올바르지 않습니다.')
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : '알 수 없는 오류'
+      toast.error(`멤버 정보를 불러오는데 실패했습니다: ${errorMessage}`)
+    }
+  }, [projectId, user?.accessToken])
+
   useEffect(() => {
     if (projectId && user?.accessToken) {
       loadIncompletedTasks()
+      loadProjectMembers()
     }
-  }, [projectId, user?.accessToken, loadIncompletedTasks])
+  }, [projectId, user?.accessToken, loadIncompletedTasks, loadProjectMembers])
 
   const loadingMessages = [
     <>
@@ -323,7 +345,11 @@ export default function SprintWizard() {
                 <Table>
                   <TableBody>
                     {incompletedTasksTable.getRowModel().rows.map((row) => (
-                      <TableRow key={row.original.id}>
+                      <TableRow
+                        key={row.original.id}
+                        onClick={() => handleSelect(row.index)}
+                        className="cursor-pointer hover:bg-muted/50"
+                      >
                         {row.getVisibleCells().map((cell) => {
                           const widthClass =
                             {
@@ -387,6 +413,7 @@ export default function SprintWizard() {
                           handleTaskDataChange(epic.id, updatedTasks)
                         }
                         projectId={projectId || ''}
+                        members={members}
                       />
                     </div>
                   ))
