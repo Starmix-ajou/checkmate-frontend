@@ -2,6 +2,7 @@
 
 import { Gantt } from '@/components/project/epic/gantt/gantt'
 import { allTasks } from '@/components/project/epic/sampleTasks'
+import { Epic } from '@/components/project/epic/types/epic'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -24,6 +25,7 @@ export default function ProjectEpic() {
   const [tasks, setTasks] = useState(allTasks)
   const [loading, setLoading] = useState(true)
   const [project, setProject] = useState<Project | null>(null)
+  const [epics, setEpics] = useState<Epic[]>([])
   const user = useAuthStore((state) => state.user)
 
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.Week)
@@ -82,9 +84,7 @@ export default function ProjectEpic() {
         }
 
         const epicsData = await epicsResponse.json()
-
-        // 프로젝트 데이터에 에픽 목록 추가
-        setProject((prev) => (prev ? { ...prev, epics: epicsData } : null))
+        setEpics(epicsData)
       } catch (error) {
         console.error(error)
       } finally {
@@ -173,12 +173,17 @@ export default function ProjectEpic() {
         </div>
 
         <div className="bg-white p-6">
-          <Gantt
-            tasks={tasks}
-            viewMode={viewMode}
-            onDateChange={handleDateChange}
-            onProgressChange={handleProgressChange}
-          />
+          {loading ? (
+            <Skeleton className="h-[600px] w-full" />
+          ) : (
+            <Gantt
+              tasks={tasks}
+              epics={epics}
+              viewMode={viewMode}
+              onDateChange={handleDateChange}
+              onProgressChange={handleProgressChange}
+            />
+          )}
         </div>
       </div>
     </div>

@@ -2,12 +2,13 @@ import React from 'react'
 
 import styles from './task-list-header.module.css'
 
-export const TaskListHeaderDefault: React.FC<{
+export const TaskListHeader: React.FC<{
   headerHeight: number
   rowWidth: string
   fontFamily: string
   fontSize: string
-}> = ({ headerHeight, fontFamily, fontSize, rowWidth }) => {
+  locale: string
+}> = ({ headerHeight, rowWidth, fontFamily, fontSize, locale }) => {
   return (
     <div
       className={styles.ganttTable}
@@ -28,7 +29,7 @@ export const TaskListHeaderDefault: React.FC<{
             minWidth: rowWidth,
           }}
         >
-          &nbsp;Epic
+          &nbsp;{locale === 'ko' ? '작업명' : 'Task Name'}
         </div>
         <div
           className={styles.ganttTable_HeaderSeparator}
@@ -43,7 +44,7 @@ export const TaskListHeaderDefault: React.FC<{
             minWidth: rowWidth,
           }}
         >
-          &nbsp;Start Date
+          &nbsp;{locale === 'ko' ? '시작일' : 'Start Date'}
         </div>
         <div
           className={styles.ganttTable_HeaderSeparator}
@@ -58,7 +59,7 @@ export const TaskListHeaderDefault: React.FC<{
             minWidth: rowWidth,
           }}
         >
-          &nbsp;End Date
+          &nbsp;{locale === 'ko' ? '종료일' : 'End Date'}
         </div>
       </div>
     </div>
