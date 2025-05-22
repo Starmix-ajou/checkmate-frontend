@@ -19,14 +19,14 @@ import { HorizontalScroll } from '../other/horizontal-scroll'
 import { StandardTooltipContent, Tooltip } from '../other/tooltip'
 import { VerticalScroll } from '../other/vertical-scroll'
 import { TaskList, TaskListProps } from '../task-list/task-list'
-import { TaskListHeaderDefault } from '../task-list/task-list-header'
-import { TaskListTableDefault } from '../task-list/task-list-table'
+import { Epic } from '../types/epic'
 import styles from './gantt.module.css'
 import { TaskGantt } from './task-gantt'
 import { TaskGanttContentProps } from './task-gantt-content'
 
-export const Gantt: React.FunctionComponent<GanttProps> = ({
+export const Gantt: React.FunctionComponent<GanttProps & { epics: Epic[] }> = ({
   tasks,
+  epics,
   headerHeight = 50,
   columnWidth = 60,
   listCellWidth = '155px',
@@ -57,8 +57,6 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   todayColor = 'rgba(239, 234, 232, 0.5)',
   viewDate,
   TooltipContent = StandardTooltipContent,
-  TaskListHeader = TaskListHeaderDefault,
-  TaskListTable = TaskListTableDefault,
   onDateChange,
   onProgressChange,
   onDoubleClick,
@@ -98,6 +96,8 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   const [scrollY, setScrollY] = useState(0)
   const [scrollX, setScrollX] = useState(-1)
   const [ignoreScrollEvent, setIgnoreScrollEvent] = useState(false)
+
+  const [expandedEpics, setExpandedEpics] = useState<Set<string>>(new Set())
 
   // task change events
   useEffect(() => {
@@ -395,9 +395,16 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     setSelectedTask(newSelectedTask)
   }
   const handleExpanderClick = (task: Task) => {
-    if (onExpanderClick && task.hideChildren !== undefined) {
-      onExpanderClick({ ...task, hideChildren: !task.hideChildren })
-    }
+    const epicId = task.id
+    setExpandedEpics((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(epicId)) {
+        newSet.delete(epicId)
+      } else {
+        newSet.add(epicId)
+      }
+      return newSet
+    })
   }
   const gridProps: GridProps = {
     columnWidth,
@@ -443,24 +450,56 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     onDelete,
   }
 
+  const filteredTasks = useMemo(() => {
+    return epics.flatMap((epic: Epic) => {
+      if (!expandedEpics.has(epic.epicId)) {
+        return [
+          {
+            id: epic.epicId,
+            name: epic.title,
+            start: epic.startDate ? new Date(epic.startDate) : null,
+            end: epic.endDate ? new Date(epic.endDate) : null,
+            progress: 0,
+            type: 'project' as const,
+            hideChildren: true,
+          },
+        ]
+      }
+      return [
+        {
+          id: epic.epicId,
+          name: epic.title,
+          start: epic.startDate ? new Date(epic.startDate) : null,
+          end: epic.endDate ? new Date(epic.endDate) : null,
+          progress: 0,
+          type: 'project' as const,
+          hideChildren: false,
+        },
+        ...epic.tasks.map((task) => ({
+          id: task.taskId,
+          name: task.title,
+          start: task.startDate ? new Date(task.startDate) : null,
+          end: task.endDate ? new Date(task.endDate) : null,
+          progress: 0,
+          type: 'task' as const,
+          hideChildren: true,
+        })),
+      ]
+    })
+  }, [epics, expandedEpics])
+
   const tableProps: TaskListProps = {
-    rowHeight,
+    headerHeight,
     rowWidth: listCellWidth,
     fontFamily,
     fontSize,
-    tasks: barTasks,
     locale,
-    headerHeight,
-    scrollY,
-    ganttHeight,
-    horizontalContainerClass: styles.horizontalContainer,
-    selectedTask,
-    taskListRef,
+    tasks: filteredTasks,
+    selectedTaskId: selectedTask?.id || '',
     setSelectedTask: handleSelectedTask,
     onExpanderClick: handleExpanderClick,
-    TaskListHeader,
-    TaskListTable,
   }
+
   return (
     <div>
       <div

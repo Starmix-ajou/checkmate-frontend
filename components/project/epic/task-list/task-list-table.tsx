@@ -1,16 +1,15 @@
-import { Task } from '@/types/public-types'
 import React from 'react'
 
+import { Task } from '../types/public-types'
 import styles from './task-list-table.module.css'
 
-const formatDate = (date: Date) => {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+const formatDate = (date: string | null) => {
+  if (!date) return '-'
+  const [year, month, day] = date.split('-')
   return `${year}. ${month}. ${day}`
 }
 
-export const TaskListTableDefault: React.FC<{
+export const TaskListTable: React.FC<{
   rowHeight: number
   rowWidth: string
   fontFamily: string
@@ -36,19 +35,15 @@ export const TaskListTableDefault: React.FC<{
         fontSize: fontSize,
       }}
     >
-      {tasks.map((t) => {
-        let expanderSymbol = ''
-        if (t.hideChildren === false) {
-          expanderSymbol = '▼'
-        } else if (t.hideChildren === true) {
-          expanderSymbol = '▶'
-        }
+      {tasks.map((task) => {
+        const expanderSymbol = task.hideChildren ? '▶' : '▼'
+        const isEpic = task.type === 'project'
 
         return (
           <div
             className={styles.taskListTableRow}
             style={{ height: rowHeight }}
-            key={`${t.id}row`}
+            key={task.id}
           >
             <div
               className={styles.taskListCell}
@@ -56,20 +51,20 @@ export const TaskListTableDefault: React.FC<{
                 minWidth: rowWidth,
                 maxWidth: rowWidth,
               }}
-              title={t.name}
+              title={task.name}
             >
               <div className={styles.taskListNameWrapper}>
-                <div
-                  className={
-                    expanderSymbol
-                      ? styles.taskListExpander
-                      : styles.taskListEmptyExpander
-                  }
-                  onClick={() => onExpanderClick(t)}
-                >
-                  {expanderSymbol}
-                </div>
-                <div>{t.name}</div>
+                {isEpic ? (
+                  <div
+                    className={styles.taskListExpander}
+                    onClick={() => onExpanderClick(task)}
+                  >
+                    {expanderSymbol}
+                  </div>
+                ) : (
+                  <div className={styles.taskListEmptyExpander} />
+                )}
+                <div>{task.name}</div>
               </div>
             </div>
             <div
@@ -79,7 +74,8 @@ export const TaskListTableDefault: React.FC<{
                 maxWidth: rowWidth,
               }}
             >
-              &nbsp;{formatDate(t.start)}
+              &nbsp;
+              {formatDate(task.start?.toISOString().split('T')[0] || null)}
             </div>
             <div
               className={styles.taskListCell}
@@ -88,7 +84,7 @@ export const TaskListTableDefault: React.FC<{
                 maxWidth: rowWidth,
               }}
             >
-              &nbsp;{formatDate(t.end)}
+              &nbsp;{formatDate(task.end?.toISOString().split('T')[0] || null)}
             </div>
           </div>
         )
