@@ -23,6 +23,7 @@ interface EditableTableProps<T> {
   addButtonText?: string
   emptyStateText?: string
   defaultRow?: T
+  meta?: Record<string, unknown>
 }
 
 export function EditableTable<T>({
@@ -33,6 +34,7 @@ export function EditableTable<T>({
   addButtonText = '항목 추가',
   emptyStateText = 'No results.',
   defaultRow,
+  meta,
 }: EditableTableProps<T>) {
   const table = useReactTable<T>({
     data,
@@ -52,6 +54,7 @@ export function EditableTable<T>({
           })
         )
       },
+      ...meta,
     },
   })
 
@@ -95,8 +98,10 @@ export function EditableTable<T>({
                       const widthClass =
                         {
                           title: 'w-6/12',
-                          position: 'w-3/12',
+                          priority: 'w-2/12',
                           assignee: 'w-2/12',
+                          startDate: 'w-1/12',
+                          endDate: 'w-1/12',
                           delete: 'w-1/12',
                         }[cell.column.id] ?? 'w-auto'
 

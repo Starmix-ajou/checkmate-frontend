@@ -9,8 +9,14 @@ interface Suggestion {
 
 interface UseProjectSSEProps {
   onMessage: (message: string) => void
-  onCreateFeatureDefinition: (features: Feature[], suggestions: Suggestion[]) => void
-  onFeedbackFeatureDefinition: (features: Feature[], isNextStep: boolean) => void
+  onCreateFeatureDefinition: (
+    features: Feature[],
+    suggestions: Suggestion[]
+  ) => void
+  onFeedbackFeatureDefinition: (
+    features: Feature[],
+    isNextStep: boolean
+  ) => void
   onCreateFeatureSpecification: (features: Feature[]) => void
   onFeedbackFeatureSpecification: (
     features: Feature[],

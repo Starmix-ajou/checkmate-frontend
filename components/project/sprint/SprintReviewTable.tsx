@@ -8,7 +8,9 @@ interface TaskRow {
   title: string
   position: string
   assignee: string
-  period: string
+  startDate: string
+  endDate: string
+  priority?: string
 }
 
 const columns: ColumnDef<TaskRow>[] = [
@@ -18,20 +20,20 @@ const columns: ColumnDef<TaskRow>[] = [
     cell: ({ getValue }) => getValue() as string,
   },
   {
-    accessorKey: 'position',
-    header: '포지션',
+    accessorKey: 'priority',
+    header: '우선순위',
     cell: ({ getValue }) => {
       const value = getValue() as string
       return (
         <Badge
           className={clsx(
             'px-2 py-1 text-sm',
-            value === 'Frontend' && 'bg-orange-100 text-orange-600',
-            value === 'Backend' && 'bg-blue-100 text-blue-600',
-            value === 'AI' && 'bg-pink-100 text-pink-600'
+            value === 'HIGH' && 'bg-red-100 text-red-600',
+            value === 'MEDIUM' && 'bg-yellow-100 text-yellow-600',
+            value === 'LOW' && 'bg-green-100 text-green-600'
           )}
         >
-          {value}
+          {value === 'HIGH' ? '높음' : value === 'MEDIUM' ? '중간' : '낮음'}
         </Badge>
       )
     },
@@ -42,9 +44,20 @@ const columns: ColumnDef<TaskRow>[] = [
     cell: ({ getValue }) => getValue() as string,
   },
   {
-    accessorKey: 'period',
-    header: '기간',
-    cell: ({ getValue }) => getValue() as string,
+    accessorKey: 'startDate',
+    header: '시작일',
+    cell: ({ getValue }) => {
+      const date = getValue() as string
+      return date.split('-').slice(1).join('. ')
+    },
+  },
+  {
+    accessorKey: 'endDate',
+    header: '종료일',
+    cell: ({ getValue }) => {
+      const date = getValue() as string
+      return date.split('-').slice(1).join('. ')
+    },
   },
 ]
 
