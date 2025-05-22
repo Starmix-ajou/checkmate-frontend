@@ -454,16 +454,33 @@ export const Gantt: React.FunctionComponent<GanttProps & { epics: Epic[] }> = ({
 
   const filteredTasks = useMemo(() => {
     return epics.flatMap((epic: Epic) => {
+      const taskDates = epic.tasks
+        .filter((task) => task.startDate && task.endDate)
+        .map((task) => ({
+          start: new Date(task.startDate!),
+          end: new Date(task.endDate!),
+        }))
+
+      const epicStart =
+        taskDates.length > 0
+          ? new Date(Math.min(...taskDates.map((d) => d.start.getTime())))
+          : null
+      const epicEnd =
+        taskDates.length > 0
+          ? new Date(Math.max(...taskDates.map((d) => d.end.getTime())))
+          : null
+
       if (!expandedEpics.has(epic.epicId)) {
         return [
           {
             id: epic.epicId,
             name: epic.title,
-            start: epic.startDate ? new Date(epic.startDate) : null,
-            end: epic.endDate ? new Date(epic.endDate) : null,
+            start: epicStart,
+            end: epicEnd,
             progress: 0,
             type: 'project' as const,
             hideChildren: true,
+            tasks: epic.tasks,
           },
         ]
       }
@@ -471,11 +488,12 @@ export const Gantt: React.FunctionComponent<GanttProps & { epics: Epic[] }> = ({
         {
           id: epic.epicId,
           name: epic.title,
-          start: epic.startDate ? new Date(epic.startDate) : null,
-          end: epic.endDate ? new Date(epic.endDate) : null,
+          start: epicStart,
+          end: epicEnd,
           progress: 0,
           type: 'project' as const,
           hideChildren: false,
+          tasks: epic.tasks,
         },
         ...epic.tasks.map((task) => ({
           id: task.taskId,
