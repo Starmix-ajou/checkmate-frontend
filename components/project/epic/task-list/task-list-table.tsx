@@ -1,6 +1,6 @@
+import { Task } from '@/types/public-types'
 import React from 'react'
 
-import { Task } from '../types/public-types'
 import styles from './task-list-table.module.css'
 
 const formatDate = (date: string | null) => {

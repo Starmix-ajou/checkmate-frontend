@@ -1,16 +1,17 @@
-import { Task, TaskType } from './public-types'
+import { Task } from '@/types/public-types'
+
+export type TaskTypeInternal = 'task' | 'smalltask' | 'milestone' | 'project'
 
 export interface BarTask extends Task {
-  index: number
-  typeInternal: TaskTypeInternal
   x1: number
-  x2: number
   y: number
-  height: number
+  x2: number
+  index: number
   progressX: number
   progressWidth: number
   barCornerRadius: number
   handleWidth: number
+  hideChildren?: boolean
   barChildren: BarTask[]
   styles: {
     backgroundColor: string
@@ -18,6 +19,6 @@ export interface BarTask extends Task {
     progressColor: string
     progressSelectedColor: string
   }
+  typeInternal: TaskTypeInternal
+  height: number
 }
-
-export type TaskTypeInternal = TaskType | 'smalltask'
