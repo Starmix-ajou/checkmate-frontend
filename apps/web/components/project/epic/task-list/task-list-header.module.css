@@ -1,0 +1,26 @@
+.ganttTable {
+  display: table;
+  border-bottom: #e6e4e4 1px solid;
+  border-top: #e6e4e4 1px solid;
+  border-left: #e6e4e4 1px solid;
+}
+
+.ganttTable_Header {
+  display: table-row;
+  list-style: none;
+  background-color: #efeae8;
+}
+
+.ganttTable_HeaderSeparator {
+  border-right: 1px solid rgb(196, 196, 196);
+  opacity: 1;
+  margin-left: -2px;
+}
+
+.ganttTable_HeaderItem {
+  display: table-cell;
+  padding: 0 1rem;
+  vertical-align: -webkit-baseline-middle;
+  vertical-align: middle;
+  color: #3e2723;
+}

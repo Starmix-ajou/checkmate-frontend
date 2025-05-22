@@ -1,0 +1,7 @@
+{
+  "/manifest.webmanifest/route": "app/manifest.webmanifest/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/projects/page": "app/projects/page.js",
+  "/projects/[id]/overview/page": "app/projects/[id]/overview/page.js"
+}
