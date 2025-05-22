@@ -284,36 +284,44 @@ export default function MyTaskCard({ projectId }: MyTaskCardProps) {
           <span className="w-[20%] text-xs font-base text-gray-01">상태</span>
         </div>
         <ScrollArea className="h-[200px]">
-          {filteredTasks.map((task, index) => (
-            <div
-              key={index}
-              className="flex justify-between p-2 border-b border-[#DCDCDC]"
-            >
-              <div className="w-[60%] mr-3">
-                <span className="font-base text-[#0F0F0F] text-sm">
-                  {task.title}
-                </span>
+          {filteredTasks.length > 0 ? (
+            filteredTasks.map((task, index) => (
+              <div
+                key={index}
+                className="flex justify-between p-2 border-b border-[#DCDCDC]"
+              >
+                <div className="w-[60%] mr-3">
+                  <span className="font-base text-[#0F0F0F] text-sm">
+                    {task.title}
+                  </span>
+                </div>
+                <div className="w-[20%] mr-3">
+                  <span className="text-xs text-cm-gray">
+                    {formatDate(task.endDate)}
+                  </span>
+                </div>
+                <div className="w-[20%]">
+                  <span
+                    className={`px-2 py-1 text-xs rounded-sm ${
+                      task.status === 'DONE'
+                        ? 'bg-cm-green-light text-[#5C9771]'
+                        : task.status === 'IN_PROGRESS'
+                          ? 'bg-[#F3F9FC] text-[#5093BC]'
+                          : 'bg-cm-gray-light text-cm-gray'
+                    }`}
+                  >
+                    {formatStatus(task.status)}
+                  </span>
+                </div>
               </div>
-              <div className="w-[20%] mr-3">
-                <span className="text-xs text-cm-gray">
-                  {formatDate(task.endDate)}
-                </span>
-              </div>
-              <div className="w-[20%]">
-                <span
-                  className={`px-2 py-1 text-xs rounded-sm ${
-                    task.status === 'DONE'
-                      ? 'bg-cm-green-light text-[#5C9771]'
-                      : task.status === 'IN_PROGRESS'
-                        ? 'bg-[#F3F9FC] text-[#5093BC]'
-                        : 'bg-cm-gray-light text-cm-gray'
-                  }`}
-                >
-                  {formatStatus(task.status)}
-                </span>
-              </div>
+            ))
+          ) : (
+            <div className="flex justify-center mt-6">
+              <span className="text-sm text-cm-gray font-medium">
+                이번 스프린트에 할당된 작업이 없습니다.
+              </span>
             </div>
-          ))}
+          )}
         </ScrollArea>
       </CardContent>
     </Card>

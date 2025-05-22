@@ -51,10 +51,10 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   handleWidth = 8,
   timeStep = 300000,
   arrowColor = 'grey',
-  fontFamily = 'Arial, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue',
+  fontFamily = 'Pretendard, sans-serif',
   fontSize = '14px',
   arrowIndent = 20,
-  todayColor = 'rgba(252, 248, 227, 0.5)',
+  todayColor = 'rgba(239, 234, 232, 0.5)',
   viewDate,
   TooltipContent = StandardTooltipContent,
   TaskListHeader = TaskListHeaderDefault,
@@ -260,6 +260,10 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
   // scroll events
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
+      if (ignoreScrollEvent) {
+        return
+      }
+
       if (event.shiftKey || event.deltaX) {
         const scrollMove = event.deltaX ? event.deltaX : event.deltaY
         let newScrollX = scrollX + scrollMove
@@ -268,8 +272,12 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
         } else if (newScrollX > svgWidth) {
           newScrollX = svgWidth
         }
-        setScrollX(newScrollX)
-        event.preventDefault()
+        if (newScrollX !== scrollX) {
+          setIgnoreScrollEvent(true)
+          setScrollX(newScrollX)
+          event.preventDefault()
+          setTimeout(() => setIgnoreScrollEvent(false), 50)
+        }
       } else if (ganttHeight) {
         let newScrollY = scrollY + event.deltaY
         if (newScrollY < 0) {
@@ -278,12 +286,12 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
           newScrollY = ganttFullHeight - ganttHeight
         }
         if (newScrollY !== scrollY) {
+          setIgnoreScrollEvent(true)
           setScrollY(newScrollY)
           event.preventDefault()
+          setTimeout(() => setIgnoreScrollEvent(false), 50)
         }
       }
-
-      setIgnoreScrollEvent(true)
     }
 
     // subscribe if scroll is necessary
@@ -301,6 +309,7 @@ export const Gantt: React.FunctionComponent<GanttProps> = ({
     svgWidth,
     rtl,
     ganttFullHeight,
+    ignoreScrollEvent,
   ])
 
   const handleScrollY = (event: SyntheticEvent<HTMLDivElement>) => {

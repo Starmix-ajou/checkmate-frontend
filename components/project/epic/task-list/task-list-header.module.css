@@ -8,6 +8,7 @@
 .ganttTable_Header {
   display: table-row;
   list-style: none;
+  background-color: #efeae8;
 }
 
 .ganttTable_HeaderSeparator {
@@ -21,4 +22,5 @@
   padding: 0 1rem;
   vertical-align: -webkit-baseline-middle;
   vertical-align: middle;
+  color: #3e2723;
 }

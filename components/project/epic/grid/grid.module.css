@@ -3,7 +3,7 @@
 }
 
 .gridRow:nth-child(even) {
-  fill: #f5f5f5;
+  fill: #f9f9f9;
 }
 
 .gridRowLine {

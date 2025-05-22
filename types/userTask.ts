@@ -37,4 +37,16 @@ export type Task = {
   epic: Epic
 }
 
+export type TaskCreateRequest = {
+  title: string
+  description: string
+  status: 'TODO' | 'IN_PROGRESS' | 'DONE'
+  assigneeEmail: string
+  startDate: string
+  endDate: string
+  priority: 'LOW' | 'MEDIUM' | 'HIGH'
+  projectId: string
+  epicId: string
+}
+
 export type ColumnType = 'todo' | 'inProgress' | 'done'

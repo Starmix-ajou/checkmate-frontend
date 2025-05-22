@@ -183,12 +183,9 @@ export const seedDates = (
 
 export const getLocaleMonth = (date: Date, locale: string) => {
   let bottomValue = getCachedDateTimeFormat(locale, {
-    month: 'long',
+    month: 'short',
   }).format(date)
-  bottomValue = bottomValue.replace(
-    bottomValue[0],
-    bottomValue[0].toLocaleUpperCase()
-  )
+  bottomValue = bottomValue.toUpperCase()
   return bottomValue
 }
 
@@ -239,4 +236,18 @@ export const getWeekNumberISO8601 = (date: Date) => {
 
 export const getDaysInMonth = (month: number, year: number) => {
   return new Date(year, month + 1, 0).getDate()
+}
+
+export const getWeekNumberInMonth = (date: Date) => {
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
+  const firstDayOfWeek = firstDayOfMonth.getDay()
+  const dayOfMonth = date.getDate()
+
+  // 해당 월의 첫 번째 주의 시작일 계산
+  const firstWeekStart = firstDayOfWeek === 0 ? 1 : 8 - firstDayOfWeek
+
+  // 현재 날짜가 몇 번째 주인지 계산
+  const weekNumber = Math.ceil((dayOfMonth - firstWeekStart + 1) / 7)
+
+  return `${weekNumber}`
 }

@@ -28,7 +28,7 @@ export const TaskListHeaderDefault: React.FC<{
             minWidth: rowWidth,
           }}
         >
-          &nbsp;제목
+          &nbsp;Epic
         </div>
         <div
           className={styles.ganttTable_HeaderSeparator}
@@ -43,7 +43,7 @@ export const TaskListHeaderDefault: React.FC<{
             minWidth: rowWidth,
           }}
         >
-          &nbsp;시작일
+          &nbsp;Start Date
         </div>
         <div
           className={styles.ganttTable_HeaderSeparator}
@@ -58,7 +58,7 @@ export const TaskListHeaderDefault: React.FC<{
             minWidth: rowWidth,
           }}
         >
-          &nbsp;종료일
+          &nbsp;End Date
         </div>
       </div>
     </div>
