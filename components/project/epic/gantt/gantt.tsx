@@ -211,8 +211,10 @@ export const Gantt: React.FunctionComponent<GanttProps & { epics: Epic[] }> = ({
         const prevStateTask = barTasks.find((t) => t.id === changedTask.id)
         if (
           prevStateTask &&
-          (prevStateTask.start.getTime() !== changedTask.start.getTime() ||
-            prevStateTask.end.getTime() !== changedTask.end.getTime() ||
+          ((prevStateTask.start?.getTime() ?? 0) !==
+            (changedTask.start?.getTime() ?? 0) ||
+            (prevStateTask.end?.getTime() ?? 0) !==
+              (changedTask.end?.getTime() ?? 0) ||
             prevStateTask.progress !== changedTask.progress)
         ) {
           // actions for change

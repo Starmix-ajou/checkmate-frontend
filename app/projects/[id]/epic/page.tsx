@@ -35,7 +35,11 @@ export default function ProjectEpic() {
     setTasks((prevTasks) =>
       prevTasks.map((t) =>
         t.id === task.id
-          ? { ...t, start: new Date(task.start), end: new Date(task.end) }
+          ? {
+              ...t,
+              start: task.start ? new Date(task.start) : null,
+              end: task.end ? new Date(task.end) : null,
+            }
           : t
       )
     )
