@@ -36,9 +36,6 @@ export const TaskListTable: React.FC<{
       }}
     >
       {tasks.map((task) => {
-        const expanderSymbol = task.hideChildren ? '▶' : '▼'
-        const isEpic = task.type === 'project'
-
         return (
           <div
             className={styles.taskListTableRow}
@@ -54,17 +51,27 @@ export const TaskListTable: React.FC<{
               title={task.name}
             >
               <div className={styles.taskListNameWrapper}>
-                {isEpic ? (
-                  <div
-                    className={styles.taskListExpander}
-                    onClick={() => onExpanderClick(task)}
-                  >
-                    {expanderSymbol}
-                  </div>
-                ) : (
-                  <div className={styles.taskListEmptyExpander} />
-                )}
-                <div>{task.name}</div>
+                <div className={styles.taskListExpander}>
+                  {task.type === 'project' &&
+                    task.hideChildren !== undefined &&
+                    (task.tasks?.length ?? 0) > 0 && (
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onExpanderClick(task)
+                        }}
+                      >
+                        {task.hideChildren ? '▶' : '▼'}
+                      </div>
+                    )}
+                </div>
+                <div
+                  style={{
+                    fontWeight: task.type === 'project' ? 'bold' : 'normal',
+                  }}
+                >
+                  {task.name}
+                </div>
               </div>
             </div>
             <div

@@ -21,16 +21,17 @@
 
 .taskListCell {
   display: table-cell;
-  vertical-align: inherit;
+  vertical-align: middle;
   border-right: 1px solid #eee;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
 }
 
 .taskListNameWrapper {
   display: flex;
-  padding: 0 20px;
+  padding: 0 10px;
   justify-content: flex-start;
   align-items: center;
   overflow: hidden;

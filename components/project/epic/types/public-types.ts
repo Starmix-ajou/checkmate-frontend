@@ -10,6 +10,12 @@ export type Task = {
   hideChildren?: boolean
   project?: string
   dependencies?: string[]
+  tasks?: {
+    taskId: string
+    title: string
+    startDate: string | null
+    endDate: string | null
+  }[]
   styles?: {
     backgroundColor?: string
     backgroundSelectedColor?: string
