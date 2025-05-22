@@ -7,13 +7,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { getProjectMembers } from '@/lib/api/sprintConfiguration'
 import { Member } from '@/types/project'
 import { TaskRow } from '@/types/sprint'
 import '@/types/table'
 import { CellContext, ColumnDef } from '@tanstack/react-table'
 import clsx from 'clsx'
-import { useEffect, useState } from 'react'
 
 import { EditableTable } from './EditableTable'
 
@@ -47,6 +45,7 @@ interface DetailTaskTableProps {
   data: TaskRow[]
   onDataChange: (data: TaskRow[]) => void
   projectId: string
+  members: Member[]
 }
 
 function EditableCell({
@@ -56,39 +55,10 @@ function EditableCell({
   table,
 }: CellContext<TaskRow, unknown>) {
   const value = getValue()
-  const [members, setMembers] = useState<Member[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const loadMembers = async () => {
-      const meta = table.options.meta as TableMetaType
-      const projectId = meta?.projectId
-      if (!projectId) return
-
-      setIsLoading(true)
-      setError(null)
-      try {
-        const memberData = await getProjectMembers(projectId)
-        if (Array.isArray(memberData)) {
-          setMembers(memberData)
-        } else {
-          console.error('멤버 데이터가 배열이 아닙니다:', memberData)
-          setError('멤버 데이터 형식이 올바르지 않습니다.')
-        }
-      } catch (error) {
-        console.error('멤버 정보 로딩 실패:', error)
-        setError('멤버 정보를 불러오는데 실패했습니다.')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    loadMembers()
-  }, [table.options.meta])
+  const meta = table.options.meta as TableMetaType & { members: Member[] }
 
   if (column.id === 'priority') {
     const typedValue = typeof value === 'string' ? value : ''
-    const meta = table.options.meta as TableMetaType
 
     return (
       <Select
@@ -120,7 +90,6 @@ function EditableCell({
 
   if (column.id === 'position') {
     const typedValue = typeof value === 'string' ? value : ''
-    const meta = table.options.meta as TableMetaType
 
     return (
       <Select
@@ -152,35 +121,27 @@ function EditableCell({
 
   if (column.id === 'assignee') {
     const typedValue = typeof value === 'string' ? value : ''
-    const selectedMember = members.find((member) => member.email === typedValue)
-    const meta = table.options.meta as TableMetaType
+    const selectedMember = meta.members.find(
+      (member) => member.email === typedValue
+    )
 
     return (
       <Select
         value={typedValue}
         onValueChange={(val) => meta?.updateData(row.index, column.id, val)}
-        disabled={isLoading}
       >
         <SelectTrigger className="w-full border-none bg-transparent shadow-none">
-          <SelectValue
-            placeholder={
-              isLoading ? '로딩 중...' : error ? '오류 발생' : '담당자 선택'
-            }
-          >
+          <SelectValue placeholder="담당자 선택">
             {selectedMember ? selectedMember.name : typedValue}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {error ? (
-            <SelectItem value="error" disabled>
-              {error}
-            </SelectItem>
-          ) : members.length === 0 ? (
+          {meta.members.length === 0 ? (
             <SelectItem value="no-members" disabled>
-              {isLoading ? '로딩 중...' : '멤버가 없습니다'}
+              멤버가 없습니다
             </SelectItem>
           ) : (
-            members.map((member) => (
+            meta.members.map((member) => (
               <SelectItem
                 key={member.userId}
                 value={member.email || `member-${member.userId}`}
@@ -194,7 +155,6 @@ function EditableCell({
     )
   }
 
-  const meta = table.options.meta as TableMetaType
   return (
     <Input
       value={typeof value === 'string' ? value : ''}
@@ -227,6 +187,7 @@ export function DetailTaskTable({
   data,
   onDataChange,
   projectId,
+  members,
 }: DetailTaskTableProps) {
   return (
     <EditableTable
@@ -235,7 +196,7 @@ export function DetailTaskTable({
       onDataChange={onDataChange}
       addButtonText="+ Add"
       defaultRow={DEFAULT_ROW}
-      meta={{ projectId }}
+      meta={{ projectId, members }}
     />
   )
 }
