@@ -1,6 +1,5 @@
 import { convertToBarTasks } from '@/helpers/bar-helper'
 import { ganttDateRange, seedDates } from '@/helpers/date-helper'
-import { removeHiddenTasks, sortTasks } from '@/helpers/other-helper'
 import { BarTask } from '@/types/bar-task'
 import { DateSetup } from '@/types/date-setup'
 import { GanttEvent } from '@/types/gantt-task-actions'
@@ -24,8 +23,9 @@ import styles from './gantt.module.css'
 import { TaskGantt } from './task-gantt'
 import { TaskGanttContentProps } from './task-gantt-content'
 
-export const Gantt: React.FunctionComponent<GanttProps & { epics: Epic[] }> = ({
-  tasks,
+export const Gantt: React.FunctionComponent<
+  Omit<GanttProps, 'tasks'> & { epics: Epic[] }
+> = ({
   epics,
   headerHeight = 50,
   columnWidth = 60,
@@ -55,7 +55,6 @@ export const Gantt: React.FunctionComponent<GanttProps & { epics: Epic[] }> = ({
   fontSize = '14px',
   arrowIndent = 20,
   todayColor = 'rgba(239, 234, 232, 0.5)',
-  viewDate,
   TooltipContent = StandardTooltipContent,
   onDateChange,
   onProgressChange,
@@ -63,17 +62,132 @@ export const Gantt: React.FunctionComponent<GanttProps & { epics: Epic[] }> = ({
   onClick,
   onDelete,
   onSelect,
-  onExpanderClick,
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const taskListRef = useRef<HTMLDivElement>(null)
+  const [expandedEpics, setExpandedEpics] = useState<Set<string>>(new Set())
+
+  const filteredTasks = useMemo(() => {
+    return epics.flatMap((epic: Epic) => {
+      // Epic의 하위 태스크들 중 유효한 날짜를 가진 태스크들의 날짜 범위 계산
+      const taskDates = epic.tasks
+        .filter((task) => task.startDate && task.endDate)
+        .map((task) => ({
+          start: new Date(task.startDate!),
+          end: new Date(task.endDate!),
+        }))
+
+      // Epic의 시작일과 종료일 계산
+      const epicStart =
+        taskDates.length > 0
+          ? new Date(Math.min(...taskDates.map((d) => d.start.getTime())))
+          : null
+      const epicEnd =
+        taskDates.length > 0
+          ? new Date(Math.max(...taskDates.map((d) => d.end.getTime())))
+          : null
+
+      // Epic이 접혀있는 경우
+      if (!expandedEpics.has(epic.epicId)) {
+        return [
+          {
+            id: epic.epicId,
+            name: epic.title,
+            start: epicStart,
+            end: epicEnd,
+            progress: 0,
+            type: 'project' as const,
+            hideChildren: true,
+            tasks: epic.tasks.map((task) => ({
+              id: task.taskId,
+              name: task.title,
+              start: task.startDate ? new Date(task.startDate) : null,
+              end: task.endDate ? new Date(task.endDate) : null,
+              progress: 0,
+              type: 'task' as const,
+              hideChildren: true,
+            })),
+          } as Task,
+        ]
+      }
+
+      // Epic이 펼쳐진 경우
+      return [
+        {
+          id: epic.epicId,
+          name: epic.title,
+          start: epicStart,
+          end: epicEnd,
+          progress: 0,
+          type: 'project' as const,
+          hideChildren: false,
+          tasks: epic.tasks.map((task) => ({
+            id: task.taskId,
+            name: task.title,
+            start: task.startDate ? new Date(task.startDate) : null,
+            end: task.endDate ? new Date(task.endDate) : null,
+            progress: 0,
+            type: 'task' as const,
+            hideChildren: true,
+          })),
+        } as Task,
+        // 하위 태스크들 중 유효한 날짜를 가진 태스크만 표시
+        ...epic.tasks
+          .filter((task) => task.startDate && task.endDate)
+          .map(
+            (task) =>
+              ({
+                id: task.taskId,
+                name: task.title,
+                start: new Date(task.startDate!),
+                end: new Date(task.endDate!),
+                progress: 0,
+                type: 'task' as const,
+                hideChildren: true,
+              }) as Task
+          ),
+      ]
+    })
+  }, [epics, expandedEpics])
+
   const [dateSetup, setDateSetup] = useState<DateSetup>(() => {
-    const [startDate, endDate] = ganttDateRange(tasks, viewMode, preStepsCount)
+    const initialTasks = epics.flatMap((epic) => {
+      const taskDates = epic.tasks
+        .filter((task) => task.startDate && task.endDate)
+        .map((task) => ({
+          start: new Date(task.startDate!),
+          end: new Date(task.endDate!),
+        }))
+
+      const epicStart =
+        taskDates.length > 0
+          ? new Date(Math.min(...taskDates.map((d) => d.start.getTime())))
+          : null
+      const epicEnd =
+        taskDates.length > 0
+          ? new Date(Math.max(...taskDates.map((d) => d.end.getTime())))
+          : null
+
+      return [
+        {
+          id: epic.epicId,
+          name: epic.title,
+          start: epicStart,
+          end: epicEnd,
+          progress: 0,
+          type: 'project' as const,
+          hideChildren: true,
+        } as Task,
+      ]
+    })
+
+    const [startDate, endDate] = ganttDateRange(
+      initialTasks,
+      viewMode,
+      preStepsCount
+    )
     return { viewMode, dates: seedDates(startDate, endDate, viewMode) }
   })
-  const [currentViewDate, setCurrentViewDate] = useState<Date | undefined>(
-    undefined
-  )
 
   const [taskListWidth, setTaskListWidth] = useState(0)
   const [svgContainerWidth, setSvgContainerWidth] = useState(0)
@@ -97,17 +211,8 @@ export const Gantt: React.FunctionComponent<GanttProps & { epics: Epic[] }> = ({
   const [scrollX, setScrollX] = useState(-1)
   const [ignoreScrollEvent, setIgnoreScrollEvent] = useState(false)
 
-  const [expandedEpics, setExpandedEpics] = useState<Set<string>>(new Set())
-
   // task change events
   useEffect(() => {
-    let filteredTasks: Task[]
-    if (onExpanderClick) {
-      filteredTasks = removeHiddenTasks(tasks)
-    } else {
-      filteredTasks = tasks
-    }
-    filteredTasks = filteredTasks.sort(sortTasks)
     const [startDate, endDate] = ganttDateRange(
       filteredTasks,
       viewMode,
@@ -144,7 +249,7 @@ export const Gantt: React.FunctionComponent<GanttProps & { epics: Epic[] }> = ({
       )
     )
   }, [
-    tasks,
+    filteredTasks,
     viewMode,
     preStepsCount,
     rowHeight,
@@ -164,37 +269,15 @@ export const Gantt: React.FunctionComponent<GanttProps & { epics: Epic[] }> = ({
     milestoneBackgroundSelectedColor,
     rtl,
     scrollX,
-    onExpanderClick,
   ])
 
   useEffect(() => {
-    if (
-      viewMode === dateSetup.viewMode &&
-      ((viewDate && !currentViewDate) ||
-        (viewDate && currentViewDate?.valueOf() !== viewDate.valueOf()))
-    ) {
-      const dates = dateSetup.dates
-      const index = dates.findIndex(
-        (d, i) =>
-          viewDate.valueOf() >= d.valueOf() &&
-          i + 1 !== dates.length &&
-          viewDate.valueOf() < dates[i + 1].valueOf()
-      )
-      if (index === -1) {
-        return
-      }
-      setCurrentViewDate(viewDate)
-      setScrollX(columnWidth * index)
+    if (ganttHeight) {
+      setSvgContainerHeight(ganttHeight + headerHeight)
+    } else {
+      setSvgContainerHeight(filteredTasks.length * rowHeight + headerHeight)
     }
-  }, [
-    viewDate,
-    columnWidth,
-    dateSetup.dates,
-    dateSetup.viewMode,
-    viewMode,
-    currentViewDate,
-    setCurrentViewDate,
-  ])
+  }, [ganttHeight, filteredTasks, headerHeight, rowHeight])
 
   useEffect(() => {
     const { changedTask, action } = ganttEvent
@@ -250,14 +333,6 @@ export const Gantt: React.FunctionComponent<GanttProps & { epics: Epic[] }> = ({
       setSvgContainerWidth(wrapperRef.current.offsetWidth - taskListWidth)
     }
   }, [wrapperRef, taskListWidth])
-
-  useEffect(() => {
-    if (ganttHeight) {
-      setSvgContainerHeight(ganttHeight + headerHeight)
-    } else {
-      setSvgContainerHeight(tasks.length * rowHeight + headerHeight)
-    }
-  }, [ganttHeight, tasks, headerHeight, rowHeight])
 
   // scroll events
   useEffect(() => {
@@ -411,7 +486,7 @@ export const Gantt: React.FunctionComponent<GanttProps & { epics: Epic[] }> = ({
   const gridProps: GridProps = {
     columnWidth,
     svgWidth,
-    tasks: tasks,
+    tasks: filteredTasks,
     rowHeight,
     dates: dateSetup.dates,
     todayColor,
@@ -451,62 +526,6 @@ export const Gantt: React.FunctionComponent<GanttProps & { epics: Epic[] }> = ({
     onClick,
     onDelete,
   }
-
-  const filteredTasks = useMemo(() => {
-    return epics.flatMap((epic: Epic) => {
-      const taskDates = epic.tasks
-        .filter((task) => task.startDate && task.endDate)
-        .map((task) => ({
-          start: new Date(task.startDate!),
-          end: new Date(task.endDate!),
-        }))
-
-      const epicStart =
-        taskDates.length > 0
-          ? new Date(Math.min(...taskDates.map((d) => d.start.getTime())))
-          : null
-      const epicEnd =
-        taskDates.length > 0
-          ? new Date(Math.max(...taskDates.map((d) => d.end.getTime())))
-          : null
-
-      if (!expandedEpics.has(epic.epicId)) {
-        return [
-          {
-            id: epic.epicId,
-            name: epic.title,
-            start: epicStart,
-            end: epicEnd,
-            progress: 0,
-            type: 'project' as const,
-            hideChildren: true,
-            tasks: epic.tasks,
-          },
-        ]
-      }
-      return [
-        {
-          id: epic.epicId,
-          name: epic.title,
-          start: epicStart,
-          end: epicEnd,
-          progress: 0,
-          type: 'project' as const,
-          hideChildren: false,
-          tasks: epic.tasks,
-        },
-        ...epic.tasks.map((task) => ({
-          id: task.taskId,
-          name: task.title,
-          start: task.startDate ? new Date(task.startDate) : null,
-          end: task.endDate ? new Date(task.endDate) : null,
-          progress: 0,
-          type: 'task' as const,
-          hideChildren: true,
-        })),
-      ]
-    })
-  }, [epics, expandedEpics])
 
   const tableProps: TaskListProps = {
     headerHeight,

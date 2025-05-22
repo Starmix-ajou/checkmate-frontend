@@ -1,7 +1,6 @@
 'use client'
 
 import { Gantt } from '@/components/project/epic/gantt/gantt'
-import { allTasks } from '@/components/project/epic/sampleTasks'
 import { Epic } from '@/components/project/epic/types/epic'
 import {
   Breadcrumb,
@@ -14,7 +13,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Project } from '@/types/project'
-import { Task, ViewMode } from '@/types/public-types'
+import { ViewMode } from '@/types/public-types'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -22,7 +21,6 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 export default function ProjectEpic() {
   const { id } = useParams()
-  const [tasks, setTasks] = useState(allTasks)
   const [loading, setLoading] = useState(true)
   const [project, setProject] = useState<Project | null>(null)
   const [epics, setEpics] = useState<Epic[]>([])
@@ -30,27 +28,6 @@ export default function ProjectEpic() {
 
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.Week)
   const [viewType, setViewType] = useState<'WEEK' | 'SPRINT'>('WEEK')
-
-  const handleDateChange = (task: Task) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((t) =>
-        t.id === task.id
-          ? {
-              ...t,
-              start: task.start ? new Date(task.start) : null,
-              end: task.end ? new Date(task.end) : null,
-            }
-          : t
-      )
-    )
-  }
-  const handleProgressChange = (task: Task) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((t) =>
-        t.id === task.id ? { ...t, progress: task.progress } : t
-      )
-    )
-  }
 
   useEffect(() => {
     if (!user?.accessToken || !id) return
@@ -180,13 +157,7 @@ export default function ProjectEpic() {
           {loading ? (
             <Skeleton className="h-[600px] w-full" />
           ) : (
-            <Gantt
-              tasks={tasks}
-              epics={epics}
-              viewMode={viewMode}
-              onDateChange={handleDateChange}
-              onProgressChange={handleProgressChange}
-            />
+            <Gantt epics={epics} viewMode={viewMode} />
           )}
         </div>
       </div>
