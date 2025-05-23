@@ -1,0 +1,375 @@
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./components/project/epic/other/horizontal-scroll.module.css ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************/
+.horizontal-scroll_scrollWrapper__HU9KM {
+  overflow: auto;
+  max-width: 100%;
+  /*firefox*/
+  scrollbar-width: thin;
+  /*iPad*/
+  height: 1.2rem;
+}
+.horizontal-scroll_scrollWrapper__HU9KM::-webkit-scrollbar {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.horizontal-scroll_scrollWrapper__HU9KM::-webkit-scrollbar-corner {
+  background: transparent;
+}
+.horizontal-scroll_scrollWrapper__HU9KM::-webkit-scrollbar-thumb {
+  border: 6px solid transparent;
+  background: rgba(0, 0, 0, 0.2);
+  background: var(--palette-black-alpha-20, rgba(0, 0, 0, 0.2));
+  border-radius: 10px;
+  background-clip: padding-box;
+}
+.horizontal-scroll_scrollWrapper__HU9KM::-webkit-scrollbar-thumb:hover {
+  border: 4px solid transparent;
+  background: rgba(0, 0, 0, 0.3);
+  background: var(--palette-black-alpha-30, rgba(0, 0, 0, 0.3));
+  background-clip: padding-box;
+}
+@media only screen and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 2) {
+}
+.horizontal-scroll_scroll__ZK_W0 {
+  height: 1px;
+}
+
+/*!****************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./components/project/epic/other/tooltip.module.css ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************************************/
+.tooltip_tooltipDefaultContainer__f5RsU {
+  background: #fff;
+  padding: 12px;
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.16),
+    0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.tooltip_tooltipDefaultContainerParagraph__l8c2P {
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: #666;
+}
+
+.tooltip_tooltipDetailsContainer__HCOM_ {
+  position: absolute;
+  display: flex;
+  flex-shrink: 0;
+  pointer-events: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.tooltip_tooltipDetailsContainerHidden__moQS3 {
+  visibility: hidden;
+  position: absolute;
+  display: flex;
+  pointer-events: none;
+}
+
+/*!************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./components/project/epic/other/vertical-scroll.module.css ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************************/
+.vertical-scroll_scroll___fbiB {
+  overflow: hidden auto;
+  width: 1rem;
+  flex-shrink: 0;
+  /*firefox*/
+  scrollbar-width: thin;
+}
+.vertical-scroll_scroll___fbiB::-webkit-scrollbar {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.vertical-scroll_scroll___fbiB::-webkit-scrollbar-corner {
+  background: transparent;
+}
+.vertical-scroll_scroll___fbiB::-webkit-scrollbar-thumb {
+  border: 6px solid transparent;
+  background: rgba(0, 0, 0, 0.2);
+  background: var(--palette-black-alpha-20, rgba(0, 0, 0, 0.2));
+  border-radius: 10px;
+  background-clip: padding-box;
+}
+.vertical-scroll_scroll___fbiB::-webkit-scrollbar-thumb:hover {
+  border: 4px solid transparent;
+  background: rgba(0, 0, 0, 0.3);
+  background: var(--palette-black-alpha-30, rgba(0, 0, 0, 0.3));
+  background-clip: padding-box;
+}
+
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./components/project/epic/task-list/task-list-header.module.css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************************************/
+.task-list-header_ganttTable__69Vuo {
+  display: table;
+  border-bottom: #e6e4e4 1px solid;
+  border-top: #e6e4e4 1px solid;
+  border-left: #e6e4e4 1px solid;
+}
+
+.task-list-header_ganttTable_Header__mCHux {
+  display: table-row;
+  list-style: none;
+  background-color: #efeae8;
+}
+
+.task-list-header_ganttTable_HeaderSeparator__UiQra {
+  border-right: 1px solid rgb(196, 196, 196);
+  opacity: 1;
+  margin-left: -2px;
+}
+
+.task-list-header_ganttTable_HeaderItem__uMTG4 {
+  display: table-cell;
+  padding: 0 1rem;
+  vertical-align: -webkit-baseline-middle;
+  vertical-align: middle;
+  color: #3e2723;
+}
+
+/*!****************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./components/project/epic/task-list/task-list-table.module.css ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************************************************/
+.task-list-table_taskListWrapper__ZAkAy {
+  display: table;
+  border-bottom: #e6e4e6 1px solid;
+  border-top: #e6e4e6 1px solid;
+  border-left: #e6e4e6 1px solid;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol';
+  font-size: 12px;
+}
+
+.task-list-table_taskListTableRow__Gijw5 {
+  display: table-row;
+  text-overflow: ellipsis;
+}
+
+.task-list-table_taskListTableRow__Gijw5:nth-of-type(even) {
+  background-color: #f5f5f5;
+}
+
+.task-list-table_taskListCell__trv_j {
+  display: table-cell;
+  vertical-align: middle;
+  border-right: 1px solid #eee;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.task-list-table_taskListNameWrapper__R9ps9 {
+  display: flex;
+  padding: 0 10px;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: hidden;
+  height: 100%;
+}
+
+.task-list-table_taskListExpander__Y_tOm {
+  color: rgb(86 86 86);
+  font-size: 0.6rem;
+  padding: 0.15rem 0.2rem;
+  user-select: none;
+  line-height: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.task-list-table_taskListEmptyExpander__BiDur {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.2rem;
+}
+
+/*!**********************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./components/project/epic/task-list/task-list.module.css ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************************************/
+.task-list_taskList__u_30D {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background-color: white;
+}
+
+.task-list_horizontalContainer__VXhAI {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./components/project/epic/gantt/gantt.module.css ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************/
+.gantt_ganttVerticalContainer___eGn_ {
+  overflow: hidden;
+  font-size: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.gantt_horizontalContainer__O1cHU {
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.gantt_wrapper__XCMRC {
+  display: flex;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/*!********************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./components/project/epic/calendar/calendar.module.css ***!
+  \********************************************************************************************************************************************************************************************************************************************************************************************************/
+.calendar_calendarBottomText__pAygN {
+  text-anchor: middle;
+  fill: #795548;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+  border-top: 1px solid #d6cac6;
+}
+
+.calendar_calendarTopTick__GR9K9 {
+  stroke: #d6cac6;
+}
+
+.calendar_calendarTopText__smANg {
+  text-anchor: middle;
+  dominant-baseline: text-after-edge;
+  fill: #3e2723;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+  border-bottom: 1px solid #d6cac6;
+}
+
+.calendar_calendarHeader__47EgJ {
+  fill: #efeae8;
+  stroke: #e0e0e0;
+  stroke-width: 1.4;
+}
+
+/*!************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./components/project/epic/grid/grid.module.css ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************/
+.grid_gridRow__8Me7j {
+  fill: #fff;
+}
+
+.grid_gridRow__8Me7j:nth-child(even) {
+  fill: #f9f9f9;
+}
+
+.grid_gridRowLine__Ta1IG {
+  stroke: #ebeff2;
+}
+
+.grid_gridTick__gaOJA {
+  stroke: #e6e4e4;
+}
+
+/*!********************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./components/project/epic/task-item/bar/bar.module.css ***!
+  \********************************************************************************************************************************************************************************************************************************************************************************************************/
+.bar_barWrapper__UuegY {
+  cursor: pointer;
+  outline: none;
+}
+
+.bar_barWrapper__UuegY:hover .bar_barHandle__Norj5 {
+  visibility: visible;
+  opacity: 1;
+}
+
+.bar_barHandle__Norj5 {
+  fill: #ddd;
+  cursor: ew-resize;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.bar_barBackground__vL3wi {
+  user-select: none;
+  stroke-width: 0;
+}
+
+/*!********************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./components/project/epic/task-item/milestone/milestone.module.css ***!
+  \********************************************************************************************************************************************************************************************************************************************************************************************************************/
+.milestone_milestoneWrapper__7OUCF {
+  cursor: pointer;
+  outline: none;
+}
+
+.milestone_milestoneBackground__dJHug {
+  user-select: none;
+}
+
+/*!****************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./components/project/epic/task-item/project/project.module.css ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************************************************/
+.project_projectWrapper__pwG9J {
+  cursor: pointer;
+  outline: none;
+}
+
+.project_projectBackground__KOFTd {
+  user-select: none;
+  opacity: 0.6;
+}
+
+.project_projectTop__lzuHh {
+  user-select: none;
+}
+
+/*!**********************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[5].use[3]!./components/project/epic/task-item/task-list.module.css ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************************************/
+.task-list_barLabel__r3aUG {
+  fill: #fff;
+  text-anchor: middle;
+  font-weight: lighter;
+  dominant-baseline: central;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+.task-list_barLabelOutside__Rwd74 {
+  fill: #555;
+  text-anchor: start;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+

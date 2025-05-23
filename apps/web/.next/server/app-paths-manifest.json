@@ -1,7 +1,11 @@
 {
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
   "/manifest.webmanifest/route": "app/manifest.webmanifest/route.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
   "/projects/page": "app/projects/page.js",
-  "/projects/[id]/overview/page": "app/projects/[id]/overview/page.js"
+  "/projects/[id]/overview/page": "app/projects/[id]/overview/page.js",
+  "/projects/[id]/epic/page": "app/projects/[id]/epic/page.js",
+  "/projects/[id]/task/page": "app/projects/[id]/task/page.js",
+  "/projects/[id]/meeting-notes/page": "app/projects/[id]/meeting-notes/page.js",
+  "/projects/[id]/members/page": "app/projects/[id]/members/page.js"
 }
