@@ -3,7 +3,7 @@ name: Sync Changes to Personal Repo
 on:
   push:
     branches:
-      - '**'
+      - "**"
 
 jobs:
   sync:
@@ -61,6 +61,7 @@ jobs:
             --exclude 'dist' \
             --exclude '.next' \
             --exclude 'out' \
+            --exclude '.turbo' \
             ../* .
 
 
