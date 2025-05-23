@@ -2,6 +2,15 @@
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
     "build": {
+      "env": [
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "NEXTAUTH_URL",
+        "NEXTAUTH_SECRET",
+        "NEXT_PUBLIC_API_URL",
+        "LIVEBLOCKS_API_URL",
+        "LIVEBLOCKS_SECRET_KEY"
+      ],
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**"]
     },
