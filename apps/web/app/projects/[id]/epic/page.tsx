@@ -2,6 +2,9 @@
 
 import { Gantt } from '@/components/project/epic/gantt/gantt'
 import { Epic } from '@/components/project/epic/types/epic'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { Project } from '@/types/project'
+import { ViewMode } from '@/types/public-types'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,11 +12,8 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { Project } from '@/types/project'
-import { ViewMode } from '@/types/public-types'
+} from '@cm/ui/components/ui/breadcrumb'
+import { Skeleton } from '@cm/ui/components/ui/skeleton'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 

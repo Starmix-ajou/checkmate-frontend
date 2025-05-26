@@ -1,10 +1,15 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Category, DailyScrumResponse, Task } from '@/types/project'
+import { Button } from '@cm/ui/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@cm/ui/components/ui/card'
+import { Skeleton } from '@cm/ui/components/ui/skeleton'
 import { useEffect, useMemo, useState } from 'react'
 
 import { ConfirmDialog } from './ConfirmDialog'

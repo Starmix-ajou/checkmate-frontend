@@ -1,6 +1,9 @@
 'use client'
 
 import LoadingCheckMate from '@/components/LoadingCheckMate'
+import { deleteProject, putProjectSettings } from '@/lib/api/projectSettings'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { Project } from '@/types/project'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,9 +11,9 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
+} from '@cm/ui/components/ui/breadcrumb'
+import { Button } from '@cm/ui/components/ui/button'
+import { Calendar } from '@cm/ui/components/ui/calendar'
 import {
   Dialog,
   DialogClose,
@@ -19,7 +22,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@cm/ui/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -28,20 +31,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from '@cm/ui/components/ui/form'
+import { Input } from '@cm/ui/components/ui/input'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
-import { TextField } from '@/components/ui/text-field'
-import { deleteProject, putProjectSettings } from '@/lib/api/projectSettings'
-import { cn } from '@/lib/utils'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { Project } from '@/types/project'
+} from '@cm/ui/components/ui/popover'
+import { Separator } from '@cm/ui/components/ui/separator'
+import { Skeleton } from '@cm/ui/components/ui/skeleton'
+import { TextField } from '@cm/ui/components/ui/text-field'
+import { cn } from '@cm/ui/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'

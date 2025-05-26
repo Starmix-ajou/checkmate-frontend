@@ -1,9 +1,14 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/useAuthStore'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@cm/ui/components/ui/card'
+import { ScrollArea } from '@cm/ui/components/ui/scroll-area'
+import { Skeleton } from '@cm/ui/components/ui/skeleton'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'

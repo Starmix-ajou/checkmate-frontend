@@ -1,11 +1,11 @@
 'use client'
 
+import { Member } from '@/types/project'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { Member } from '@/types/project'
+} from '@cm/ui/components/ui/popover'
 import { format } from 'date-fns'
 import { Calendar, ChevronDown, Clock, User } from 'lucide-react'
 import Image from 'next/image'

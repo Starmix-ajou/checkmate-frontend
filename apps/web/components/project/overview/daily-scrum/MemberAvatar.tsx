@@ -1,4 +1,8 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@cm/ui/components/ui/avatar'
 import { UserIcon } from 'lucide-react'
 
 interface Member {

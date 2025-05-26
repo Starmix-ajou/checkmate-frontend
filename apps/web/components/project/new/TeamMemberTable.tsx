@@ -1,7 +1,7 @@
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
 import { Position, TeamMember } from '@/types/NewProjectTeamMember'
 import '@/types/table'
+import { Badge } from '@cm/ui/components/ui/badge'
+import { Input } from '@cm/ui/components/ui/input'
 import { CellContext, ColumnDef } from '@tanstack/react-table'
 import CreatableSelect from 'react-select/creatable'
 

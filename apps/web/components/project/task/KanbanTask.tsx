@@ -1,9 +1,9 @@
+import { Task } from '@/types/userTask'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { Task } from '@/types/userTask'
+} from '@cm/ui/components/ui/popover'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { format } from 'date-fns'

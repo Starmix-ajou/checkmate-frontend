@@ -3,7 +3,14 @@
 import CalendarView from '@/components/project/task/CalendarView'
 import KanbanView from '@/components/project/task/KanbanView'
 import TaskFilter from '@/components/project/task/TaskFilter'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { Project } from '@/types/project'
+import { Task } from '@/types/userTask'
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@cm/ui/components/ui/avatar'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,11 +18,8 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { Project } from '@/types/project'
-import { Task } from '@/types/userTask'
+} from '@cm/ui/components/ui/breadcrumb'
+import { Skeleton } from '@cm/ui/components/ui/skeleton'
 import { CircleX, Search } from 'lucide-react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'

@@ -3,6 +3,10 @@
 import LoadingCheckMate from '@/components/LoadingCheckMate'
 import MeetingNotesAdd from '@/components/project/meeting-notes/MeetingNotesAdd'
 import MeetingNotesList from '@/components/project/meeting-notes/MeetingNotesList'
+import { getMeetings } from '@/lib/api/meetingNotes'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { Meeting } from '@/types/meeting'
+import { Project } from '@/types/project'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,13 +14,9 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { getMeetings } from '@/lib/api/meetingNotes'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { Meeting } from '@/types/meeting'
-import { Project } from '@/types/project'
+} from '@cm/ui/components/ui/breadcrumb'
+import { Button } from '@cm/ui/components/ui/button'
+import { Skeleton } from '@cm/ui/components/ui/skeleton'
 import { CircleX, SearchIcon, SlidersHorizontalIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'

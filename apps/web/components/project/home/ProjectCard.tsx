@@ -1,8 +1,8 @@
 'use client'
 
-import { Card } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
 import { Member, Profile } from '@/types/project'
+import { Card } from '@cm/ui/components/ui/card'
+import { Progress } from '@cm/ui/components/ui/progress'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'

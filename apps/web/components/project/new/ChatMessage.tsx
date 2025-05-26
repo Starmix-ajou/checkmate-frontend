@@ -1,5 +1,5 @@
-import { Checkbox } from '@/components/ui/checkbox'
 import { Feature, Message } from '@/types/project-creation'
+import { Checkbox } from '@cm/ui/components/ui/checkbox'
 
 import { DefinitionTable } from './DefinitionTable'
 import { FeatureTable } from './FeatureTable'
