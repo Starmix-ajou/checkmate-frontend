@@ -1,7 +1,3 @@
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { useSprintSSE } from '@/hooks/useSprintSSE'
 import {
   createSprint,
@@ -18,6 +14,15 @@ import {
   SprintUpdateRequest,
   TaskRow,
 } from '@/types/sprint'
+import { Badge } from '@cm/ui/components/ui/badge'
+import { Button } from '@cm/ui/components/ui/button'
+import { Checkbox } from '@cm/ui/components/ui/checkbox'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from '@cm/ui/components/ui/table'
 import {
   ColumnDef,
   flexRender,

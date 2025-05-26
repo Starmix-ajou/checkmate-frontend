@@ -1,7 +1,7 @@
 'use client'
 
 import GoogleIcon from '@/components/icons/GoogleIcon'
-import { Button } from '@/components/ui/button'
+import { Button } from '@cm/ui/components/ui/button'
 import { signIn } from 'next-auth/react'
 
 export default function GoogleSignInButton() {

@@ -1,12 +1,12 @@
 import CheckMateLogoSpinner from '@/components/CheckMateSpinner'
-import { Button } from '@/components/ui/button'
+import { Member } from '@/types/project'
+import { Task } from '@/types/userTask'
+import { Button } from '@cm/ui/components/ui/button'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { Member } from '@/types/project'
-import { Task } from '@/types/userTask'
+} from '@cm/ui/components/ui/popover'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { ChevronDown, Trash2, X } from 'lucide-react'

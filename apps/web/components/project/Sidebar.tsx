@@ -1,12 +1,14 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { useProjectStore } from '@/stores/useProjectStore'
+import { Button } from '@cm/ui/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@cm/ui/components/ui/dropdown-menu'
 import {
   Sidebar,
   SidebarContent,
@@ -18,10 +20,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { useProjectStore } from '@/stores/useProjectStore'
+} from '@cm/ui/components/ui/sidebar'
+import { Skeleton } from '@cm/ui/components/ui/skeleton'
 import {
   Bell,
   BookUser,

@@ -1,6 +1,6 @@
-import { Input } from '@/components/ui/input'
 import { Feature } from '@/types/project-creation'
 import '@/types/table'
+import { Input } from '@cm/ui/components/ui/input'
 import { CellContext, ColumnDef } from '@tanstack/react-table'
 
 import { GenericEditableTable } from './GenericEditableTable'

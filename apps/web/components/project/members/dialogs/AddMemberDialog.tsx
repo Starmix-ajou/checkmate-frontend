@@ -1,5 +1,6 @@
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Position } from '@/types/NewProjectTeamMember'
+import { Badge } from '@cm/ui/components/ui/badge'
+import { Button } from '@cm/ui/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -7,9 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Position } from '@/types/NewProjectTeamMember'
+} from '@cm/ui/components/ui/dialog'
+import { Input } from '@cm/ui/components/ui/input'
 import { useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 

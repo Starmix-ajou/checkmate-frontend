@@ -1,9 +1,14 @@
 'use client'
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Avatar, AvatarFallback } from '@cm/ui/components/ui/avatar'
+import { Badge } from '@cm/ui/components/ui/badge'
+import { Button } from '@cm/ui/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@cm/ui/components/ui/card'
 
 export default function InvitePage() {
   return (

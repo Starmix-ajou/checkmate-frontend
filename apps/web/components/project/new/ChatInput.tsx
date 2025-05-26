@@ -1,15 +1,15 @@
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
-import { FileUpload } from '@/components/ui/file-upload'
-import { Input } from '@/components/ui/input'
+import { TeamMember } from '@/types/NewProjectTeamMember'
+import { Phase } from '@/types/project-creation'
+import { Button } from '@cm/ui/components/ui/button'
+import { Calendar } from '@cm/ui/components/ui/calendar'
+import { FileUpload } from '@cm/ui/components/ui/file-upload'
+import { Input } from '@cm/ui/components/ui/input'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
-import { TeamMember } from '@/types/NewProjectTeamMember'
-import { Phase } from '@/types/project-creation'
+} from '@cm/ui/components/ui/popover'
+import { cn } from '@cm/ui/lib/utils'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { ArrowUp, CalendarIcon } from 'lucide-react'

@@ -1,3 +1,4 @@
+import { Feature } from '@/types/project-creation'
 import {
   Table,
   TableBody,
@@ -5,8 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Feature } from '@/types/project-creation'
+} from '@cm/ui/components/ui/table'
 
 interface DefinitionTableProps {
   data: Feature[]

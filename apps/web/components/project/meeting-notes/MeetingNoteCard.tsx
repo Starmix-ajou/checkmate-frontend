@@ -1,4 +1,4 @@
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@cm/ui/components/ui/card'
 import { Lightbulb } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'

@@ -1,7 +1,7 @@
 import AvatarGroup from '@/components/project/overview/AvatarGroup'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Project } from '@/types/project'
+import { Button } from '@cm/ui/components/ui/button'
+import { Skeleton } from '@cm/ui/components/ui/skeleton'
 
 interface ProjectHeaderProps {
   project: Project | null

@@ -1,7 +1,7 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { Feature } from '@/types/project-creation'
+import { Button } from '@cm/ui/components/ui/button'
 import { useRouter } from 'next/navigation'
 
 import { FeatureTable } from './FeatureTable'

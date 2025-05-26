@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@cm/ui/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -6,8 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
+} from '@cm/ui/components/ui/dialog'
+import { Input } from '@cm/ui/components/ui/input'
 import { useState } from 'react'
 
 interface AddPMDialogProps {

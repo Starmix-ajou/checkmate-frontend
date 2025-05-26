@@ -1,15 +1,16 @@
 'use client'
 
+import { useAuthStore } from '@/stores/useAuthStore'
+import { ProjectStatus } from '@/types/project'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { ProjectStatus } from '@/types/project'
+} from '@cm/ui/components/ui/dropdown-menu'
+import { SidebarTrigger } from '@cm/ui/components/ui/sidebar'
+import { Skeleton } from '@cm/ui/components/ui/skeleton'
 import { FileText, LogOut, Shield, User } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
@@ -17,8 +18,6 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
-
-import { SidebarTrigger } from './ui/sidebar'
 
 type BaseNavbarProps = {
   showSidebarTrigger?: boolean

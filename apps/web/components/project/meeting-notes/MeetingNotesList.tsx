@@ -1,4 +1,5 @@
-import { Checkbox } from '@/components/ui/checkbox'
+import { Meeting } from '@/types/meeting'
+import { Checkbox } from '@cm/ui/components/ui/checkbox'
 import {
   Table,
   TableBody,
@@ -6,8 +7,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Meeting } from '@/types/meeting'
+} from '@cm/ui/components/ui/table'
 import { useRouter } from 'next/navigation'
 
 interface MeetingNotesListProps {

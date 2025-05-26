@@ -1,5 +1,6 @@
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Member } from '@/types/project'
+import { Badge } from '@cm/ui/components/ui/badge'
+import { Checkbox } from '@cm/ui/components/ui/checkbox'
 import {
   Table,
   TableBody,
@@ -7,8 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Member } from '@/types/project'
+} from '@cm/ui/components/ui/table'
 import Image from 'next/image'
 
 interface MemberTableProps {

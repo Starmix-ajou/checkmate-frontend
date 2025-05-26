@@ -6,6 +6,8 @@ import ProjectHeader from '@/components/project/overview/ProjectHeader'
 import ScheduleCard from '@/components/project/overview/ScheduleCard'
 import SprintPeriodCard from '@/components/project/overview/SprintPeriodCard'
 import DailyScrumCard from '@/components/project/overview/daily-scrum/DailyScrumCard'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { Project } from '@/types/project'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,10 +15,8 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { Project } from '@/types/project'
+} from '@cm/ui/components/ui/breadcrumb'
+import { Skeleton } from '@cm/ui/components/ui/skeleton'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 

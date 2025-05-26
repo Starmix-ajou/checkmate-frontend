@@ -1,15 +1,15 @@
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
+import { Member } from '@/types/project'
+import { TaskRow } from '@/types/sprint'
+import '@/types/table'
+import { Badge } from '@cm/ui/components/ui/badge'
+import { Input } from '@cm/ui/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Member } from '@/types/project'
-import { TaskRow } from '@/types/sprint'
-import '@/types/table'
+} from '@cm/ui/components/ui/select'
 import { CellContext, ColumnDef } from '@tanstack/react-table'
 import clsx from 'clsx'
 
