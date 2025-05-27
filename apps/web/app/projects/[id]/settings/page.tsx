@@ -48,7 +48,12 @@ import { CalendarIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import {
+  type ControllerFieldState,
+  type ControllerRenderProps,
+  type UseFormStateReturn,
+  useForm,
+} from 'react-hook-form'
 import { toast } from 'react-toastify'
 import * as z from 'zod'
 
@@ -61,6 +66,14 @@ const formSchema = z.object({
   deleteConfirmation: z.string().optional(),
   endDate: z.string().min(1, '프로젝트 종료일을 입력해주세요'),
 })
+
+type FormValues = z.infer<typeof formSchema>
+
+type FormFieldProps<T extends keyof FormValues> = {
+  field: ControllerRenderProps<FormValues, T>
+  fieldState: ControllerFieldState
+  formState: UseFormStateReturn<FormValues>
+}
 
 export default function SettingsPage() {
   const { id } = useParams()
@@ -214,7 +227,7 @@ export default function SettingsPage() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-8"
               >
-                <FormField<z.infer<typeof formSchema>>
+                <FormField
                   control={form.control}
                   name="title"
                   render={({ field }) => (
@@ -231,7 +244,7 @@ export default function SettingsPage() {
                   )}
                 />
 
-                <FormField<z.infer<typeof formSchema>>
+                <FormField
                   control={form.control}
                   name="description"
                   render={({ field }) => (
@@ -248,18 +261,26 @@ export default function SettingsPage() {
                   )}
                 />
 
-                <FormField<z.infer<typeof formSchema>>
+                <FormField
                   control={form.control}
                   name="image"
-                  render={({ field: { onChange, ...field } }) => (
+                  render={({ field: { value, onChange, ...field } }) => (
                     <FormItem>
                       <FormLabel>프로젝트 이미지</FormLabel>
                       <FormControl>
                         <Input
                           type="file"
                           accept="image/*"
-                          onChange={(e) => onChange(e.target.files)}
+                          onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>
+                          ) => {
+                            const files = e.target.files
+                            if (files) {
+                              onChange(files)
+                            }
+                          }}
                           {...field}
+                          value={undefined}
                         />
                       </FormControl>
                       <FormDescription>
@@ -270,7 +291,7 @@ export default function SettingsPage() {
                   )}
                 />
 
-                <FormField<z.infer<typeof formSchema>>
+                <FormField
                   control={form.control}
                   name="endDate"
                   render={({ field }) => (
@@ -301,10 +322,10 @@ export default function SettingsPage() {
                             selected={
                               field.value ? new Date(field.value) : undefined
                             }
-                            onSelect={(date) =>
+                            onSelect={(date: Date | undefined) =>
                               field.onChange(date?.toISOString())
                             }
-                            disabled={(date) =>
+                            disabled={(date: Date) =>
                               date < new Date() || date < new Date('1900-01-01')
                             }
                             initialFocus
@@ -352,7 +373,7 @@ export default function SettingsPage() {
                           입력해주세요.
                         </DialogDescription>
                       </DialogHeader>
-                      <FormField<z.infer<typeof formSchema>>
+                      <FormField
                         control={form.control}
                         name="deleteConfirmation"
                         render={({ field }) => (

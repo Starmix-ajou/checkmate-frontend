@@ -1,4 +1,4 @@
-import authOptions from '@/app/utils/authOptions'
+import authOptions from '@/utils/authOptions'
 import { Member } from '@cm/types/project'
 import { Liveblocks } from '@liveblocks/node'
 import { getServerSession } from 'next-auth'

@@ -1,4 +1,4 @@
-import { Position } from './NewProjectTeamMember'
+import { Position } from '@cm/types/project'
 
 export type TableUpdateData<TData> = (
   rowIndex: number,

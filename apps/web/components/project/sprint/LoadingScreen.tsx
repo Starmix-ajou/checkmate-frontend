@@ -1,6 +1,6 @@
 'use client'
 
-import CheckmateSpinner from '@cm/ui/components/common/CheckMateSpinner'
+import CheckmateSpinner from '@cm/ui/components/common/CheckmateSpinner'
 import { ReactNode, useEffect, useState } from 'react'
 
 interface LoadingScreenProps {

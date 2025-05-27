@@ -1,9 +1,16 @@
+import { TableUpdateData } from '@/types/table'
 import { Feature } from '@cm/types/project-creation'
-import '@cm/types/table'
 import { Input } from '@cm/ui/components/ui/input'
-import { CellContext, ColumnDef } from '@tanstack/react-table'
+import { CellContext, ColumnDef, RowData } from '@tanstack/react-table'
 
 import { GenericEditableTable } from './GenericEditableTable'
+
+declare module '@tanstack/react-table' {
+  interface TableMeta<TData extends RowData> {
+    readOnly?: boolean
+    updateData: TableUpdateData<TData>
+  }
+}
 
 function EditableCell({
   getValue,

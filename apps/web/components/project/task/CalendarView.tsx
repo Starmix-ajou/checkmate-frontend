@@ -2,7 +2,7 @@
 
 import { Member } from '@cm/types/project'
 import { Task } from '@cm/types/userTask'
-import CheckmateSpinner from '@cm/ui/components/common/CheckMateSpinner'
+import CheckmateSpinner from '@cm/ui/components/common/CheckmateSpinner'
 import { format, getDay, isSameDay, parse, startOfWeek } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { Check, Pencil, Pickaxe } from 'lucide-react'

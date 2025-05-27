@@ -1,6 +1,6 @@
 import { Member } from '@cm/types/project'
 import { Task } from '@cm/types/userTask'
-import CheckmateSpinner from '@cm/ui/components/common/CheckMateSpinner'
+import CheckmateSpinner from '@cm/ui/components/common/CheckmateSpinner'
 import { Button } from '@cm/ui/components/ui/button'
 import {
   Popover,
