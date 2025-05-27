@@ -24,33 +24,8 @@ const config: StorybookConfig = {
     "name": getAbsolutePath('@storybook/nextjs'),
     "options": {}
   },
-  docs: {
-    autodocs: true
-  },
-  staticDirs: ['../public'],
-  webpackFinal: async (config) => {
-    if (config.module?.rules) {
-      // Tailwind CSS 설정
-      config.module.rules.push({
-        test: /\.css$/,
-        use: [
-          'style-loader',
-          'css-loader',
-          {
-            loader: 'postcss-loader',
-            options: {
-              postcssOptions: {
-                plugins: [
-                  require('tailwindcss'),
-                  require('autoprefixer'),
-                ],
-              },
-            },
-          },
-        ],
-      });
-    }
-    return config;
-  },
+  "staticDirs": [
+    "../public"
+  ]
 };
 export default config;
