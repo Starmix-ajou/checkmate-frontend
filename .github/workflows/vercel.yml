@@ -15,12 +15,12 @@ jobs:
           fetch-depth: 0
 
       - name: Install Dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Run Build
         env:
           LIVEBLOCKS_SECRET_KEY: ${{ secrets.LIVEBLOCKS_SECRET_KEY }}
-        run: npm run build
+        run: pnpm run build
 
       - name: Set up Git Config
         run: |
