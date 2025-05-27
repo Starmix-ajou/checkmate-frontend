@@ -1,7 +1,6 @@
 {
   "extends": "@cm/typescript-config/react-library.json",
   "compilerOptions": {
-    "outDir": "dist",
     "baseUrl": ".",
     "paths": {
       "@cm/ui": ["./src/index.ts"],
@@ -9,5 +8,5 @@
     }
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules"]
 }
