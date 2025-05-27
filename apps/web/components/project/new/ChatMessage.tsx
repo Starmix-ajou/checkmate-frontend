@@ -1,4 +1,4 @@
-import { Feature, Message } from '@/types/project-creation'
+import { Feature, Message } from '@cm/types/project-creation'
 import { Checkbox } from '@cm/ui/components/ui/checkbox'
 
 import { DefinitionTable } from './DefinitionTable'

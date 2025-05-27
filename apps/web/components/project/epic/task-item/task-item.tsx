@@ -1,5 +1,5 @@
-import { BarTask } from '@/types/bar-task'
-import { GanttContentMoveAction } from '@/types/gantt-task-actions'
+import { BarTask } from '@cm/types/bar-task'
+import { GanttContentMoveAction } from '@cm/types/gantt-task-actions'
 import React, { useEffect, useRef, useState } from 'react'
 
 import { Bar } from './bar/bar'

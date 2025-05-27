@@ -1,5 +1,5 @@
 import authOptions from '@/app/utils/authOptions'
-import { Member } from '@/types/project'
+import { Member } from '@cm/types/project'
 import { Liveblocks } from '@liveblocks/node'
 import { getServerSession } from 'next-auth'
 

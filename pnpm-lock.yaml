@@ -23,15 +23,51 @@ importers:
 
   apps/manager:
     dependencies:
+      '@cm/api':
+        specifier: workspace:*
+        version: link:../../packages/api
+      '@cm/tailwind-config':
+        specifier: workspace:*
+        version: link:../../packages/tailwind-config
+      '@cm/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@cm/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@shadcn/ui':
+        specifier: ^0.0.4
+        version: 0.0.4
+      '@trivago/prettier-plugin-sort-imports':
+        specifier: ^4.2.0
+        version: 4.3.0(prettier@3.5.3)
+      lucide-react:
+        specifier: ^0.483.0
+        version: 0.483.0(react@19.1.0)
       next:
         specifier: 15.3.2
-        version: 15.3.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 15.3.2(@babel/core@7.27.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      next-auth:
+        specifier: ^4.24.11
+        version: 4.24.11(next@15.3.2(@babel/core@7.27.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: ^19.0.0
         version: 19.1.0
       react-dom:
         specifier: ^19.0.0
         version: 19.1.0(react@19.1.0)
+      react-toastify:
+        specifier: ^11.0.5
+        version: 11.0.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      tailwind-merge:
+        specifier: ^3.0.2
+        version: 3.3.0
+      tw-animate-css:
+        specifier: ^1.2.4
+        version: 1.3.0
+      zustand:
+        specifier: ^5.0.3
+        version: 5.0.5(@types/react@19.1.5)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -54,6 +90,21 @@ importers:
       eslint-config-next:
         specifier: 15.3.2
         version: 15.3.2(eslint@9.27.0(jiti@2.4.2))(typescript@5.8.3)
+      eslint-config-prettier:
+        specifier: ^10.1.1
+        version: 10.1.5(eslint@9.27.0(jiti@2.4.2))
+      eslint-plugin-prettier:
+        specifier: ^5.2.3
+        version: 5.4.0(eslint-config-prettier@10.1.5(eslint@9.27.0(jiti@2.4.2)))(eslint@9.27.0(jiti@2.4.2))(prettier@3.5.3)
+      prettier:
+        specifier: ^3.5.3
+        version: 3.5.3
+      prettier-plugin-import-sort:
+        specifier: ^0.0.7
+        version: 0.0.7(prettier@3.5.3)
+      prettier-plugin-tailwindcss:
+        specifier: ^0.6.11
+        version: 0.6.11(@trivago/prettier-plugin-sort-imports@4.3.0(prettier@3.5.3))(prettier-plugin-import-sort@0.0.7(prettier@3.5.3))(prettier@3.5.3)
       tailwindcss:
         specifier: ^4
         version: 4.1.7
@@ -72,9 +123,15 @@ importers:
       '@blocknote/react':
         specifier: ^0.25.2
         version: 0.25.2(@types/hast@3.0.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@cm/api':
+        specifier: workspace:*
+        version: link:../../packages/api
       '@cm/tailwind-config':
         specifier: workspace:*
         version: link:../../packages/tailwind-config
+      '@cm/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@cm/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -233,6 +290,21 @@ importers:
         specifier: ^5
         version: 5.8.3
 
+  packages/api:
+    devDependencies:
+      '@cm/types':
+        specifier: workspace:*
+        version: link:../types
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.17.50
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.1.5
+      typescript:
+        specifier: ^5
+        version: 5.8.3
+
   packages/eslint-config:
     dependencies:
       '@typescript-eslint/eslint-plugin':
@@ -260,8 +332,20 @@ importers:
         specifier: ^8.5.3
         version: 8.5.3
       tailwindcss:
-        specifier: ^4.1.5
+        specifier: ^4
         version: 4.1.7
+
+  packages/types:
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.17.50
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.1.5
+      typescript:
+        specifier: ^5
+        version: 5.8.3
 
   packages/typescript-config: {}
 
@@ -312,12 +396,21 @@ importers:
       lucide-react:
         specifier: ^0.330.0
         version: 0.330.0(react@19.1.0)
+      next:
+        specifier: 15.3.2
+        version: 15.3.2(@babel/core@7.27.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: ^19.0.0
         version: 19.1.0
+      react-toastify:
+        specifier: ^11.0.5
+        version: 11.0.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       tailwind-merge:
         specifier: ^2.3.0
         version: 2.6.0
+      tinycolor2:
+        specifier: ^1.6.0
+        version: 1.6.0
       tw-animate-css:
         specifier: ^1.3.0
         version: 1.3.0
@@ -337,6 +430,9 @@ importers:
       '@types/react':
         specifier: ^19.0.0
         version: 19.1.5
+      '@types/tinycolor2':
+        specifier: ^1.4.6
+        version: 1.4.6
       autoprefixer:
         specifier: ^10.4.17
         version: 10.4.21(postcss@8.5.3)
@@ -344,8 +440,8 @@ importers:
         specifier: ^8.4.35
         version: 8.5.3
       tailwindcss:
-        specifier: 4.0.11
-        version: 4.0.11
+        specifier: ^4
+        version: 4.1.7
       typescript:
         specifier: ^5
         version: 5.8.3
@@ -4711,9 +4807,6 @@ packages:
   tailwind-merge@3.3.0:
     resolution: {integrity: sha512-fyW/pEfcQSiigd5SNn0nApUOxx0zB/dm6UDU/rEwc2c3sX2smWUNbapHv+QRqLGVp9GWX3THIa7MUGPo+YkDzQ==}
 
-  tailwindcss@4.0.11:
-    resolution: {integrity: sha512-GZ6+tNwieqvpFLZfx2tkZpfOMAK7iumbOJOLmd6v8AcYuHbjUb+cmDRu6l+rFkIqarh5FfLbCSRJhegcVdoPng==}
-
   tailwindcss@4.1.7:
     resolution: {integrity: sha512-kr1o/ErIdNhTz8uzAYL7TpaUuzKIE6QPQ4qmSdxnoX/lo+5wmUHQA6h3L5yIqEImSRnAAURDirLu/BgiXGPAhg==}
 
@@ -5191,7 +5284,7 @@ snapshots:
 
   '@babel/generator@7.17.7':
     dependencies:
-      '@babel/types': 7.17.0
+      '@babel/types': 7.27.1
       jsesc: 2.5.2
       source-map: 0.5.7
 
@@ -9248,6 +9341,21 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
       uuid: 8.3.2
 
+  next-auth@4.24.11(next@15.3.2(@babel/core@7.27.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      '@babel/runtime': 7.27.1
+      '@panva/hkdf': 1.2.1
+      cookie: 0.7.2
+      jose: 4.15.9
+      next: 15.3.2(@babel/core@7.27.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      oauth: 0.9.15
+      openid-client: 5.7.1
+      preact: 10.26.7
+      preact-render-to-string: 5.2.6(preact@10.26.7)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      uuid: 8.3.2
+
   next@15.2.2(@babel/core@7.27.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       '@next/env': 15.2.2
@@ -9273,7 +9381,7 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
-  next@15.3.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+  next@15.3.2(@babel/core@7.27.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       '@next/env': 15.3.2
       '@swc/counter': 0.1.3
@@ -10281,8 +10389,6 @@ snapshots:
   tailwind-merge@2.6.0: {}
 
   tailwind-merge@3.3.0: {}
-
-  tailwindcss@4.0.11: {}
 
   tailwindcss@4.1.7: {}
 

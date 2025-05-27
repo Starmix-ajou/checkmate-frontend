@@ -4,9 +4,10 @@
     "baseUrl": ".",
     "paths": {
       "@cm/ui": ["./src/index.ts"],
-      "@cm/ui/*": ["./src/*"]
+      "@cm/ui/*": ["./src/*"],
+      "@cm/types/*": ["../../packages/types/src/*"]
     }
   },
   "include": ["src"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist"]
 }

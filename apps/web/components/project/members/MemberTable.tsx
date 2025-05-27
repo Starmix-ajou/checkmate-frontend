@@ -1,4 +1,4 @@
-import { Member } from '@/types/project'
+import { Member } from '@cm/types/project'
 import { Badge } from '@cm/ui/components/ui/badge'
 import { Checkbox } from '@cm/ui/components/ui/checkbox'
 import {

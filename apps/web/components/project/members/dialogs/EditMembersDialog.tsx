@@ -1,5 +1,5 @@
-import { Position } from '@/types/NewProjectTeamMember'
-import { Member } from '@/types/project'
+import { Position } from '@cm/types/NewProjectTeamMember'
+import { Member } from '@cm/types/project'
 import { Badge } from '@cm/ui/components/ui/badge'
 import { Button } from '@cm/ui/components/ui/button'
 import {

@@ -1,12 +1,12 @@
 import { handleTaskBySVGMouseEvent } from '@/helpers/bar-helper'
 import { isKeyboardEvent } from '@/helpers/other-helper'
-import { BarTask } from '@/types/bar-task'
+import { BarTask } from '@cm/types/bar-task'
 import {
   BarMoveAction,
   GanttContentMoveAction,
   GanttEvent,
-} from '@/types/gantt-task-actions'
-import { EventOption } from '@/types/public-types'
+} from '@cm/types/gantt-task-actions'
+import { EventOption } from '@cm/types/public-types'
 import React, { useEffect, useState } from 'react'
 
 import { Arrow } from '../other/arrow'

@@ -1,4 +1,4 @@
-import { Task } from '@/types/userTask'
+import { Task } from '@cm/types/userTask'
 import { SlidersHorizontal } from 'lucide-react'
 import { useState } from 'react'
 

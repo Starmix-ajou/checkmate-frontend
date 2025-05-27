@@ -1,5 +1,5 @@
-import { BarTask } from '../types/bar-task'
-import { Task } from '../types/public-types'
+import { BarTask } from '@cm/types/bar-task'
+import { Task } from '@cm/types/public-types'
 
 export function isKeyboardEvent(
   event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent

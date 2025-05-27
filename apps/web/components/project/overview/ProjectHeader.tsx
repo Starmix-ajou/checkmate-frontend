@@ -1,5 +1,5 @@
-import AvatarGroup from '@/components/project/overview/AvatarGroup'
-import { Project } from '@/types/project'
+import { Project } from '@cm/types/project'
+import AvatarGroup from '@cm/ui/components/project/AvatarGroup'
 import { Button } from '@cm/ui/components/ui/button'
 import { Skeleton } from '@cm/ui/components/ui/skeleton'
 

@@ -1,5 +1,8 @@
-import GoogleSignInButton from '@/components/login/GoogleSignInButton'
-import TermsLinks from '@/components/login/TermsLinks'
+'use client'
+
+import GoogleSignInButton from '@cm/ui/components/login/GoogleSignInButton'
+import TermsLinks from '@cm/ui/components/login/TermsLinks'
+import { useGoogleSignIn } from '@/hooks/useGoogleSignIn'
 
 const LoginText = () => (
   <div className="text-2xl font-bold">
@@ -10,12 +13,14 @@ const LoginText = () => (
 )
 
 const LoginPage = () => {
+  const { handleGoogleSignIn } = useGoogleSignIn()
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-white">
       <div className="w-full max-w-sm p-8">
         <div className="flex flex-col gap-6 text-center">
           <LoginText />
-          <GoogleSignInButton />
+          <GoogleSignInButton onClick={handleGoogleSignIn} />
         </div>
       </div>
       <div className="absolute bottom-8">

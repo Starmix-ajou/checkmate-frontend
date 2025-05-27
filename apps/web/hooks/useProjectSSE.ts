@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/stores/useAuthStore'
-import { Feature } from '@/types/project-creation'
+import { Feature } from '@cm/types/project-creation'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 
 interface Suggestion {

@@ -1,5 +1,5 @@
-import { Position, TeamMember } from '@/types/NewProjectTeamMember'
-import '@/types/table'
+import { Position, TeamMember } from '@cm/types/NewProjectTeamMember'
+import '@cm/types/table'
 import { Badge } from '@cm/ui/components/ui/badge'
 import { Input } from '@cm/ui/components/ui/input'
 import { CellContext, ColumnDef } from '@tanstack/react-table'

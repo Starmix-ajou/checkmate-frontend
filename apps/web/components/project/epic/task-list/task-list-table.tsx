@@ -1,4 +1,4 @@
-import { Task } from '@/types/public-types'
+import { Task } from '@cm/types/public-types'
 import React from 'react'
 
 import styles from './task-list-table.module.css'

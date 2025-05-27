@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/stores/useAuthStore'
-import { Task } from '@/types/userTask'
+import { Task } from '@cm/types/userTask'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL

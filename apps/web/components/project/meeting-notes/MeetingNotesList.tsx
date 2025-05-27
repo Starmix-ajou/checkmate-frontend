@@ -1,4 +1,4 @@
-import { Meeting } from '@/types/meeting'
+import { Meeting } from '@cm/types/meeting'
 import { Checkbox } from '@cm/ui/components/ui/checkbox'
 import {
   Table,

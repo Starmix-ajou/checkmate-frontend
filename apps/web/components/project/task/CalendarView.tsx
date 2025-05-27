@@ -1,8 +1,8 @@
 'use client'
 
-import CheckMateLogoSpinner from '@/components/CheckMateSpinner'
-import { Member } from '@/types/project'
-import { Task } from '@/types/userTask'
+import { Member } from '@cm/types/project'
+import { Task } from '@cm/types/userTask'
+import CheckmateSpinner from '@cm/ui/components/common/CheckMateSpinner'
 import { format, getDay, isSameDay, parse, startOfWeek } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { Check, Pencil, Pickaxe } from 'lucide-react'
@@ -253,7 +253,7 @@ export default function CalendarView({
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-200px)]">
-        <CheckMateLogoSpinner size={64} />
+        <CheckmateSpinner size={64} />
       </div>
     )
   }

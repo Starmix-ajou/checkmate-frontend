@@ -1,4 +1,4 @@
-import { Phase } from '@/types/project-creation'
+import { Phase } from '@cm/types/project-creation'
 import { Button } from '@cm/ui/components/ui/button'
 import { Input } from '@cm/ui/components/ui/input'
 import { useState } from 'react'

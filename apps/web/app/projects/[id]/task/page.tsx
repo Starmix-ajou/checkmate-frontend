@@ -4,8 +4,8 @@ import CalendarView from '@/components/project/task/CalendarView'
 import KanbanView from '@/components/project/task/KanbanView'
 import TaskFilter from '@/components/project/task/TaskFilter'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { Project } from '@/types/project'
-import { Task } from '@/types/userTask'
+import { Project } from '@cm/types/project'
+import { Task } from '@cm/types/userTask'
 import {
   Avatar,
   AvatarFallback,

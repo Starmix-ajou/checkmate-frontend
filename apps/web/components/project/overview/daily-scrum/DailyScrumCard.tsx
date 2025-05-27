@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuthStore } from '@/stores/useAuthStore'
-import { Category, DailyScrumResponse, Task } from '@/types/project'
+import { Category, DailyScrumResponse, Task } from '@cm/types/project'
 import { Button } from '@cm/ui/components/ui/button'
 import {
   Card,

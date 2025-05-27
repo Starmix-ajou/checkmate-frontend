@@ -1,12 +1,12 @@
 'use client'
 
-import LoadingCheckMate from '@/components/LoadingCheckMate'
 import MeetingNotesAdd from '@/components/project/meeting-notes/MeetingNotesAdd'
 import MeetingNotesList from '@/components/project/meeting-notes/MeetingNotesList'
-import { getMeetings } from '@/lib/api/meetingNotes'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { Meeting } from '@/types/meeting'
-import { Project } from '@/types/project'
+import { getMeetings } from '@cm/api/meetingNotes'
+import { Meeting } from '@cm/types/meeting'
+import { Project } from '@cm/types/project'
+import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -68,7 +68,7 @@ export default function MeetingNotesPage() {
 
   return (
     <>
-      <LoadingCheckMate loading={loading} />
+      <LoadingScreen loading={loading} />
       <div className="flex w-full">
         <div className="flex-1 p-6">
           <Breadcrumb>

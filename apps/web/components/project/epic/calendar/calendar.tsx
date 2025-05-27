@@ -5,8 +5,8 @@ import {
   getLocaleMonth,
   getWeekNumberInMonth,
 } from '@/helpers/date-helper'
-import { DateSetup } from '@/types/date-setup'
-import { ViewMode } from '@/types/public-types'
+import { DateSetup } from '@cm/types/date-setup'
+import { ViewMode } from '@cm/types/public-types'
 import React, { ReactNode } from 'react'
 
 import styles from './calendar.module.css'

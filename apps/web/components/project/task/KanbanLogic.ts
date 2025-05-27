@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/stores/useAuthStore'
-import { ColumnType, Task, TaskCreateRequest } from '@/types/userTask'
+import { ColumnType, Task, TaskCreateRequest } from '@cm/types/userTask'
 import {
   DragOverEvent,
   MouseSensor,

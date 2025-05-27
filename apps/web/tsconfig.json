@@ -20,7 +20,9 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@cm/ui/*": ["../../packages/ui/src/*"]
+      "@cm/ui/*": ["../../packages/ui/src/*"],
+      "@cm/api/*": ["../../packages/api/src/*"],
+      "@cm/types/*": ["../../packages/types/src/*"]
     }
   },
   "include": [

@@ -1,5 +1,5 @@
 import { useMemberSelection } from '@/hooks/useMemberSelection'
-import { Member } from '@/types/project'
+import { Member } from '@cm/types/project'
 import { useState } from 'react'
 
 import { MemberTable } from './MemberTable'

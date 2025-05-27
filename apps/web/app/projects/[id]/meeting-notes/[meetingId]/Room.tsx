@@ -1,6 +1,6 @@
 'use client'
 
-import { Member } from '@/types/project'
+import { Member } from '@cm/types/project'
 import {
   ClientSideSuspense,
   LiveblocksProvider,

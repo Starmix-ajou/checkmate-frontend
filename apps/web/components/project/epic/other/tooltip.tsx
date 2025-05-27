@@ -1,5 +1,5 @@
-import { BarTask } from '@/types/bar-task'
-import { Task } from '@/types/public-types'
+import { BarTask } from '@cm/types/bar-task'
+import { Task } from '@cm/types/public-types'
 import React, { useEffect, useRef, useState } from 'react'
 
 import styles from './tooltip.module.css'

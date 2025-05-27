@@ -1,7 +1,6 @@
 import { useAuthStore } from '@/stores/useAuthStore'
+import { Epic } from '@cm/types/epic'
 import { useCallback, useEffect, useState } from 'react'
-
-import { Epic } from './types/epic'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 const API_ENDPOINTS = {

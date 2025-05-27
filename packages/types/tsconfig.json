@@ -1,0 +1,12 @@
+{
+  "extends": "@cm/typescript-config/react-library.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@cm/types": ["./src/index.ts"],
+      "@cm/types/*": ["./src/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}

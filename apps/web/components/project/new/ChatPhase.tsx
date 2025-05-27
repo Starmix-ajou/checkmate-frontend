@@ -1,6 +1,5 @@
 'use client'
 
-import CheckMateLogoSpinner from '@/components/CheckMateSpinner'
 import { phases } from '@/components/project/new/phases'
 import { useProjectSSE } from '@/hooks/useProjectSSE'
 import {
@@ -10,9 +9,10 @@ import {
   putSpecificationFeedback,
 } from '@/lib/api/projectCreation'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { TeamMember } from '@/types/NewProjectTeamMember'
-import { Feature, Message, Phase } from '@/types/project-creation'
-import { ProjectDefinitionBody } from '@/types/project-definition'
+import { TeamMember } from '@cm/types/NewProjectTeamMember'
+import { Feature, Message, Phase } from '@cm/types/project-creation'
+import { ProjectDefinitionBody } from '@cm/types/project-definition'
+import CheckmateSpinner from '@cm/ui/components/common/CheckMateSpinner'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { useEffect, useRef, useState } from 'react'
@@ -386,7 +386,7 @@ export default function ChatPhase({
         })}
         {isLoading && (
           <div className="flex justify-start">
-            <CheckMateLogoSpinner size={24} />
+            <CheckmateSpinner size={24} />
           </div>
         )}
         <div ref={lastMessageRef} />

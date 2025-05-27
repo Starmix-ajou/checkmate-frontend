@@ -1,4 +1,4 @@
-import { Phase } from '@/types/project-creation'
+import { Phase } from '@cm/types/project-creation'
 
 export const phases: Phase[] = [
   {
