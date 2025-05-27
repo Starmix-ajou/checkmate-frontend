@@ -1,6 +1,6 @@
-import CheckMateLogoSpinner from '@/components/CheckMateSpinner'
-import { Member } from '@/types/project'
-import { Task } from '@/types/userTask'
+import { Member } from '@cm/types/project'
+import { Task } from '@cm/types/userTask'
+import CheckmateSpinner from '@cm/ui/components/common/CheckMateSpinner'
 import { Button } from '@cm/ui/components/ui/button'
 import {
   Popover,
@@ -217,7 +217,7 @@ export default function TaskModal({
         >
           <div className="relative w-full h-full">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <CheckMateLogoSpinner />
+              <CheckmateSpinner />
             </div>
           </div>
         </div>

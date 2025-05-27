@@ -1,7 +1,7 @@
 'use client'
 
-import { getRoomDetails } from '@/lib/api/meetingNotes'
-import { Member } from '@/types/project'
+import { getRoomDetails } from '@cm/api/meetingNotes'
+import { Member } from '@cm/types/project'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 

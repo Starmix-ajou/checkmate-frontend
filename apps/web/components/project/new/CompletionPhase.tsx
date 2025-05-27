@@ -1,6 +1,6 @@
 'use client'
 
-import { Feature } from '@/types/project-creation'
+import { Feature } from '@cm/types/project-creation'
 import { Button } from '@cm/ui/components/ui/button'
 import { useRouter } from 'next/navigation'
 

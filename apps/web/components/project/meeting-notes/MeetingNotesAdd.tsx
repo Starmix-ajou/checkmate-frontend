@@ -1,5 +1,5 @@
-import { getCreateMeeting } from '@/lib/api/meetingNotes'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { getCreateMeeting } from '@cm/api/meetingNotes'
 import { Button } from '@cm/ui/components/ui/button'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'

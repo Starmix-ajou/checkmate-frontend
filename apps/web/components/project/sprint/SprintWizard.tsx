@@ -6,14 +6,14 @@ import {
   updateSprint,
 } from '@/lib/api/sprintConfiguration'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { Member } from '@/types/project'
+import { Member } from '@cm/types/project'
 import {
   Epic,
   IncompletedTask,
   SprintResponse,
   SprintUpdateRequest,
   TaskRow,
-} from '@/types/sprint'
+} from '@cm/types/sprint'
 import { Badge } from '@cm/ui/components/ui/badge'
 import { Button } from '@cm/ui/components/ui/button'
 import { Checkbox } from '@cm/ui/components/ui/checkbox'

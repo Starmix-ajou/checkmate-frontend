@@ -1,4 +1,4 @@
-import { Task } from '@/types/project'
+import { Task } from '@cm/types/project'
 import { Card } from '@cm/ui/components/ui/card'
 import { Pencil, Trash2 } from 'lucide-react'
 import Select from 'react-select'

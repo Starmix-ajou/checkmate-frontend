@@ -1,4 +1,4 @@
-import { Feature } from '@/types/project-creation'
+import { Feature } from '@cm/types/project-creation'
 import {
   Table,
   TableBody,

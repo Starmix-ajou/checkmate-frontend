@@ -1,9 +1,9 @@
 'use client'
 
-import LoadingCheckMate from '@/components/LoadingCheckMate'
-import { deleteProject, putProjectSettings } from '@/lib/api/projectSettings'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { Project } from '@/types/project'
+import { deleteProject, putProjectSettings } from '@cm/api/projectSettings'
+import { Project } from '@cm/types/project'
+import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -156,7 +156,7 @@ export default function SettingsPage() {
 
   return (
     <>
-      <LoadingCheckMate loading={loading} />
+      <LoadingScreen loading={loading} />
       <div className="flex w-full">
         <div className="flex-1 p-6">
           <Breadcrumb>

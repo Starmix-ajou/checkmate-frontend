@@ -1,5 +1,5 @@
 import { addToDate } from '@/helpers/date-helper'
-import { Task } from '@/types/public-types'
+import { Task } from '@cm/types/public-types'
 import React, { ReactNode } from 'react'
 
 import styles from './grid.module.css'

@@ -1,4 +1,4 @@
-import { Task, ViewMode } from '../types/public-types'
+import { Task, ViewMode } from '@cm/types/public-types'
 
 import DateTimeFormatOptions = Intl.DateTimeFormatOptions
 import DateTimeFormat = Intl.DateTimeFormat

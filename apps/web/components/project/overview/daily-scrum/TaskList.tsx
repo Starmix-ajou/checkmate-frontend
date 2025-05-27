@@ -1,4 +1,4 @@
-import { Category, Task } from '@/types/project'
+import { Category, Task } from '@cm/types/project'
 import { Trash2 } from 'lucide-react'
 import Select from 'react-select'
 

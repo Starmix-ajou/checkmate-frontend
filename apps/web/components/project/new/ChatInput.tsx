@@ -1,5 +1,5 @@
-import { TeamMember } from '@/types/NewProjectTeamMember'
-import { Phase } from '@/types/project-creation'
+import { TeamMember } from '@cm/types/NewProjectTeamMember'
+import { Phase } from '@cm/types/project-creation'
 import { Button } from '@cm/ui/components/ui/button'
 import { Calendar } from '@cm/ui/components/ui/calendar'
 import { FileUpload } from '@cm/ui/components/ui/file-upload'

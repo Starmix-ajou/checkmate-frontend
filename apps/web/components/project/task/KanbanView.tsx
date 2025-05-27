@@ -1,13 +1,12 @@
 'use client'
 
-import { Member } from '@/types/project'
-import { Task } from '@/types/userTask'
+import { Member } from '@cm/types/project'
+import { Task } from '@cm/types/userTask'
 import { DndContext, DragOverlay } from '@dnd-kit/core'
 import { Check, Pencil, Pickaxe, Trash2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-// import LoadingCheckMate from '@/components/LoadingCheckMate'
-
+// import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import KanbanColumn from './KanbanColumn'
 import { KanbanLogic } from './KanbanLogic'
 import TaskModal from './TaskModal'
@@ -203,7 +202,7 @@ export default function KanbanView({
   // if (loading) {
   //   return (
   //     <div className="flex justify-center items-center h-[calc(100vh-200px)]">
-  //       <LoadingCheckMate size={64} loading={loading} />
+  //       <LoadingScreen size={64} loading={loading} />
   //     </div>
   //   )
   // }

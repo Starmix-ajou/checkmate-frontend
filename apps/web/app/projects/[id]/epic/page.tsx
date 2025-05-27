@@ -1,10 +1,10 @@
 'use client'
 
 import { Gantt } from '@/components/project/epic/gantt/gantt'
-import { Epic } from '@/components/project/epic/types/epic'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { Project } from '@/types/project'
-import { ViewMode } from '@/types/public-types'
+import { Epic } from '@cm/types/epic'
+import { Project } from '@cm/types/project'
+import { ViewMode } from '@cm/types/public-types'
 import {
   Breadcrumb,
   BreadcrumbItem,

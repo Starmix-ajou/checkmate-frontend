@@ -1,4 +1,4 @@
-import { Position } from '@/types/NewProjectTeamMember'
+import { Position } from '@cm/types/NewProjectTeamMember'
 import { Badge } from '@cm/ui/components/ui/badge'
 import { Button } from '@cm/ui/components/ui/button'
 import {

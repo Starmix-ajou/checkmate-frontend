@@ -1,4 +1,4 @@
-import { Task } from '@/types/public-types'
+import { Task } from '@cm/types/public-types'
 
 export const allTasks: Task[] = [
   {

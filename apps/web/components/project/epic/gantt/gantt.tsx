@@ -1,9 +1,10 @@
 import { convertToBarTasks } from '@/helpers/bar-helper'
 import { ganttDateRange, seedDates } from '@/helpers/date-helper'
-import { BarTask } from '@/types/bar-task'
-import { DateSetup } from '@/types/date-setup'
-import { GanttEvent } from '@/types/gantt-task-actions'
-import { GanttProps, Task, ViewMode } from '@/types/public-types'
+import { BarTask } from '@cm/types/bar-task'
+import { DateSetup } from '@cm/types/date-setup'
+import { Epic } from '@cm/types/epic'
+import { GanttEvent } from '@cm/types/gantt-task-actions'
+import { GanttProps, Task, ViewMode } from '@cm/types/public-types'
 import React, {
   SyntheticEvent,
   useEffect,
@@ -18,7 +19,6 @@ import { HorizontalScroll } from '../other/horizontal-scroll'
 import { StandardTooltipContent, Tooltip } from '../other/tooltip'
 import { VerticalScroll } from '../other/vertical-scroll'
 import { TaskList, TaskListProps } from '../task-list/task-list'
-import { Epic } from '../types/epic'
 import styles from './gantt.module.css'
 import { TaskGantt } from './task-gantt'
 import { TaskGanttContentProps } from './task-gantt-content'

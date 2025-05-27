@@ -1,10 +1,10 @@
 import { useAuthStore } from '@/stores/useAuthStore'
-import { Member } from '@/types/project'
+import { Member } from '@cm/types/project'
 import {
   IncompletedTask,
   SprintUpdateRequest,
   TaskResponse,
-} from '@/types/sprint'
+} from '@cm/types/sprint'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 const API_ENDPOINTS = {

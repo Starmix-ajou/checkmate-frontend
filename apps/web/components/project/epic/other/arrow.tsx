@@ -1,4 +1,4 @@
-import { BarTask } from '@/types/bar-task'
+import { BarTask } from '@cm/types/bar-task'
 import React from 'react'
 
 type ArrowProps = {

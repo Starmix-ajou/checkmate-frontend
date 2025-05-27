@@ -1,6 +1,6 @@
+import { Task } from '@cm/types/public-types'
 import React from 'react'
 
-import { Task } from '../types/public-types'
 import { TaskListHeader } from './task-list-header'
 import { TaskListTable } from './task-list-table'
 import styles from './task-list.module.css'

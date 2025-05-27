@@ -3,7 +3,7 @@
 import ChatPhase from '@/components/project/new/ChatPhase'
 import CompletionPhase from '@/components/project/new/CompletionPhase'
 import FormPhase from '@/components/project/new/FormPhase'
-import { Feature, Phase } from '@/types/project-creation'
+import { Feature, Phase } from '@cm/types/project-creation'
 import { useState } from 'react'
 
 import { phases } from './phases'

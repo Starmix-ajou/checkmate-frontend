@@ -1,4 +1,4 @@
-import { ColumnType, Task } from '@/types/userTask'
+import { ColumnType, Task } from '@cm/types/userTask'
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { Plus } from 'lucide-react'

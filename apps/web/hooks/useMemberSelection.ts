@@ -1,4 +1,4 @@
-import { Member } from '@/types/project'
+import { Member } from '@cm/types/project'
 import { useState } from 'react'
 
 export function useMemberSelection(members: Member[]) {
