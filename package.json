@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
@@ -17,5 +18,5 @@
     "@cm/eslint-config": "workspace:*",
     "@cm/typescript-config": "workspace:*"
   },
-  "packageManager": "npm@10.0.0"
+"packageManager": "pnpm@9.0.0"
 }
