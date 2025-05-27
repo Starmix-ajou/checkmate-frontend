@@ -2,17 +2,17 @@
 
 import { phases } from '@/components/project/new/phases'
 import { useProjectSSE } from '@/hooks/useProjectSSE'
+import { useAuthStore } from '@/stores/useAuthStore'
 import {
   getSpecification,
   postProjectDefinition,
   putDefinitionFeedback,
   putSpecificationFeedback,
-} from '@/lib/api/projectCreation'
-import { useAuthStore } from '@/stores/useAuthStore'
+} from '@cm/api/projectCreation'
 import { TeamMember } from '@cm/types/NewProjectTeamMember'
 import { Feature, Message, Phase } from '@cm/types/project-creation'
 import { ProjectDefinitionBody } from '@cm/types/project-definition'
-import CheckmateSpinner from '@cm/ui/components/common/CheckMateSpinner'
+import CheckmateSpinner from '@cm/ui/components/common/CheckmateSpinner'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { useEffect, useRef, useState } from 'react'

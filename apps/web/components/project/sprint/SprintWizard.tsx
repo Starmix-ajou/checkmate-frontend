@@ -1,11 +1,11 @@
 import { useSprintSSE } from '@/hooks/useSprintSSE'
+import { useAuthStore } from '@/stores/useAuthStore'
 import {
   createSprint,
   getIncompletedTasks,
   getProjectMembers,
   updateSprint,
-} from '@/lib/api/sprintConfiguration'
-import { useAuthStore } from '@/stores/useAuthStore'
+} from '@cm/api/sprintConfiguration'
 import { Member } from '@cm/types/project'
 import {
   Epic,
@@ -154,7 +154,7 @@ export default function SprintWizard() {
 
     try {
       setLoading(true)
-      const tasks = await getIncompletedTasks(projectId)
+      const tasks = await getIncompletedTasks(projectId, user?.accessToken)
       setIncompletedTasks(tasks)
     } catch (err) {
       const errorMessage =
@@ -171,7 +171,7 @@ export default function SprintWizard() {
     if (!projectId || !user?.accessToken) return
 
     try {
-      const memberData = await getProjectMembers(projectId)
+      const memberData = await getProjectMembers(projectId, user?.accessToken)
       if (Array.isArray(memberData)) {
         setMembers(memberData)
       } else {
@@ -230,7 +230,7 @@ export default function SprintWizard() {
         }
         setEventSource(newEventSource)
 
-        await createSprint(projectId, selectedTaskIds)
+        await createSprint(projectId, selectedTaskIds, user?.accessToken)
       } else if (step === 1) {
         const updateData: SprintUpdateRequest[] = epics.map((epic) => ({
           epicId: epic.epicId || '',
@@ -253,7 +253,7 @@ export default function SprintWizard() {
           setEventSource(newEventSource)
         }
 
-        await updateSprint(projectId, updateData)
+        await updateSprint(projectId, updateData, user?.accessToken)
       }
     } catch (err) {
       const errorMessage =

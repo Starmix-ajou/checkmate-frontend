@@ -1,4 +1,3 @@
-import { useAuthStore } from '@/stores/useAuthStore'
 import { Member } from '@cm/types/project'
 import {
   IncompletedTask,
@@ -13,11 +12,10 @@ const API_ENDPOINTS = {
 } as const
 
 export const getIncompletedTasks = async (
-  projectId: string
+  projectId: string,
+  accessToken: string
 ): Promise<IncompletedTask[]> => {
-  const user = useAuthStore.getState().user
-
-  if (!user?.accessToken) {
+  if (!accessToken) {
     throw new Error('인증 토큰이 없습니다.')
   }
 
@@ -32,7 +30,7 @@ export const getIncompletedTasks = async (
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${user.accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     }
   )
@@ -54,11 +52,10 @@ export const getIncompletedTasks = async (
 
 export const createSprint = async (
   projectId: string,
-  pendingTaskIds: string[]
+  pendingTaskIds: string[],
+  accessToken: string
 ): Promise<void> => {
-  const user = useAuthStore.getState().user
-
-  if (!user?.accessToken) {
+  if (!accessToken) {
     throw new Error('인증 토큰이 없습니다.')
   }
 
@@ -73,7 +70,7 @@ export const createSprint = async (
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${user.accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
         pendingTaskIds,
@@ -86,10 +83,11 @@ export const createSprint = async (
   }
 }
 
-export async function getProjectMembers(projectId: string): Promise<Member[]> {
-  const user = useAuthStore.getState().user
-
-  if (!user?.accessToken) {
+export async function getProjectMembers(
+  projectId: string,
+  accessToken: string
+): Promise<Member[]> {
+  if (!accessToken) {
     throw new Error('인증 토큰이 없습니다.')
   }
 
@@ -97,7 +95,7 @@ export async function getProjectMembers(projectId: string): Promise<Member[]> {
     `${process.env.NEXT_PUBLIC_API_URL}/project/${projectId}`,
     {
       headers: {
-        Authorization: `Bearer ${user.accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     }
   )
@@ -109,13 +107,13 @@ export async function getProjectMembers(projectId: string): Promise<Member[]> {
   const data = await response.json()
   return data.members || []
 }
+
 export async function updateSprint(
   projectId: string,
-  data: SprintUpdateRequest[]
+  data: SprintUpdateRequest[],
+  accessToken: string
 ): Promise<void> {
-  const user = useAuthStore.getState().user
-
-  if (!user?.accessToken) {
+  if (!accessToken) {
     throw new Error('인증 토큰이 없습니다.')
   }
 
@@ -127,7 +125,7 @@ export async function updateSprint(
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${user.accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(data),
     }
