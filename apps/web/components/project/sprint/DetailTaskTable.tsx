@@ -1,6 +1,5 @@
 import { Member } from '@cm/types/project'
 import { TaskRow } from '@cm/types/sprint'
-import '@cm/types/table'
 import { Badge } from '@cm/ui/components/ui/badge'
 import { Input } from '@cm/ui/components/ui/input'
 import {
