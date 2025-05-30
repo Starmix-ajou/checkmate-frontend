@@ -3,11 +3,12 @@
 import { Member, Profile } from '@cm/types/project'
 import AvatarGroup from '@cm/ui/components/project/AvatarGroup'
 import { Card } from '@cm/ui/components/ui/card'
+import { PositionBadgeGroup } from '@cm/ui/components/ui/position-badge'
 import { Progress } from '@cm/ui/components/ui/progress'
+import { useProjectColor } from '@cm/ui/hooks/useRandomColor'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
-import tinycolor from 'tinycolor2'
+import { useEffect, useState } from 'react'
 
 type ProjectCardProps = {
   id: string
@@ -17,28 +18,6 @@ type ProjectCardProps = {
   startDate: string
   endDate: string
   imageUrl: string
-}
-
-const pastelColors = [
-  '#F5EAEA',
-  '#E9F0F6',
-  '#EDF4ED',
-  '#F9F6EC',
-  '#EFEFF6',
-  '#F6F3F0',
-  '#F3F1F5',
-  '#E7EFF2',
-  '#F0F0F0',
-  '#EBF3EC',
-]
-
-const getColorFromString = (str: string) => {
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  const index = Math.abs(hash) % pastelColors.length
-  return pastelColors[index]
 }
 
 const ProjectCard = ({
@@ -51,26 +30,11 @@ const ProjectCard = ({
   imageUrl,
 }: ProjectCardProps) => {
   const [today, setToday] = useState<Date | null>(null)
+  const { backgroundColor, titleColor } = useProjectColor(title + id)
 
   useEffect(() => {
     setToday(new Date())
   }, [])
-
-  const backgroundColor = useMemo(
-    () => getColorFromString(title + id),
-    [title, id]
-  )
-
-  const titleColor = useMemo(() => {
-    const bg = tinycolor(backgroundColor)
-    return bg.darken(20).saturate(15).toString()
-  }, [backgroundColor])
-
-  const getPositionColor = (position: string) => {
-    const bgColor = getColorFromString(position)
-    const textColor = tinycolor(bgColor).darken(40).saturate(40).toString()
-    return { bgColor, textColor }
-  }
 
   if (!today) return null
 
@@ -119,23 +83,7 @@ const ProjectCard = ({
         </div>
         <div className="p-4">
           <div className="text-lg font-semibold">{title}</div>
-          <div className="flex flex-wrap gap-2">
-            {position.map((pos) => {
-              const { bgColor, textColor } = getPositionColor(pos)
-              return (
-                <div
-                  key={pos}
-                  className="text-xs font-medium px-2 py-1 rounded-md"
-                  style={{
-                    backgroundColor: bgColor,
-                    color: textColor,
-                  }}
-                >
-                  {pos}
-                </div>
-              )
-            })}
-          </div>
+          <PositionBadgeGroup positions={position} />
           <div className="text-sm text-gray-500">
             {startDate} ~ {endDate}
           </div>

@@ -35,6 +35,7 @@
     "postcss": "^8.4.35",
     "postcss-loader": "^8.1.1",
     "storybook": "^8.6.14",
+    "storybook-addon-react-router-v6": "^2.0.15",
     "style-loader": "^4.0.0",
     "tailwindcss": "^4.1.7",
     "typescript": "^5",

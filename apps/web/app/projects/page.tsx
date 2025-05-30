@@ -1,8 +1,8 @@
 'use client'
 
-import Navbar from '@/components/Navbar'
-import { useAuthStore } from '@/stores/useAuthStore'
+import { useAuth } from '@/providers/AuthProvider'
 import { ProjectListItem, ProjectStatus } from '@cm/types/project'
+import { BaseNavbar } from '@cm/ui/components/common/BaseNavbar'
 import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import { ProjectList } from '@cm/ui/components/project'
 import ProjectAdd from '@cm/ui/components/project/ProjectAdd'
@@ -11,10 +11,14 @@ import { useEffect, useState } from 'react'
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 const Home = () => {
-  const user = useAuthStore((state) => state.user)
+  const { user, signOut } = useAuth()
   const [filter, setFilter] = useState<ProjectStatus>('')
   const [projects, setProjects] = useState<ProjectListItem[]>([])
   const [loading, setLoading] = useState(true)
+
+  const handleFilterChange = (newFilter: string) => {
+    setFilter(newFilter as ProjectStatus)
+  }
 
   useEffect(() => {
     if (!user?.accessToken) {
@@ -57,7 +61,14 @@ const Home = () => {
 
   return (
     <>
-      <Navbar setFilter={setFilter} currentFilter={filter} />
+      <BaseNavbar
+        user={user}
+        onSignOut={signOut}
+        showSidebarTrigger={false}
+        showFilters={true}
+        setFilter={handleFilterChange}
+        currentFilter={filter}
+      />
       <LoadingScreen size={64} loading={loading} />
       <div className="p-6 w-full max-w-7xl mx-auto">
         <div className="w-full flex justify-end">

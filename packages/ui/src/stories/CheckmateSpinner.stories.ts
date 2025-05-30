@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+
 import CheckmateSpinner from '../components/common/CheckmateSpinner'
 
 const meta = {
@@ -6,6 +7,23 @@ const meta = {
   component: CheckmateSpinner,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component: `
+checkmate 로고를 활용한 귀여운 로딩 스피너 컴포넌트입니다.
+
+## 주요 특징
+- checkmate 로고를 회전시켜 로딩 상태를 표시합니다.
+- 크기를 조절할 수 있어 다양한 상황에서 사용 가능합니다.
+- 기본 크기는 64px이며, 필요에 따라 크기를 조절할 수 있습니다.
+
+## 사용 예시
+\`\`\`tsx
+<CheckmateSpinner size={64} />
+\`\`\`
+        `,
+      },
+    },
   },
   tags: ['autodocs'],
   argTypes: {
@@ -36,4 +54,4 @@ export const Large: Story = {
   args: {
     size: 96,
   },
-} 
+}
