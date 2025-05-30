@@ -1,12 +1,6 @@
+import { User } from '@cm/types/src/user'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-
-type User = {
-  name: string
-  email: string
-  image: string
-  accessToken: string
-}
 
 type AuthStore = {
   user: User | null

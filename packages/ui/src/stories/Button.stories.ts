@@ -17,7 +17,16 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'cm', 'cmoutline', 'destructive', 'outline', 'secondary', 'ghost', 'link'],
+      options: [
+        'default',
+        'cm',
+        'cmoutline',
+        'destructive',
+        'outline',
+        'secondary',
+        'ghost',
+        'link',
+      ],
       description: '버튼의 스타일 변형',
     },
     size: {
@@ -35,7 +44,7 @@ const meta = {
     },
   },
   // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
-  args: { 
+  args: {
     onClick: fn(),
     children: 'Button',
   },

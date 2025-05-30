@@ -1,5 +1,5 @@
 import { Member } from '@cm/types/project'
-import { Badge } from '@cm/ui/components/ui/badge'
+import { PositionBadgeGroup } from '@cm/ui/components/ui/position-badge'
 import { Checkbox } from '@cm/ui/components/ui/checkbox'
 import {
   Table,
@@ -63,13 +63,7 @@ export function MemberTable({
             </TableCell>
             <TableCell>{member.email}</TableCell>
             <TableCell>
-              <div className="flex flex-wrap gap-1">
-                {member.profiles[0]?.positions.map((position) => (
-                  <Badge key={position} variant="outline">
-                    {position}
-                  </Badge>
-                ))}
-              </div>
+              <PositionBadgeGroup positions={member.profiles[0]?.positions || []} />
             </TableCell>
           </TableRow>
         ))}

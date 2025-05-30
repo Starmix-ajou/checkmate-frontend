@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuthStore } from '@/stores/useAuthStore'
+import { User } from '@cm/types/user'
 import { ProjectStatus } from '@cm/types/project'
 import {
   DropdownMenu,
@@ -11,62 +11,40 @@ import {
 } from '@cm/ui/components/ui/dropdown-menu'
 import { SidebarTrigger } from '@cm/ui/components/ui/sidebar'
 import { Skeleton } from '@cm/ui/components/ui/skeleton'
-import { FileText, LogOut, Shield, User } from 'lucide-react'
-import { signOut } from 'next-auth/react'
+import { FileText, LogOut, Shield, User as UserIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { toast } from 'react-toastify'
 
-type BaseNavbarProps = {
+export type BaseNavbarProps = {
+  user: User | null
+  onSignOut: () => Promise<void>
   showSidebarTrigger?: boolean
   showFilters?: boolean
   setFilter?: (filter: ProjectStatus) => void
   currentFilter?: ProjectStatus
+  logoUrl?: string
+  logoAlt?: string
 }
 
-export default function BaseNavbar({
+export function BaseNavbar({
+  user,
+  onSignOut,
   showSidebarTrigger = false,
   showFilters = false,
   setFilter,
   currentFilter = '',
+  logoUrl = '/logo.svg',
+  logoAlt = 'logo',
 }: BaseNavbarProps) {
-  const user = useAuthStore((state) => state.user)
-  const clearUser = useAuthStore((state) => state.clearUser)
-  const [loading, setLoading] = useState(true)
   const router = useRouter()
   const pathname = usePathname()
-
-  useEffect(() => {
-    if (user !== null) {
-      setLoading(false)
-    }
-  }, [user])
-
-  const handleSignOut = async () => {
-    try {
-      await signOut({ redirect: false })
-      clearUser()
-      toast.success('로그아웃이 완료되었습니다.')
-      router.push('/login')
-    } catch (error) {
-      toast.error('로그아웃 중 오류가 발생했습니다.')
-      console.log(error)
-    }
-  }
 
   return (
     <nav className="flex fixed w-full top-0 h-12 items-center justify-between p-4 border-b bg-white z-50">
       <div className="flex items-center gap-2">
         <Link href="/projects" className="text-xl font-bold">
-          <Image
-            src="/logo.svg"
-            alt="checkmate"
-            width={128}
-            height={30}
-            priority
-          />
+          <Image src={logoUrl} alt={logoAlt} width={128} height={30} priority />
         </Link>
         {showSidebarTrigger && <SidebarTrigger />}
         {showFilters && setFilter && pathname === '/projects' && (
@@ -116,9 +94,9 @@ export default function BaseNavbar({
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-2">
-          {loading ? (
+          {!user ? (
             <Skeleton className="w-8 h-8 rounded-full" />
-          ) : user?.image ? (
+          ) : user.image ? (
             <Image
               src={user.image}
               alt={user.name || '프로필 이미지'}
@@ -127,13 +105,13 @@ export default function BaseNavbar({
               className="rounded-full"
             />
           ) : (
-            <User className="w-8 h-8 text-gray-500" />
+            <UserIcon className="w-8 h-8 text-gray-500" />
           )}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             className="flex items-center gap-2 cursor-pointer"
-            onClick={handleSignOut}
+            onClick={onSignOut}
           >
             <LogOut className="w-4 h-4" />
             로그아웃
@@ -141,14 +119,14 @@ export default function BaseNavbar({
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="flex items-center gap-2 cursor-pointer"
-            onClick={() => router.push('/terms')}
+            onClick={() => router.push('/privacy')}
           >
             <FileText className="w-4 h-4" />
             이용약관
           </DropdownMenuItem>
           <DropdownMenuItem
             className="flex items-center gap-2 cursor-pointer"
-            onClick={() => router.push('/privacy')}
+            onClick={() => router.push('/terms')}
           >
             <Shield className="w-4 h-4" />
             개인정보처리방침
