@@ -1,11 +1,11 @@
 'use client'
 
-import MainContent from '@/components/MainContent'
 import ProjectSidebar from '@/components/project/Sidebar'
 import { useAuth } from '@/providers/AuthProvider'
 import '@blocknote/core/fonts/inter.css'
 import '@blocknote/mantine/style.css'
 import { BaseNavbar } from '@cm/ui/components/common/BaseNavbar'
+import MainContent from '@cm/ui/components/common/MainContent'
 import { SidebarProvider } from '@cm/ui/components/ui/sidebar'
 import '@liveblocks/react-tiptap/styles.css'
 import '@liveblocks/react-ui/styles.css'

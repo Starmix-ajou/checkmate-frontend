@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuthStore } from '@/stores/useAuthStore'
-import { User } from '@cm/types/src/user'
+import { User } from '@cm/types/user'
 import { signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { createContext, useContext } from 'react'
