@@ -66,6 +66,24 @@ export interface Task {
     title: string
     description: string
     projectId: string
+    sprint?: {
+      sprintId: string
+      title: string
+      description: string
+      sequence: number
+      projectId: string
+      startDate: string
+      endDate: string
+      epics: {
+        epicId: string
+        title: string
+        description: string
+        projectId: string
+        featureId: string
+        startDate: string
+        endDate: string
+      }[]
+    }
   }
 }
 
