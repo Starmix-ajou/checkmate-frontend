@@ -35,7 +35,7 @@ const pastelColors = [
 const getColorFromString = (str: string) => {
   let hash = 0
   for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 11) - hash)
+    hash = str.charCodeAt(i) + ((hash << 5) - hash)
   }
   const index = Math.abs(hash) % pastelColors.length
   return pastelColors[index]
@@ -94,7 +94,7 @@ const ProjectCard = ({
 
   return (
     <Link href={`/projects/${id}/overview`}>
-      <Card className="rounded-lg shadow-md transition hover:shadow-lg cursor-pointer w-full gap-0 p-0">
+      <Card className="rounded-lg shadow-md transition hover:shadow-lg cursor-pointer w-full gap-0 p-0 max-w-2xl min-w-2xs">
         <div className="relative w-full h-40 rounded-t-lg overflow-hidden">
           {imageUrl ? (
             <Image
