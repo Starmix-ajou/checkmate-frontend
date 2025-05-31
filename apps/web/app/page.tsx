@@ -1,8 +1,7 @@
+import { SwiperDemo } from '@/components/SwiperDemo'
 import { Button } from '@cm/ui/components/ui/button'
 import Image from 'next/image'
 import Link from 'next/link'
-
-import { SwiperDemo } from './components/SwiperDemo'
 
 export default function Home() {
   return (

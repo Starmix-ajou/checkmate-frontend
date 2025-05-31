@@ -46,6 +46,7 @@
   --color-cm: oklch(0.48 0.0525 40.69); /*#795548*/
   --color-cm-100: oklch(0.85 0.0146 39.41); /*#d7cbc7*/
   --color-cm-300: oklch(0.6471 0.0334 40.8); /*#a1887f*/
+  --color-cm-500: oklch(0.48 0.0525 40.69); /*#795548*/
   --color-cm-700: oklch(0.4015 0.0436 37.96); /*#5d4037*/
   --color-cm-900: oklch(0.3 0.0358 30.2); /*#3e2723*/
   --color-cm-light: oklch(0.94 0.0061 43.33); /*#efeae8*/
@@ -54,6 +55,7 @@
   --color-cm-gray-light: oklch(0.98 0.0013 106.42); /*#f8f8f7*/
   --color-cm-gray: oklch(0.61 0.0051 78.29); /*#858380*/
   --color-cm-blue: oklch(0.64 0.0921 237.47); /*#5194bd*/
+  --color-cm-blue-light: oklch(0.9785 0.0075 228.85); /*#f3f9fc*/
   --color-neutral-95: oklch(0.6895 0 0);
 }
 

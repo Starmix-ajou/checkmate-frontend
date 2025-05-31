@@ -1,13 +1,13 @@
 'use client'
 
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { EffectCards, Autoplay, Pagination } from 'swiper/modules'
+import Image from 'next/image'
+import { useState } from 'react'
+import type { Swiper as SwiperType } from 'swiper'
 import 'swiper/css'
 import 'swiper/css/effect-cards'
 import 'swiper/css/pagination'
-import { useEffect, useState } from 'react'
-import Image from 'next/image'
-import type { Swiper as SwiperType } from 'swiper'
+import { Autoplay, EffectCards, Pagination } from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/react'
 
 const conversations = [
   {
@@ -61,25 +61,21 @@ export function SwiperDemo() {
 
   const handleSlideChange = (swiper: SwiperType) => {
     const currentIndex = swiper.activeIndex
-    
-    // 현재 슬라이드의 모든 애니메이션 상태 초기화
+
     setShowMessages((prev) => {
-      const newState = prev.map((slide, index) => 
+      const newState = prev.map((slide, index) =>
         index === currentIndex ? [false, false] : slide
       )
       return newState
     })
     setShowImage((prev) => {
-      const newState = prev.map((show, index) => 
+      const newState = prev.map((show, index) =>
         index === currentIndex ? false : show
       )
       return newState
     })
 
-    // 현재 슬라이드의 애니메이션 시작
     const timers: NodeJS.Timeout[] = []
-
-    // 첫 번째 메시지 표시
     timers.push(
       setTimeout(() => {
         setShowMessages((prev) => {
@@ -89,8 +85,6 @@ export function SwiperDemo() {
         })
       }, 0)
     )
-
-    // 두 번째 메시지 표시
     timers.push(
       setTimeout(() => {
         setShowMessages((prev) => {
@@ -100,8 +94,6 @@ export function SwiperDemo() {
         })
       }, 500)
     )
-
-    // 이미지 표시
     timers.push(
       setTimeout(() => {
         setShowImage((prev) => {
@@ -130,19 +122,21 @@ export function SwiperDemo() {
         }}
         pagination={{
           clickable: true,
-          bulletClass: 'swiper-pagination-bullet !bg-cm !w-1.5 !h-1.5 lg:!w-2 lg:!h-2',
+          bulletClass:
+            'swiper-pagination-bullet !bg-cm !w-1.5 !h-1.5 lg:!w-2 lg:!h-2',
           bulletActiveClass: 'swiper-pagination-bullet-active !bg-cm/80',
         }}
         onSlideChange={handleSlideChange}
         onSwiper={(swiper) => {
-          // 초기 슬라이드 애니메이션 시작
           handleSlideChange(swiper)
         }}
       >
         {conversations.map((conversation, slideIndex) => (
-          <SwiperSlide key={slideIndex} className="bg-white rounded-xl shadow-lg p-4 lg:p-6">
+          <SwiperSlide
+            key={slideIndex}
+            className="bg-white rounded-xl shadow-lg p-4 lg:p-6"
+          >
             <div className="flex flex-col gap-3 lg:gap-4">
-              {/* 메시지 */}
               {conversation.messages.map((message, messageIndex) => (
                 <div
                   key={messageIndex}
@@ -165,13 +159,13 @@ export function SwiperDemo() {
                   </div>
                 </div>
               ))}
-              
-              {/* 이미지 */}
-              <div className={`transition-all duration-500 transform ${
-                showImage[slideIndex]
-                  ? 'translate-y-0 opacity-100'
-                  : 'translate-y-4 opacity-0'
-              }`}>
+              <div
+                className={`transition-all duration-500 transform ${
+                  showImage[slideIndex]
+                    ? 'translate-y-0 opacity-100'
+                    : 'translate-y-4 opacity-0'
+                }`}
+              >
                 <Image
                   src={conversation.image}
                   alt="Demo"
@@ -186,4 +180,4 @@ export function SwiperDemo() {
       </Swiper>
     </div>
   )
-} 
+}
