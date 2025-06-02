@@ -7,7 +7,7 @@ interface LoadingScreenProps {
   message: ReactNode
 }
 
-export default function LoadingScreen({ message }: LoadingScreenProps) {
+export default function WizardLoadingScreen({ message }: LoadingScreenProps) {
   const [showDelayMessage, setShowDelayMessage] = useState(false)
 
   useEffect(() => {

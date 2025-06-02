@@ -1,8 +1,7 @@
+import { ReadOnlyTable } from '@cm/ui/components/project/ReadOnlyTable'
 import { Badge } from '@cm/ui/components/ui/badge'
 import { ColumnDef } from '@tanstack/react-table'
 import clsx from 'clsx'
-
-import { ReadOnlyTable } from './ReadOnlyTable'
 
 interface TaskRow {
   title: string
