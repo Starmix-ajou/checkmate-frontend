@@ -72,7 +72,7 @@ export function EditableTable<T>({
 
   return (
     <div className="space-y-4 flex-1">
-      <div className="">
+      <div className="min-w-md">
         <Table>
           {showHeader && (
             <TableHeader>
