@@ -45,6 +45,7 @@ interface DetailTaskTableProps {
   onDataChange: (data: TaskRow[]) => void
   projectId: string
   members: Member[]
+  canAdd?: boolean
 }
 
 function EditableCell({
@@ -187,6 +188,7 @@ export function DetailTaskTable({
   onDataChange,
   projectId,
   members,
+  canAdd = true,
 }: DetailTaskTableProps) {
   return (
     <EditableTable
@@ -196,6 +198,7 @@ export function DetailTaskTable({
       addButtonText="+ Add"
       defaultRow={DEFAULT_ROW}
       meta={{ projectId, members }}
+      canAddRow={canAdd}
     />
   )
 }

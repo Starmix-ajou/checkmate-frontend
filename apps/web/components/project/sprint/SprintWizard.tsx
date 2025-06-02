@@ -14,6 +14,8 @@ import {
   SprintUpdateRequest,
   TaskRow,
 } from '@cm/types/sprint'
+import { DetailTaskTable } from '@cm/ui/components/project/DetailTaskTable'
+import WizardLoadingScreen from '@cm/ui/components/project/WizardLoadingScreen'
 import { Badge } from '@cm/ui/components/ui/badge'
 import { Button } from '@cm/ui/components/ui/button'
 import { Checkbox } from '@cm/ui/components/ui/checkbox'
@@ -34,8 +36,6 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
-import { DetailTaskTable } from './DetailTaskTable'
-import LoadingScreen from './LoadingScreen'
 import { SprintReviewTable } from './SprintReviewTable'
 
 export default function SprintWizard() {
@@ -334,7 +334,7 @@ export default function SprintWizard() {
       </div>
 
       {loading ? (
-        <LoadingScreen message={loadingMessages[step]} />
+        <WizardLoadingScreen message={loadingMessages[step]} />
       ) : (
         <>
           {step === 0 && (

@@ -24,6 +24,7 @@ interface EditableTableProps<T> {
   emptyStateText?: string
   defaultRow?: T
   meta?: Record<string, unknown>
+  showHeader?: boolean
 }
 
 export function EditableTable<T>({
@@ -35,6 +36,7 @@ export function EditableTable<T>({
   emptyStateText = 'No results.',
   defaultRow,
   meta,
+  showHeader = true,
 }: EditableTableProps<T>) {
   const table = useReactTable<T>({
     data,
@@ -72,23 +74,25 @@ export function EditableTable<T>({
     <div className="space-y-4 flex-1">
       <div className="">
         <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-                <TableHead></TableHead>
-              </TableRow>
-            ))}
-          </TableHeader>
+          {showHeader && (
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
+                  <TableHead></TableHead>
+                </TableRow>
+              ))}
+            </TableHeader>
+          )}
           <TableBody>
             {table.getRowModel().rows.length ? (
               <>
