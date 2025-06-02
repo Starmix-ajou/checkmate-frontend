@@ -37,7 +37,10 @@ type TaskFilters = {
   assigneeEmails: string[]
 }
 
-export function KanbanLogic(projectId: string) {
+export function KanbanLogic(
+  projectId: string,
+  epics: { epicId: string; title: string }[]
+) {
   const user = useAuthStore((state) => state.user)
   const [columns, setColumns] = useState<Record<ColumnType, Task[]>>({
     todo: [],
@@ -519,7 +522,7 @@ export function KanbanLogic(projectId: string) {
   )
 
   const handleAddTask = useCallback(
-    async (columnKey: ColumnType) => {
+    async (columnKey: ColumnType, taskData?: TaskCreateRequest) => {
       try {
         const today = new Date().toISOString().split('T')[0]
         const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
@@ -534,24 +537,33 @@ export function KanbanLogic(projectId: string) {
               ? 'DONE'
               : 'TODO'
 
-        const taskData: TaskCreateRequest = {
-          title: 'New Task',
-          description: '',
-          status: initialStatus,
-          assigneeEmail: user?.email || '',
-          startDate: today,
-          endDate: nextWeek,
-          priority: 'MEDIUM',
-          projectId: projectId,
-          epicId: EPICCUSTOM,
+        if (taskData) {
+          await createTask(taskData)
+        } else {
+          // 에픽 선택 이벤트 발생
+          const epicSelectionEvent = new CustomEvent('kanban:select-epic', {
+            detail: {
+              columnKey,
+              initialData: {
+                title: 'New Task',
+                description: '',
+                status: initialStatus,
+                assigneeEmail: user?.email || '',
+                startDate: today,
+                endDate: nextWeek,
+                priority: 'MEDIUM',
+                projectId: projectId,
+              },
+              epics,
+            },
+          })
+          window.dispatchEvent(epicSelectionEvent)
         }
-
-        await createTask(taskData)
       } catch (error) {
         console.error('태스크 생성 실패:', error)
       }
     },
-    [user?.email, createTask, projectId]
+    [user?.email, projectId, epics, createTask]
   )
 
   useEffect(() => {

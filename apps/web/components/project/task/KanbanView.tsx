@@ -1,11 +1,12 @@
 'use client'
 
 import { Member } from '@cm/types/project'
-import { Task } from '@cm/types/userTask'
+import { Task, TaskCreateRequest } from '@cm/types/userTask'
 import { DndContext, DragOverlay } from '@dnd-kit/core'
 import { Check, Pencil, Pickaxe, Trash2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
+import EpicSelectionModal from './EpicSelectionModal'
 // import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import KanbanColumn from './KanbanColumn'
 import { KanbanLogic } from './KanbanLogic'
@@ -16,6 +17,7 @@ export default function KanbanView({
   members,
   searchText,
   filters,
+  epics,
 }: {
   projectId: string
   members: Member[]
@@ -26,6 +28,7 @@ export default function KanbanView({
     sprintId: string
     assigneeEmails: string[]
   }
+  epics: { epicId: string; title: string }[]
 }) {
   const {
     columns,
@@ -40,7 +43,8 @@ export default function KanbanView({
     handleTaskUpdate: updateTaskOnServer,
     getTaskById,
     fetchTasks,
-  } = KanbanLogic(projectId)
+    handleAddTask,
+  } = KanbanLogic(projectId, epics)
 
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set())
   const [isDeleting, setIsDeleting] = useState(false)
@@ -48,6 +52,11 @@ export default function KanbanView({
     null
   )
   const [forceUpdate, setForceUpdate] = useState(0)
+  const [isEpicModalOpen, setIsEpicModalOpen] = useState(false)
+  const [pendingTaskData, setPendingTaskData] = useState<{
+    columnKey: string
+    initialData: TaskCreateRequest
+  } | null>(null)
 
   // 필터가 변경될 때마다 서버에서 데이터를 다시 가져옴
   useEffect(() => {
@@ -58,6 +67,19 @@ export default function KanbanView({
   useEffect(() => {
     setForceUpdate((prev) => prev + 1)
   }, [columns])
+
+  useEffect(() => {
+    const handleEpicSelection = (e: Event) => {
+      const { columnKey, initialData } = (e as CustomEvent).detail
+      setPendingTaskData({ columnKey, initialData })
+      setIsEpicModalOpen(true)
+    }
+
+    window.addEventListener('kanban:select-epic', handleEpicSelection)
+    return () => {
+      window.removeEventListener('kanban:select-epic', handleEpicSelection)
+    }
+  }, [])
 
   // 검색어에 따라 태스크를 필터링하는 함수
   const filterTasks = (tasks: Task[]) => {
@@ -188,6 +210,24 @@ export default function KanbanView({
     }
   }
 
+  const handleEpicSelect = async (
+    epicId: string,
+    initialData: TaskCreateRequest
+  ) => {
+    if (!pendingTaskData) return
+
+    const taskData: TaskCreateRequest = {
+      ...initialData,
+      epicId,
+    }
+
+    try {
+      await handleAddTask(pendingTaskData.columnKey as any, taskData)
+    } catch (error) {
+      console.error('태스크 생성 실패:', error)
+    }
+  }
+
   if (error) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-200px)]">
@@ -208,125 +248,151 @@ export default function KanbanView({
   // }
 
   return (
-    <div className="text-[#121212]" key={forceUpdate}>
-      <DndContext
-        sensors={sensors}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-        onDragStart={({ active }) => {
-          const activeId = active.id.toString()
-          for (const column of Object.values(columns)) {
-            const task = column.find((t) => t.taskId === activeId)
-            if (task) {
-              setActiveTask(task)
-              break
+    <>
+      <div className="text-[#121212]" key={forceUpdate}>
+        <DndContext
+          sensors={sensors}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          onDragStart={({ active }) => {
+            const activeId = active.id.toString()
+            for (const column of Object.values(columns)) {
+              const task = column.find((t) => t.taskId === activeId)
+              if (task) {
+                setActiveTask(task)
+                break
+              }
             }
-          }
+          }}
+        >
+          <div className="flex gap-3 relative">
+            <KanbanColumn
+              title={
+                <div className="flex items-center">
+                  <Pencil size={14} color="#858380" />
+                  <span className="ml-1 text-black-01 text-sm font-medium">
+                    To Do
+                  </span>
+                  <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
+                    ({filteredColumns.todo.length})
+                  </span>
+                </div>
+              }
+              columnKey="todo"
+              bg="bg-cm-gray-light rounded-none"
+              tasks={filteredColumns.todo}
+              onTaskSelect={handleTaskSelect}
+              onTaskUpdate={updateTaskAndState}
+              onTaskClick={handleTaskClick}
+            />
+            <KanbanColumn
+              title={
+                <div className="flex items-center">
+                  <Pickaxe size={14} color="#5093BC" />
+                  <span className="ml-1 text-black-01 text-sm font-medium">
+                    In Progress
+                  </span>
+                  <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
+                    ({filteredColumns.inProgress.length})
+                  </span>
+                </div>
+              }
+              columnKey="inProgress"
+              bg="bg-[#F3F9FC] rounded-none"
+              tasks={filteredColumns.inProgress}
+              onTaskSelect={handleTaskSelect}
+              onTaskUpdate={updateTaskAndState}
+              onTaskClick={handleTaskClick}
+            />
+            <KanbanColumn
+              title={
+                <div className="flex items-center">
+                  <Check size={14} color="#5C9771" />
+                  <span className="ml-1 text-black-01 text-sm font-medium">
+                    Done
+                  </span>
+                  <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
+                    ({filteredColumns.done.length})
+                  </span>
+                </div>
+              }
+              columnKey="done"
+              bg="bg-cm-green-light rounded-none"
+              tasks={filteredColumns.done}
+              onTaskSelect={handleTaskSelect}
+              onTaskUpdate={updateTaskAndState}
+              onTaskClick={handleTaskClick}
+            />
+
+            {selectedTasks.size > 0 && (
+              <div className="fixed bottom-6 right-6 w-[240px] h-[40px] bg-[#FFE5E3] border border-[#FFE5E3] rounded-full flex items-center justify-between px-4 py-2">
+                <span className="text-[#D91F11] text-base font-medium">
+                  {selectedTasks.size}개 선택됨
+                </span>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleDeleteSelectedTasks}
+                    disabled={isDeleting}
+                    className="w-5 h-5 flex items-center justify-center text-[#D91F11] disabled:opacity-50"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                  <button
+                    onClick={handleClearSelection}
+                    className="w-5 h-5 flex items-center justify-center text-[#D91F11]"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DragOverlay>
+            {activeTask && (
+              <div className="bg-white text-base font-medium text-black-01 rounded-md px-3 py-3.5 select-none cursor-pointer mb-2 border border-[#DCDCDC]">
+                {activeTask.title}
+              </div>
+            )}
+          </DragOverlay>
+        </DndContext>
+
+        {selectedTaskForModal && (
+          <TaskModal
+            task={selectedTaskForModal}
+            isOpen={!!selectedTaskForModal}
+            onClose={handleModalClose}
+            members={members}
+            onUpdate={updateTaskAndState}
+            getTaskById={getTaskById}
+            deleteTask={handleTaskDelete}
+          />
+        )}
+      </div>
+
+      {/* 에픽 선택 모달 */}
+      <EpicSelectionModal
+        isOpen={isEpicModalOpen}
+        onClose={() => {
+          setIsEpicModalOpen(false)
+          setPendingTaskData(null)
         }}
-      >
-        <div className="flex gap-3 relative">
-          <KanbanColumn
-            title={
-              <div className="flex items-center">
-                <Pencil size={14} color="#858380" />
-                <span className="ml-1 text-black-01 text-sm font-medium">
-                  To Do
-                </span>
-                <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
-                  ({filteredColumns.todo.length})
-                </span>
-              </div>
-            }
-            columnKey="todo"
-            bg="bg-cm-gray-light rounded-none"
-            tasks={filteredColumns.todo}
-            onTaskSelect={handleTaskSelect}
-            onTaskUpdate={updateTaskAndState}
-            onTaskClick={handleTaskClick}
-          />
-          <KanbanColumn
-            title={
-              <div className="flex items-center">
-                <Pickaxe size={14} color="#5093BC" />
-                <span className="ml-1 text-black-01 text-sm font-medium">
-                  In Progress
-                </span>
-                <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
-                  ({filteredColumns.inProgress.length})
-                </span>
-              </div>
-            }
-            columnKey="inProgress"
-            bg="bg-[#F3F9FC] rounded-none"
-            tasks={filteredColumns.inProgress}
-            onTaskSelect={handleTaskSelect}
-            onTaskUpdate={updateTaskAndState}
-            onTaskClick={handleTaskClick}
-          />
-          <KanbanColumn
-            title={
-              <div className="flex items-center">
-                <Check size={14} color="#5C9771" />
-                <span className="ml-1 text-black-01 text-sm font-medium">
-                  Done
-                </span>
-                <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
-                  ({filteredColumns.done.length})
-                </span>
-              </div>
-            }
-            columnKey="done"
-            bg="bg-cm-green-light rounded-none"
-            tasks={filteredColumns.done}
-            onTaskSelect={handleTaskSelect}
-            onTaskUpdate={updateTaskAndState}
-            onTaskClick={handleTaskClick}
-          />
-
-          {selectedTasks.size > 0 && (
-            <div className="fixed bottom-6 right-6 w-[240px] h-[40px] bg-[#FFE5E3] border border-[#FFE5E3] rounded-full flex items-center justify-between px-4 py-2">
-              <span className="text-[#D91F11] text-base font-medium">
-                {selectedTasks.size}개 선택됨
-              </span>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleDeleteSelectedTasks}
-                  disabled={isDeleting}
-                  className="w-5 h-5 flex items-center justify-center text-[#D91F11] disabled:opacity-50"
-                >
-                  <Trash2 size={20} />
-                </button>
-                <button
-                  onClick={handleClearSelection}
-                  className="w-5 h-5 flex items-center justify-center text-[#D91F11]"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <DragOverlay>
-          {activeTask && (
-            <div className="bg-white text-base font-medium text-black-01 rounded-md px-3 py-3.5 select-none cursor-pointer mb-2 border border-[#DCDCDC]">
-              {activeTask.title}
-            </div>
-          )}
-        </DragOverlay>
-      </DndContext>
-
-      {selectedTaskForModal && (
-        <TaskModal
-          task={selectedTaskForModal}
-          isOpen={!!selectedTaskForModal}
-          onClose={handleModalClose}
-          members={members}
-          onUpdate={updateTaskAndState}
-          getTaskById={getTaskById}
-          deleteTask={handleTaskDelete}
-        />
-      )}
-    </div>
+        onSelect={handleEpicSelect}
+        projectId={projectId}
+        initialData={
+          pendingTaskData?.initialData || {
+            title: '',
+            description: '',
+            status: 'TODO',
+            assigneeEmail: '',
+            startDate: '',
+            endDate: '',
+            priority: 'MEDIUM',
+            projectId: projectId,
+            epicId: '',
+          }
+        }
+      />
+    </>
   )
 }
