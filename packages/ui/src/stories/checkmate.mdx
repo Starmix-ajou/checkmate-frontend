@@ -3,9 +3,12 @@ import Image from 'next/image'
 
 import * as AvatarGroupStories from './AvatarGroup.stories'
 import * as CheckmateSpinnerStories from './CheckmateSpinner.stories'
+import * as ColorPaletteStories from './ColorPalette.stories'
+import * as EditableTableStories from './EditableTable.stories'
 import * as PositionBadgeStories from './PositionBadge.stories'
 import * as ProjectCardStories from './ProjectCard.stories'
 import * as ProjectHeaderStories from './ProjectHeader.stories'
+import * as WizardLoadingScreenStories from './WizardLoadingScreen.stories'
 import Accessibility from './assets/accessibility.png'
 import AddonLibrary from './assets/addon-library.png'
 import Assets from './assets/assets.png'
@@ -20,7 +23,6 @@ import Testing from './assets/testing.png'
 import Theming from './assets/theming.png'
 import Tutorials from './assets/tutorials.svg'
 import Youtube from './assets/youtube.svg'
-import * as ColorPaletteStories from './ColorPalette.stories'
 
 export const RightArrow = () => (
   <svg
@@ -55,7 +57,7 @@ export const RightArrow = () => (
   <div className="sb-section">
     <div className="sb-features-grid">
 
-    <div className="sb-grid-item">
+      <div className="sb-grid-item">
         <Story of={ProjectCardStories.Default} />
         <h4 className="sb-section-item-heading">ProjectCard</h4>
         <p className="sb-section-item-paragraph">
@@ -70,6 +72,24 @@ export const RightArrow = () => (
         <p className="sb-section-item-paragraph">
           checkmate 로고를 활용한 귀여운 로딩 스피너입니다.
           크기를 자유롭게 조절할 수 있어 다양한 상황에서 활용 가능합니다.
+        </p>
+      </div>
+
+      <div className="sb-grid-item">
+        <Story of={WizardLoadingScreenStories.Default} />
+        <h4 className="sb-section-item-heading">WizardLoadingScreen</h4>
+        <p className="sb-section-item-paragraph">
+          마법사(Wizard) 형태의 UI에서 사용되는 로딩 화면입니다.
+          CheckmateSpinner와 함께 사용되며, 3초 후 추가 메시지를 표시합니다.
+        </p>
+      </div>
+
+      <div className="sb-grid-item">
+        <Story of={EditableTableStories.Default} />
+        <h4 className="sb-section-item-heading">EditableTable</h4>
+        <p className="sb-section-item-paragraph">
+          편집 가능한 테이블 컴포넌트입니다.
+          행 추가/삭제, 셀 편집, 헤더 표시/숨김 등의 기능을 제공합니다.
         </p>
       </div>
 
