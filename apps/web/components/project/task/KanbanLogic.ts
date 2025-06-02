@@ -37,10 +37,7 @@ type TaskFilters = {
   assigneeEmails: string[]
 }
 
-export function KanbanLogic(
-  projectId: string,
-  epics: { epicId: string; title: string }[]
-) {
+export function KanbanLogic(projectId: string) {
   const user = useAuthStore((state) => state.user)
   const [columns, setColumns] = useState<Record<ColumnType, Task[]>>({
     todo: [],
@@ -554,7 +551,6 @@ export function KanbanLogic(
                 priority: 'MEDIUM',
                 projectId: projectId,
               },
-              epics,
             },
           })
           window.dispatchEvent(epicSelectionEvent)
@@ -563,7 +559,7 @@ export function KanbanLogic(
         console.error('태스크 생성 실패:', error)
       }
     },
-    [user?.email, projectId, epics, createTask]
+    [user?.email, projectId, createTask]
   )
 
   useEffect(() => {

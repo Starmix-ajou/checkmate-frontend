@@ -17,7 +17,6 @@ export default function KanbanView({
   members,
   searchText,
   filters,
-  epics,
 }: {
   projectId: string
   members: Member[]
@@ -28,7 +27,6 @@ export default function KanbanView({
     sprintId: string
     assigneeEmails: string[]
   }
-  epics: { epicId: string; title: string }[]
 }) {
   const {
     columns,
@@ -44,7 +42,7 @@ export default function KanbanView({
     getTaskById,
     fetchTasks,
     handleAddTask,
-  } = KanbanLogic(projectId, epics)
+  } = KanbanLogic(projectId)
 
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set())
   const [isDeleting, setIsDeleting] = useState(false)
