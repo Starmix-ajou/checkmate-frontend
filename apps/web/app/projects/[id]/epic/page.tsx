@@ -143,7 +143,7 @@ export default function ProjectEpic() {
             >
               Day
             </button>
-            <button
+            {/* <button
               className={`text-base font-medium mr-2 px-2 py-3.5 border-b-2 transition ${
                 viewMode === ViewMode.Week && viewType === 'SPRINT'
                   ? 'text-cm-900 border-cm-900'
@@ -155,7 +155,7 @@ export default function ProjectEpic() {
               }}
             >
               Sprint
-            </button>
+            </button> */}
             <Button
               variant="secondary"
               className="ml-auto mr-3 flex items-center"
