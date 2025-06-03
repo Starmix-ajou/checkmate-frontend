@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/providers/AuthProvider'
-import { ProjectListItem, ProjectStatus } from '@cm/types/project'
+import { ProjectListItem, ProjectStatus, Profile } from '@cm/types/project'
 import { BaseNavbar } from '@cm/ui/components/common/BaseNavbar'
 import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import { ProjectList } from '@cm/ui/components/project'
@@ -14,6 +14,7 @@ const Home = () => {
   const { user, signOut } = useAuth()
   const [filter, setFilter] = useState<ProjectStatus>('')
   const [projects, setProjects] = useState<ProjectListItem[]>([])
+  const [currentUserProfile, setCurrentUserProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
   const handleFilterChange = (newFilter: string) => {
@@ -47,8 +48,20 @@ const Home = () => {
         }
 
         const data: ProjectListItem[] = await response.json()
-
         setProjects(data)
+
+        // 현재 사용자의 프로필 정보 찾기
+        const currentUserProject = data.find((project) =>
+          project.members.some((member) => member.email === user.email)
+        )
+        if (currentUserProject) {
+          const currentUserMember = currentUserProject.members.find(
+            (member) => member.email === user.email
+          )
+          if (currentUserMember) {
+            setCurrentUserProfile(currentUserMember.profile)
+          }
+        }
       } catch (error) {
         console.error(error)
       } finally {
@@ -57,7 +70,7 @@ const Home = () => {
     }
 
     fetchProjects()
-  }, [filter, user?.accessToken])
+  }, [filter, user?.accessToken, user?.email])
 
   return (
     <>
@@ -74,7 +87,7 @@ const Home = () => {
         <div className="w-full flex justify-end">
           <ProjectAdd />
         </div>
-        <ProjectList projects={projects} />
+        <ProjectList projects={projects} currentUserProfile={currentUserProfile || undefined} />
       </div>
     </>
   )
