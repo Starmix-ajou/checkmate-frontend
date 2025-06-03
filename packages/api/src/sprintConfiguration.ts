@@ -8,7 +8,7 @@ import {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 const API_ENDPOINTS = {
   TASKS: `${API_BASE_URL}/task`,
-  SPRINT: `${API_BASE_URL}/sprint`,
+  SPRINT: `${API_BASE_URL}/sse/sprint`,
 } as const
 
 export const getIncompletedTasks = async (
@@ -118,9 +118,12 @@ export async function updateSprint(
   }
 
   console.log(data)
+  const queryParams = new URLSearchParams({
+    projectId,
+  })
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/sprint?projectId=${projectId}`,
+    `${API_ENDPOINTS.SPRINT}?${queryParams.toString()}`,
     {
       method: 'PUT',
       headers: {
