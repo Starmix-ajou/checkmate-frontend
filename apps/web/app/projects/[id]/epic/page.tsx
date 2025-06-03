@@ -1,5 +1,6 @@
 'use client'
 
+import DeleteEpicModal from '@/components/project/epic/DeleteEpicModal'
 import NewEpicModal from '@/components/project/epic/NewEpicModal'
 import { Gantt } from '@/components/project/epic/gantt/gantt'
 import { useAuthStore } from '@/stores/useAuthStore'
@@ -15,12 +16,6 @@ import {
   BreadcrumbSeparator,
 } from '@cm/ui/components/ui/breadcrumb'
 import { Button } from '@cm/ui/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@cm/ui/components/ui/dialog'
 import { Skeleton } from '@cm/ui/components/ui/skeleton'
 import { PlusIcon, Trash2 } from 'lucide-react'
 import { useParams } from 'next/navigation'
@@ -34,6 +29,7 @@ export default function ProjectEpic() {
   const [project, setProject] = useState<Project | null>(null)
   const [epics, setEpics] = useState<Epic[]>([])
   const [isCreateEpicDialogOpen, setIsCreateEpicDialogOpen] = useState(false)
+  const [isDeleteEpicDialogOpen, setIsDeleteEpicDialogOpen] = useState(false)
   const user = useAuthStore((state) => state.user)
 
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.Week)
@@ -167,7 +163,11 @@ export default function ProjectEpic() {
             >
               <PlusIcon className="w-4 h-4" />새 에픽 생성
             </Button>
-            <Button variant="destructive" className="flex items-center mr-16">
+            <Button
+              variant="destructive"
+              className="flex items-center mr-16"
+              onClick={() => setIsDeleteEpicDialogOpen(true)}
+            >
               <Trash2 className="w-4 h-4" />
               에픽 삭제
             </Button>
@@ -186,6 +186,36 @@ export default function ProjectEpic() {
           isOpen={isCreateEpicDialogOpen}
           onClose={() => setIsCreateEpicDialogOpen(false)}
           projectId={id as string}
+        />
+        <DeleteEpicModal
+          isOpen={isDeleteEpicDialogOpen}
+          onClose={() => setIsDeleteEpicDialogOpen(false)}
+          projectId={id as string}
+          onDelete={() => {
+            // 에픽 목록 새로고침
+            const fetchEpics = async () => {
+              if (!user?.accessToken || !id) return
+              try {
+                const response = await fetch(
+                  `${API_BASE_URL}/epic?projectId=${id}`,
+                  {
+                    headers: {
+                      Accept: '*/*',
+                      Authorization: `Bearer ${user?.accessToken}`,
+                    },
+                  }
+                )
+                if (!response.ok) {
+                  throw new Error('에픽 목록 불러오기 실패')
+                }
+                const data = await response.json()
+                setEpics(data)
+              } catch (error) {
+                console.error(error)
+              }
+            }
+            fetchEpics()
+          }}
         />
       </div>
     </div>
