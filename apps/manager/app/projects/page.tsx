@@ -1,13 +1,12 @@
 'use client'
 
+import { ProjectListItem, getProjects } from '@/lib/api/project'
 import { useAuth } from '@/providers/AuthProvider'
-import { ProjectListItem, ProjectStatus } from '@cm/types/project'
+import { ProjectStatus } from '@cm/types/project'
 import { BaseNavbar } from '@cm/ui/components/common/BaseNavbar'
 import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import { ProjectList } from '@cm/ui/components/project'
 import { useEffect, useState } from 'react'
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 const Home = () => {
   const { user, signOut } = useAuth()
@@ -26,27 +25,7 @@ const Home = () => {
     const fetchProjects = async () => {
       setLoading(true)
       try {
-        const queryParams = new URLSearchParams()
-        if (filter) {
-          queryParams.append('status', filter)
-        }
-
-        const response = await fetch(
-          `${API_BASE_URL}/project?${queryParams.toString()}`,
-          {
-            headers: {
-              Accept: '*/*',
-              Authorization: `Bearer ${user?.accessToken}`,
-            },
-          }
-        )
-
-        if (!response.ok) {
-          throw new Error('프로젝트 불러오기 실패')
-        }
-
-        const data: ProjectListItem[] = await response.json()
-
+        const data = await getProjects(user.accessToken, filter)
         setProjects(data)
       } catch (error) {
         console.error(error)

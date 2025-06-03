@@ -1,7 +1,6 @@
-import { Position } from '@cm/types/NewProjectTeamMember'
-import { addMember } from '@cm/api/member'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { useParams } from 'next/navigation'
+import { addMember } from '@cm/api/member'
+import { Position } from '@cm/types/NewProjectTeamMember'
 import { Badge } from '@cm/ui/components/ui/badge'
 import { Button } from '@cm/ui/components/ui/button'
 import {
@@ -13,6 +12,7 @@ import {
   DialogTrigger,
 } from '@cm/ui/components/ui/dialog'
 import { Input } from '@cm/ui/components/ui/input'
+import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 import { toast } from 'react-toastify'
@@ -47,7 +47,13 @@ export function AddMemberDialog({
 
     setIsSubmitting(true)
     try {
-      await addMember(projectId as string, email, positions, user.accessToken)
+      await addMember(
+        projectId as string,
+        email,
+        positions,
+        'DEVELOPER',
+        user.accessToken
+      )
       toast.success('멤버가 추가되었습니다')
       onOpenChange(false)
       onMembersUpdate?.()
