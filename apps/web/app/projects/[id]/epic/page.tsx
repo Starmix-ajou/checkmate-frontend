@@ -1,5 +1,6 @@
 'use client'
 
+import NewEpicModal from '@/components/project/epic/NewEpicModal'
 import { Gantt } from '@/components/project/epic/gantt/gantt'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Epic } from '@cm/types/epic'
@@ -13,7 +14,15 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@cm/ui/components/ui/breadcrumb'
+import { Button } from '@cm/ui/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@cm/ui/components/ui/dialog'
 import { Skeleton } from '@cm/ui/components/ui/skeleton'
+import { PlusIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -24,6 +33,7 @@ export default function ProjectEpic() {
   const [loading, setLoading] = useState(true)
   const [project, setProject] = useState<Project | null>(null)
   const [epics, setEpics] = useState<Epic[]>([])
+  const [isCreateEpicDialogOpen, setIsCreateEpicDialogOpen] = useState(false)
   const user = useAuthStore((state) => state.user)
 
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.Week)
@@ -110,7 +120,7 @@ export default function ProjectEpic() {
         </div>
 
         <div className="">
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <button
               className={`text-base font-medium mr-2 px-2 py-3.5 border-b-2 transition ${
                 viewMode === ViewMode.Week && viewType === 'WEEK'
@@ -150,6 +160,13 @@ export default function ProjectEpic() {
             >
               Sprint
             </button>
+            <Button
+              variant="secondary"
+              className="ml-auto mr-28 flex items-center"
+              onClick={() => setIsCreateEpicDialogOpen(true)}
+            >
+              <PlusIcon className="w-4 h-4" />새 에픽 생성
+            </Button>
           </div>
         </div>
 
@@ -160,6 +177,12 @@ export default function ProjectEpic() {
             <Gantt epics={epics} viewMode={viewMode} />
           )}
         </div>
+
+        <NewEpicModal
+          isOpen={isCreateEpicDialogOpen}
+          onClose={() => setIsCreateEpicDialogOpen(false)}
+          projectId={id as string}
+        />
       </div>
     </div>
   )
