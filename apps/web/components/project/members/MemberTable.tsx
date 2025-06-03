@@ -63,7 +63,7 @@ export function MemberTable({
             </TableCell>
             <TableCell>{member.email}</TableCell>
             <TableCell>
-              <PositionBadgeGroup positions={member.profiles[0]?.positions || []} />
+              <PositionBadgeGroup positions={member.profile.positions || []} />
             </TableCell>
           </TableRow>
         ))}

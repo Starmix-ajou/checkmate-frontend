@@ -2,7 +2,8 @@
 
 import MembersList from '@/components/project/members/MembersList'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { Project } from '@cm/types/project'
+import { ProjectBrief } from '@cm/types/project'
+import { getProjectBrief } from '@cm/api/project'
 import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import {
   Breadcrumb,
@@ -16,32 +17,19 @@ import { Skeleton } from '@cm/ui/components/ui/skeleton'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
-
 export default function MembersPage() {
   const { id } = useParams()
   const user = useAuthStore((state) => state.user)
-  const [project, setProject] = useState<Project | null>(null)
+  const [projectBrief, setProjectBrief] = useState<ProjectBrief | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!user?.accessToken || !id) return
 
-    const fetchProjectDetails = async () => {
+    const fetchProjectBrief = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/project/${id}`, {
-          headers: {
-            Accept: '*/*',
-            Authorization: `Bearer ${user?.accessToken}`,
-          },
-        })
-
-        if (!response.ok) {
-          throw new Error('프로젝트 상세 정보 불러오기 실패')
-        }
-
-        const data = await response.json()
-        setProject(data)
+        const briefData = await getProjectBrief(id as string, user.accessToken)
+        setProjectBrief(briefData)
       } catch (error) {
         console.error(error)
       } finally {
@@ -49,7 +37,7 @@ export default function MembersPage() {
       }
     }
 
-    fetchProjectDetails()
+    fetchProjectBrief()
   }, [id, user?.accessToken])
 
   return (
@@ -68,7 +56,7 @@ export default function MembersPage() {
                   <Skeleton className="h-4 w-[100px]" />
                 ) : (
                   <BreadcrumbLink href={`/projects/${id}/overview`}>
-                    {project?.title}
+                    {projectBrief?.title}
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
@@ -86,11 +74,11 @@ export default function MembersPage() {
               </>
             ) : (
               <>
-                <h1 className="text-3xl font-bold">{project?.title}</h1>
+                <h1 className="text-3xl font-bold">{projectBrief?.title}</h1>
               </>
             )}
           </div>
-          <MembersList members={project?.members || []} />
+          <MembersList projectId={id as string} />
         </div>
       </div>
     </>

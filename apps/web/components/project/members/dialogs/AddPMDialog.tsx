@@ -1,3 +1,6 @@
+import { addMember } from '@cm/api/member'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { useParams } from 'next/navigation'
 import { Button } from '@cm/ui/components/ui/button'
 import {
   Dialog,
@@ -9,20 +12,44 @@ import {
 } from '@cm/ui/components/ui/dialog'
 import { Input } from '@cm/ui/components/ui/input'
 import { useState } from 'react'
+import { toast } from 'react-toastify'
 
 interface AddPMDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onMembersUpdate?: () => void
 }
 
-export function AddPMDialog({ open, onOpenChange }: AddPMDialogProps) {
+export function AddPMDialog({
+  open,
+  onOpenChange,
+  onMembersUpdate,
+}: AddPMDialogProps) {
+  const { id: projectId } = useParams()
+  const user = useAuthStore((state) => state.user)
   const [email, setEmail] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleAddPM = async () => {
-    // TODO: API 호출 구현
-    console.log('Add PM:', { email })
-    onOpenChange(false)
-    setEmail('')
+    if (!user?.accessToken || !projectId || !email) {
+      toast.error('이메일을 입력해주세요')
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      // Product Manager는 positions가 빈 배열이고 role이 PRODUCT_MANAGER
+      await addMember(projectId as string, email, [], user.accessToken)
+      toast.success('Product Manager가 추가되었습니다')
+      onOpenChange(false)
+      onMembersUpdate?.()
+      setEmail('')
+    } catch (error) {
+      console.error(error)
+      toast.error('Product Manager 추가에 실패했습니다')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -41,11 +68,14 @@ export function AddPMDialog({ open, onOpenChange }: AddPMDialogProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="example@email.com"
+              disabled={isSubmitting}
             />
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={handleAddPM}>추가</Button>
+          <Button onClick={handleAddPM} disabled={isSubmitting}>
+            {isSubmitting ? '추가 중...' : '추가'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
