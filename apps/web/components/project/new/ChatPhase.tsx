@@ -182,6 +182,7 @@ export default function ChatPhase({
       profile: {
         positions: member.positions,
         projectId: 'temp',
+        role: 'DEVELOPER',
       },
     }))
 
@@ -243,15 +244,7 @@ export default function ChatPhase({
       if (!origFeature) {
         addedFeatures.push(modFeature)
       } else {
-        const isModified =
-          origFeature.name !== modFeature.name ||
-          origFeature.useCase !== modFeature.useCase ||
-          origFeature.input !== modFeature.input ||
-          origFeature.output !== modFeature.output
-
-        if (isModified) {
-          modifiedFeatures.push(modFeature)
-        }
+        modifiedFeatures.push(modFeature)
       }
     })
 

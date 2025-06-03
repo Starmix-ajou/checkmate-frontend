@@ -7,7 +7,7 @@ export const postProjectDefinition = async (
 ) => {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/project/definition`,
+      `${process.env.NEXT_PUBLIC_API_URL}/sse/project/definition`,
       {
         method: 'POST',
         headers: {
@@ -32,7 +32,7 @@ export const putDefinitionFeedback = async (
 ) => {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/project/definition`,
+      `${process.env.NEXT_PUBLIC_API_URL}/sse/project/definition`,
       {
         method: 'PUT',
         headers: {
@@ -66,7 +66,7 @@ export const putSpecificationFeedback = async (
   try {
     console.log(body)
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/project/specification`,
+      `${process.env.NEXT_PUBLIC_API_URL}/sse/project/specification`,
       {
         method: 'PUT',
         headers: {
@@ -87,7 +87,7 @@ export const putSpecificationFeedback = async (
 export const getSpecification = async (accessToken: string) => {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/project/specification`,
+      `${process.env.NEXT_PUBLIC_API_URL}/sse/project/specification`,
       {
         method: 'GET',
         headers: {
