@@ -1,10 +1,11 @@
-import { ProjectListItem } from '@cm/types/project'
+import { ProjectListItem, Profile } from '@cm/types/project'
 import ProjectCard from '@cm/ui/components/project/ProjectCard'
 import Image from 'next/image'
 import Link from 'next/link'
 
 type ProjectListProps = {
   projects: ProjectListItem[]
+  currentUserProfile?: Profile
 }
 
 const EmptyProjectList = () => {
@@ -35,7 +36,7 @@ const EmptyProjectList = () => {
   )
 }
 
-const ProjectList = ({ projects }: ProjectListProps) => {
+const ProjectList = ({ projects, currentUserProfile }: ProjectListProps) => {
   if (projects.length === 0) {
     return <EmptyProjectList />
   }
@@ -54,6 +55,7 @@ const ProjectList = ({ projects }: ProjectListProps) => {
               startDate={project.startDate}
               endDate={project.endDate}
               imageUrl={project.project.imageUrl}
+              currentUserProfile={currentUserProfile}
             />
           ))}
         </div>

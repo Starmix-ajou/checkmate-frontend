@@ -5,7 +5,9 @@ import AvatarGroup from '@cm/ui/components/project/AvatarGroup'
 import { Card } from '@cm/ui/components/ui/card'
 import { PositionBadgeGroup } from '@cm/ui/components/ui/position-badge'
 import { Progress } from '@cm/ui/components/ui/progress'
+import { Button } from '@cm/ui/components/ui/button'
 import { useProjectColor } from '@cm/ui/hooks/useRandomColor'
+import { Mail } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -18,6 +20,7 @@ type ProjectCardProps = {
   startDate: string
   endDate: string
   imageUrl: string
+  currentUserProfile?: Profile
 }
 
 const ProjectCard = ({
@@ -28,9 +31,11 @@ const ProjectCard = ({
   startDate,
   endDate,
   imageUrl,
+  currentUserProfile,
 }: ProjectCardProps) => {
   const [today, setToday] = useState<Date | null>(null)
   const { backgroundColor, titleColor } = useProjectColor(title + id)
+  const isInvited = currentUserProfile && !currentUserProfile.isActive
 
   useEffect(() => {
     setToday(new Date())
@@ -57,7 +62,7 @@ const ProjectCard = ({
   }))
 
   return (
-    <Link href={`/projects/${id}/overview`}>
+    <Link href={isInvited ? `/projects/${id}/invite` : `/projects/${id}/overview`}>
       <Card className="rounded-lg shadow-md transition hover:shadow-lg cursor-pointer w-full gap-0 p-0 max-w-2xl min-w-2xs">
         <div className="relative w-full h-40 rounded-t-lg overflow-hidden">
           {imageUrl ? (
@@ -83,35 +88,51 @@ const ProjectCard = ({
         </div>
         <div className="p-4">
           <div className="text-lg font-semibold">{title}</div>
-          <PositionBadgeGroup positions={position} />
-          <div className="text-sm text-gray-500">
-            {startDate} ~ {endDate}
-          </div>
-
-          <div className="flex flex-col gap-2 pt-4">
-            <div className="flex items-center justify-between">
+          
+          {isInvited ? (
+            <div className="space-y-4">
+              <div className="text-sm text-gray-500">
+                {startDate} ~ {endDate}
+              </div>
               <AvatarGroup users={memberAvatars} />
-              <div className="text-xs text-gray-500">
-                {dDay < 0 ? 'Done' : `D-${dDay}`}
+              <div className="flex items-center gap-2 text-cm-500 pt-2 pb-3">
+                <Mail className="w-5 h-5" />
+                <span className="text-sm">프로젝트 초대가 도착했습니다</span>
               </div>
             </div>
-            <div className="w-full">
-              <div className="relative h-5">
-                <Image
-                  src="/tabler-run.svg"
-                  alt="run"
-                  width={20}
-                  height={20}
-                  className="text-cm-blue absolute"
-                  style={{
-                    left: `${progress}%`,
-                    transform: 'translateX(-50%)',
-                  }}
-                />
+          ) : (
+            <>
+              <PositionBadgeGroup positions={position} />
+              <div className="text-sm text-gray-500">
+                {startDate} ~ {endDate}
               </div>
-              <Progress value={progress} className="w-full h-1 rounded-full" />
-            </div>
-          </div>
+
+              <div className="flex flex-col gap-2 pt-4">
+                <div className="flex items-center justify-between">
+                  <AvatarGroup users={memberAvatars} />
+                  <div className="text-xs text-gray-500">
+                    {dDay < 0 ? 'Done' : `D-${dDay}`}
+                  </div>
+                </div>
+                <div className="w-full">
+                  <div className="relative h-5">
+                    <Image
+                      src="/tabler-run.svg"
+                      alt="run"
+                      width={20}
+                      height={20}
+                      className="text-cm-blue absolute"
+                      style={{
+                        left: `${progress}%`,
+                        transform: 'translateX(-50%)',
+                      }}
+                    />
+                  </div>
+                  <Progress value={progress} className="w-full h-1 rounded-full" />
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </Card>
     </Link>
