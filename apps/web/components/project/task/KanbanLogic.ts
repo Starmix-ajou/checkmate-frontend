@@ -8,6 +8,8 @@ import {
 } from '@dnd-kit/core'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { showTaskCompletionToast } from './TaskCompletionToast'
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 const EPICCUSTOM = '682c6163b1db4571f3c0490f' // 햄주트의 epicId
@@ -392,6 +394,16 @@ export function KanbanLogic(projectId: string) {
           [toColumn]: toTasks.filter((task) => task.taskId !== moved.taskId),
         }))
       })
+
+      // Done 열로 이동했을 때 토스트 메시지 표시
+      if (toColumn === 'done') {
+        showTaskCompletionToast({
+          onWriteNow: () => {
+            // TODO: 회고 작성 모달 열기
+            console.log('회고 작성 모달 열기')
+          },
+        })
+      }
     }
   }
 
