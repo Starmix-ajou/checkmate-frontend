@@ -2,6 +2,7 @@ export type Profile = {
   positions: string[]
   projectId: string
   role: string
+  isActive: boolean
 }
 
 export type Member = {

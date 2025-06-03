@@ -183,6 +183,7 @@ export default function ChatPhase({
         positions: member.positions,
         projectId: 'temp',
         role: 'DEVELOPER',
+        isActive: false,
       },
     }))
 
