@@ -10,6 +10,7 @@ import EpicSelectionModal from './EpicSelectionModal'
 // import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import KanbanColumn from './KanbanColumn'
 import { KanbanLogic } from './KanbanLogic'
+import MiniRetroDialog from './MiniRetroDialog'
 import TaskModal from './TaskModal'
 
 export default function KanbanView({
@@ -51,6 +52,7 @@ export default function KanbanView({
   )
   const [forceUpdate, setForceUpdate] = useState(0)
   const [isEpicModalOpen, setIsEpicModalOpen] = useState(false)
+  const [isMiniRetroOpen, setIsMiniRetroOpen] = useState(false)
   const [pendingTaskData, setPendingTaskData] = useState<{
     columnKey: string
     initialData: TaskCreateRequest
@@ -76,6 +78,17 @@ export default function KanbanView({
     window.addEventListener('kanban:select-epic', handleEpicSelection)
     return () => {
       window.removeEventListener('kanban:select-epic', handleEpicSelection)
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleTaskCompletion = () => {
+      setIsMiniRetroOpen(true)
+    }
+
+    window.addEventListener('kanban:task-completion', handleTaskCompletion)
+    return () => {
+      window.removeEventListener('kanban:task-completion', handleTaskCompletion)
     }
   }, [])
 
@@ -224,6 +237,10 @@ export default function KanbanView({
     } catch (error) {
       console.error('태스크 생성 실패:', error)
     }
+  }
+
+  const handleTaskCompletion = () => {
+    setIsMiniRetroOpen(true)
   }
 
   if (error) {
@@ -390,6 +407,12 @@ export default function KanbanView({
             epicId: '',
           }
         }
+      />
+
+      {/* 미니 회고 Dialog */}
+      <MiniRetroDialog
+        isOpen={isMiniRetroOpen}
+        onClose={() => setIsMiniRetroOpen(false)}
       />
     </>
   )

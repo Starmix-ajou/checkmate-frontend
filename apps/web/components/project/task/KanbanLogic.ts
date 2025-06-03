@@ -399,8 +399,8 @@ export function KanbanLogic(projectId: string) {
       if (toColumn === 'done') {
         showTaskCompletionToast({
           onWriteNow: () => {
-            // TODO: 회고 작성 모달 열기
-            console.log('회고 작성 모달 열기')
+            const event = new CustomEvent('kanban:task-completion', {})
+            window.dispatchEvent(event)
           },
         })
       }
