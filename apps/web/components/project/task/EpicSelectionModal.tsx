@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@cm/ui/components/ui/dialog'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 type Epic = {
@@ -46,6 +47,7 @@ export default function EpicSelectionModal({
   const [epics, setEpics] = useState<Epic[]>([])
   const [loading, setLoading] = useState(false)
   const user = useAuthStore((state) => state.user)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchEpics = async () => {
@@ -102,7 +104,7 @@ export default function EpicSelectionModal({
         <DialogHeader>
           <DialogTitle>에픽 선택</DialogTitle>
         </DialogHeader>
-        <div className="space-y-2 py-4">
+        <div className="space-y-2 py-4 max-h-[192px] overflow-y-auto">
           {loading ? (
             <div className="p-3 text-gray-500 text-center">로딩 중...</div>
           ) : epics && epics.length > 0 ? (
@@ -124,6 +126,15 @@ export default function EpicSelectionModal({
           )}
         </div>
         <DialogFooter>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              router.push(`/projects/${projectId}/epic`)
+              onClose()
+            }}
+          >
+            새 에픽 생성
+          </Button>
           <Button
             variant="default"
             onClick={() => {
