@@ -22,7 +22,7 @@ import {
   DialogTitle,
 } from '@cm/ui/components/ui/dialog'
 import { Skeleton } from '@cm/ui/components/ui/skeleton'
-import { PlusIcon } from 'lucide-react'
+import { PlusIcon, Trash2 } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -162,10 +162,14 @@ export default function ProjectEpic() {
             </button>
             <Button
               variant="secondary"
-              className="ml-auto mr-28 flex items-center"
+              className="ml-auto mr-3 flex items-center"
               onClick={() => setIsCreateEpicDialogOpen(true)}
             >
               <PlusIcon className="w-4 h-4" />새 에픽 생성
+            </Button>
+            <Button variant="destructive" className="flex items-center mr-16">
+              <Trash2 className="w-4 h-4" />
+              에픽 삭제
             </Button>
           </div>
         </div>
