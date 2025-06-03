@@ -26,7 +26,7 @@ export const TaskListHeader: React.FC<{
         <div
           className={styles.ganttTable_HeaderItem}
           style={{
-            minWidth: rowWidth,
+            minWidth: '250px',
           }}
         >
           &nbsp;{locale === 'ko' ? '작업명' : 'Task Name'}
@@ -41,7 +41,7 @@ export const TaskListHeader: React.FC<{
         <div
           className={styles.ganttTable_HeaderItem}
           style={{
-            minWidth: rowWidth,
+            minWidth: '130px',
           }}
         >
           &nbsp;{locale === 'ko' ? '시작일' : 'Start Date'}
@@ -56,7 +56,7 @@ export const TaskListHeader: React.FC<{
         <div
           className={styles.ganttTable_HeaderItem}
           style={{
-            minWidth: rowWidth,
+            minWidth: '130px',
           }}
         >
           &nbsp;{locale === 'ko' ? '종료일' : 'End Date'}
