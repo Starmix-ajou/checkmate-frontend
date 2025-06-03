@@ -2,6 +2,7 @@ import ToastProvider from '@cm/ui/components/common/ToastProvider'
 import '@cm/ui/globals.css'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { Toaster } from 'sonner'
 
 import { Providers } from './providers'
 
@@ -37,6 +38,7 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased h-svh`}
         >
+          <Toaster />
           <ToastProvider />
           {children}
         </body>
