@@ -1,6 +1,7 @@
 export type Profile = {
   positions: string[]
   projectId: string
+  role: string
 }
 
 export type Member = {
@@ -8,8 +9,7 @@ export type Member = {
   name: string
   email: string
   profileImageUrl: string
-  profiles: Profile[]
-  role: string
+  profile: Profile
 }
 
 export type ProjectSummary = {
@@ -96,3 +96,9 @@ export interface DailyScrumResponse {
 }
 
 export type Category = 'DONE' | 'TODO'
+
+export type ProjectBrief = {
+  projectId: string
+  title: string
+  description: string
+}
