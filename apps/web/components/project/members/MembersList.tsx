@@ -15,6 +15,8 @@ interface MembersListProps {
 export default function MembersList({ projectId }: MembersListProps) {
   const user = useAuthStore((state) => state.user)
   const [members, setMembers] = useState<Member[]>([])
+  const [leader, setLeader] = useState<Member | null>(null)
+  const [productManager, setProductManager] = useState<Member | null>(null)
   const [selectedMembers, setSelectedMembers] = useState<Member[]>([])
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false)
   const [isAddPMOpen, setIsAddPMOpen] = useState(false)
@@ -26,6 +28,8 @@ export default function MembersList({ projectId }: MembersListProps) {
     try {
       const data = await getProjectMembers(projectId, user.accessToken)
       setMembers(data.members)
+      setLeader(data.leader)
+      setProductManager(data.productManager)
     } catch (error) {
       console.error(error)
       toast.error('멤버 목록을 불러오는데 실패했습니다')
@@ -41,7 +45,7 @@ export default function MembersList({ projectId }: MembersListProps) {
   const handleMembersUpdate = useCallback(async () => {
     setLoading(true)
     await fetchMembers()
-    setSelectedMembers([]) // 선택된 멤버 초기화
+    setSelectedMembers([])
   }, [fetchMembers])
 
   const selectedMemberIds = new Set(selectedMembers.map((member) => member.userId))
@@ -88,13 +92,17 @@ export default function MembersList({ projectId }: MembersListProps) {
         </div>
       </div>
 
-      <MemberTable
-        members={members}
-        selectedMembers={selectedMemberIds}
-        isAllSelected={isAllSelected}
-        onSelectAll={handleSelectAll}
-        onSelectMember={handleSelectMember}
-      />
+      {leader && productManager && (
+        <MemberTable
+          members={members}
+          selectedMembers={selectedMemberIds}
+          isAllSelected={isAllSelected}
+          onSelectAll={handleSelectAll}
+          onSelectMember={handleSelectMember}
+          leader={leader}
+          productManager={productManager}
+        />
+      )}
     </div>
   )
 }
