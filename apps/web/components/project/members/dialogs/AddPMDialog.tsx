@@ -1,6 +1,5 @@
-import { addMember } from '@cm/api/member'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { useParams } from 'next/navigation'
+import { addMember } from '@cm/api/member'
 import { Button } from '@cm/ui/components/ui/button'
 import {
   Dialog,
@@ -11,6 +10,7 @@ import {
   DialogTrigger,
 } from '@cm/ui/components/ui/dialog'
 import { Input } from '@cm/ui/components/ui/input'
+import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 
@@ -38,8 +38,13 @@ export function AddPMDialog({
 
     setIsSubmitting(true)
     try {
-      // Product Manager는 positions가 빈 배열이고 role이 PRODUCT_MANAGER
-      await addMember(projectId as string, email, [], user.accessToken)
+      await addMember(
+        projectId as string,
+        email,
+        [],
+        'PRODUCT_MANAGER',
+        user.accessToken
+      )
       toast.success('Product Manager가 추가되었습니다')
       onOpenChange(false)
       onMembersUpdate?.()
