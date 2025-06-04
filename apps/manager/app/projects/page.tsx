@@ -1,8 +1,8 @@
 'use client'
 
-import { ProjectListItem, getProjects } from '@/lib/api/project'
+import { getProjects } from '@/lib/api/project'
 import { useAuth } from '@/providers/AuthProvider'
-import { ProjectStatus } from '@cm/types/project'
+import { ProjectListItem, ProjectStatus } from '@cm/types/project'
 import { BaseNavbar } from '@cm/ui/components/common/BaseNavbar'
 import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import { ProjectList } from '@cm/ui/components/project'
