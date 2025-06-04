@@ -1,3 +1,5 @@
+import { Task } from "./project"
+
 export type IncompletedTask = {
   id: number
   title: string
