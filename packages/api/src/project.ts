@@ -1,4 +1,4 @@
-import { ProjectBrief, Project } from '@cm/types/project'
+import { ProjectBrief, Project, ProjectListItem } from '@cm/types/project'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -64,6 +64,32 @@ export async function getProject(
 
   if (!response.ok) {
     throw new Error('프로젝트 정보 불러오기 실패')
+  }
+
+  return response.json()
+}
+
+export async function getProjects(
+  accessToken: string,
+  status?: string
+): Promise<ProjectListItem[]> {
+  const queryParams = new URLSearchParams()
+  if (status) {
+    queryParams.append('status', status)
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/project?${queryParams.toString()}`,
+    {
+      headers: {
+        Accept: '*/*',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  )
+
+  if (!response.ok) {
+    throw new Error('프로젝트 불러오기 실패')
   }
 
   return response.json()

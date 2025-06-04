@@ -1,14 +1,13 @@
 'use client'
 
-import { useAuth } from '@/providers/AuthProvider'
 import {
   approveProjectInvite,
   denyProjectInvite,
   getProject,
-} from '@cm/api/project'
-import { Profile, Project } from '@cm/types/project'
+} from '@/lib/api/project'
+import { useAuth } from '@/providers/AuthProvider'
+import { Project } from '@cm/types/project'
 import { BaseNavbar } from '@cm/ui/components/common/BaseNavbar'
-import AvatarGroup from '@cm/ui/components/project/AvatarGroup'
 import { Button } from '@cm/ui/components/ui/button'
 import {
   Card,
@@ -24,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@cm/ui/components/ui/dialog'
-import { Calendar, Info, Users } from 'lucide-react'
+import { Calendar, Info } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
@@ -103,17 +102,6 @@ export default function InvitePage() {
     })
   }
 
-  const activeMembers =
-    project?.members.filter((member) => {
-      if ('profiles' in member) {
-        const currentProjectProfile = (member as any).profiles.find(
-          (profile: Profile) => profile.projectId === projectId
-        )
-        return currentProjectProfile?.isActive ?? false
-      }
-      return member.profile.isActive
-    }) || []
-
   if (loading) {
     return (
       <div className="w-full h-full">
@@ -179,7 +167,7 @@ export default function InvitePage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-3 bg-cm-light/40 rounded-lg">
+              {/* <div className="flex items-center gap-3 p-3 bg-cm-light/40 rounded-lg">
                 <Users className="w-5 h-5 text-cm-600 flex-shrink-0" />
                 <div className="flex-1">
                   <div className="text-sm text-primary mb-2">
@@ -194,7 +182,7 @@ export default function InvitePage() {
                     }))}
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
 
             <div className="flex items-center justify-between gap-2 w-full pt-4">

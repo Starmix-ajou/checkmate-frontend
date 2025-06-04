@@ -5,7 +5,6 @@ import AvatarGroup from '@cm/ui/components/project/AvatarGroup'
 import { Card } from '@cm/ui/components/ui/card'
 import { PositionBadgeGroup } from '@cm/ui/components/ui/position-badge'
 import { Progress } from '@cm/ui/components/ui/progress'
-import { Button } from '@cm/ui/components/ui/button'
 import { useProjectColor } from '@cm/ui/hooks/useRandomColor'
 import { Mail } from 'lucide-react'
 import Image from 'next/image'
@@ -20,7 +19,7 @@ type ProjectCardProps = {
   startDate: string
   endDate: string
   imageUrl: string
-  currentUserProfile?: Profile
+  profile?: Profile
 }
 
 const ProjectCard = ({
@@ -31,11 +30,11 @@ const ProjectCard = ({
   startDate,
   endDate,
   imageUrl,
-  currentUserProfile,
+  profile,
 }: ProjectCardProps) => {
   const [today, setToday] = useState<Date | null>(null)
   const { backgroundColor, titleColor } = useProjectColor(title + id)
-  const isInvited = currentUserProfile && !currentUserProfile.isActive
+  const isInvited = profile && !profile.isActive
 
   useEffect(() => {
     setToday(new Date())
@@ -62,7 +61,9 @@ const ProjectCard = ({
   }))
 
   return (
-    <Link href={isInvited ? `/projects/${id}/invite` : `/projects/${id}/overview`}>
+    <Link
+      href={isInvited ? `/projects/${id}/invite` : `/projects/${id}/overview`}
+    >
       <Card className="rounded-lg shadow-md transition hover:shadow-lg cursor-pointer w-full gap-0 p-0 max-w-2xl min-w-2xs">
         <div className="relative w-full h-40 rounded-t-lg overflow-hidden">
           {imageUrl ? (
@@ -88,7 +89,7 @@ const ProjectCard = ({
         </div>
         <div className="p-4">
           <div className="text-lg font-semibold">{title}</div>
-          
+
           {isInvited ? (
             <div className="space-y-4">
               <div className="text-sm text-gray-500">
@@ -128,7 +129,10 @@ const ProjectCard = ({
                       }}
                     />
                   </div>
-                  <Progress value={progress} className="w-full h-1 rounded-full" />
+                  <Progress
+                    value={progress}
+                    className="w-full h-1 rounded-full"
+                  />
                 </div>
               </div>
             </>
