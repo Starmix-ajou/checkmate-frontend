@@ -1,5 +1,6 @@
 'use client'
 
+import { Sprint } from '@cm/types/sprint'
 import { Button } from '@cm/ui/components/ui/button'
 import {
   Card,
@@ -14,15 +15,13 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 interface SprintPeriodCardProps {
-  startDate: string
-  endDate: string
+  sprints: Sprint[]
   loading?: boolean
   projectId: string
 }
 
 export default function SprintPeriodCard({
-  startDate,
-  endDate,
+  sprints,
   loading = false,
   projectId,
 }: SprintPeriodCardProps) {
@@ -50,8 +49,37 @@ export default function SprintPeriodCard({
     )
   }
 
-  const start = new Date(startDate)
-  const end = new Date(endDate)
+  if (sprints.length === 0) {
+    return (
+      <Card className="col-span-2 gap-2">
+        <CardHeader>
+          <CardTitle>현재 스프린트</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4 items-center">
+          <p className="text-sm text-muted-foreground">
+            진행 중인 스프린트가 없습니다.
+          </p>
+          <Button
+            variant="cmoutline"
+            className="w-full"
+            onClick={() => router.push(`/projects/${projectId}/newsprint`)}
+          >
+            스프린트 재구성
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // 가장 마지막 스프린트 찾기
+  const currentSprint = sprints.reduce((latest, current) => {
+    return new Date(current.startDate) > new Date(latest.startDate)
+      ? current
+      : latest
+  }, sprints[0])
+
+  const start = new Date(currentSprint.startDate)
+  const end = new Date(currentSprint.endDate)
 
   const totalDays = Math.ceil(
     (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)

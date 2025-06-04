@@ -1,5 +1,6 @@
 'use client'
 
+import { ProjectStatistics, getProjectStatistics } from '@/lib/api/project'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { getProjectTasks } from '@cm/api/task'
 import { Project } from '@cm/types/project'
@@ -19,6 +20,8 @@ import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import BurndownChartCard from './BurndownChart'
+import ProgressCharts from './ProgressCharts'
+import TaskStatusChart from './TaskStatusChart'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -27,6 +30,7 @@ export default function ProjectOverview() {
   const user = useAuthStore((state) => state.user)
   const [project, setProject] = useState<Project | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
+  const [statistics, setStatistics] = useState<ProjectStatistics | null>(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -35,15 +39,17 @@ export default function ProjectOverview() {
     const fetchData = async () => {
       setLoading(true)
       try {
-        const [projectResponse, tasksResponse] = await Promise.all([
-          fetch(`${API_BASE_URL}/project/${id}`, {
-            headers: {
-              Accept: '*/*',
-              Authorization: `Bearer ${user?.accessToken}`,
-            },
-          }),
-          getProjectTasks(id as string, user.accessToken),
-        ])
+        const [projectResponse, tasksResponse, statisticsResponse] =
+          await Promise.all([
+            fetch(`${API_BASE_URL}/project/${id}`, {
+              headers: {
+                Accept: '*/*',
+                Authorization: `Bearer ${user?.accessToken}`,
+              },
+            }),
+            getProjectTasks(id as string, user.accessToken),
+            getProjectStatistics(id as string, user.accessToken),
+          ])
 
         if (!projectResponse.ok) {
           throw new Error('프로젝트 상세 정보 불러오기 실패')
@@ -52,6 +58,7 @@ export default function ProjectOverview() {
         const projectData = await projectResponse.json()
         setProject(projectData)
         setTasks(tasksResponse)
+        setStatistics(statisticsResponse)
       } catch (error) {
         console.error(error)
       } finally {
@@ -87,6 +94,12 @@ export default function ProjectOverview() {
 
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <BurndownChartCard tasks={tasks} />
+            {statistics && (
+              <>
+                <TaskStatusChart statistics={statistics} />
+                <ProgressCharts statistics={statistics} />
+              </>
+            )}
           </div>
         </div>
       </div>
