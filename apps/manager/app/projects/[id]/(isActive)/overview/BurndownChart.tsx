@@ -94,7 +94,7 @@ export default function BurndownChartCard({ tasks }: BurndownChartCardProps) {
 
   if (burndownData.length === 0) {
     return (
-      <Card className="col-span-2 row-span-2">
+      <Card className="col-span-4 row-span-2">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>번다운차트</CardTitle>
         </CardHeader>
@@ -106,7 +106,7 @@ export default function BurndownChartCard({ tasks }: BurndownChartCardProps) {
   }
 
   return (
-    <Card className="col-span-3 row-span-2">
+    <Card className="col-span-4 row-span-2">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>번다운차트</CardTitle>
       </CardHeader>
@@ -122,12 +122,14 @@ export default function BurndownChartCard({ tasks }: BurndownChartCardProps) {
               type="monotone"
               dataKey="remaining"
               stroke="#8884d8"
+              strokeWidth="2"
               name="남은 작업"
             />
             <Line
               type="monotone"
               dataKey="ideal"
               stroke="#82ca9d"
+              strokeWidth="2"
               strokeDasharray="5 5"
               name="이상적인 진행"
             />

@@ -6,14 +6,25 @@ export type IncompletedTask = {
   taskId: string
 }
 
-export type Epic = {
-  id: number
+export interface Epic {
+  epicId: string
   title: string
-  startDate: string | null
-  endDate: string | null
-  task: TaskRow[]
-  epicId?: string
-  description?: string
+  description: string
+  projectId: string
+  featureId: string
+  startDate: string
+  endDate: string
+}
+
+export interface Sprint {
+  sprintId: string
+  title: string
+  description: string
+  sequence: number
+  projectId: string
+  startDate: string
+  endDate: string
+  epics: Epic[]
 }
 
 export type SprintResponse = {

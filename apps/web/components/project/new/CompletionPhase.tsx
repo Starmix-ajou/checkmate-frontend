@@ -18,7 +18,7 @@ export default function CompletionPhase({
   const router = useRouter()
 
   const handleComplete = async () => {
-    router.push(`/projects/${projectId}/overview`)
+    router.push(`/projects/${projectId}/newsprint`)
   }
 
   return (
