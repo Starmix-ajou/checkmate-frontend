@@ -13,7 +13,7 @@ import {
   SprintResponse,
   SprintUpdateRequest,
   TaskRow,
-} from '@cm/types/sprint'
+} from '@cm/types/sprintConfiguration'
 import { DetailTaskTable } from '@cm/ui/components/project/DetailTaskTable'
 import WizardLoadingScreen from '@cm/ui/components/project/WizardLoadingScreen'
 import { Badge } from '@cm/ui/components/ui/badge'
