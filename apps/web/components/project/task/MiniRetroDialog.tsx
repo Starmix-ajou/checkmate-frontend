@@ -4,6 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@cm/ui/components/ui/dialog'
+import { KeyRound, Milestone, Swords } from 'lucide-react'
 import { ChangeEvent, useState } from 'react'
 
 interface MiniRetroDialogProps {
@@ -29,12 +30,15 @@ export default function MiniRetroDialog({
         </DialogHeader>
         <div className="space-y-6 py-4">
           <div className="space-y-2">
-            <label
-              htmlFor="learned"
-              className="text-sm font-medium text-gray-700 ml-2"
-            >
-              새롭게 배운 것이 있다면 무엇인가요?
-            </label>
+            <div className="flex items-center">
+              <KeyRound size={16} className="text-[#FFD66B] mx-2" />
+              <label
+                htmlFor="learned"
+                className="text-sm font-medium text-gray-700"
+              >
+                새롭게 배운 것이 있다면 무엇인가요?
+              </label>
+            </div>
             <textarea
               id="learned"
               value={learned}
@@ -42,16 +46,19 @@ export default function MiniRetroDialog({
                 setLearned(e.target.value)
               }
               placeholder="이번 Task를 통해 학습한 기술이나 개념 등 간단히 적어보세요."
-              className="w-full min-h-[100px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cm focus:border-transparent resize-none mt-2"
+              className="w-full min-h-[100px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cm focus:border-transparent resize-none"
             />
           </div>
           <div className="space-y-2">
-            <label
-              htmlFor="difficulties"
-              className="text-sm font-medium text-gray-700 ml-2"
-            >
-              가장 어려웠거나 예상보다 시간이 걸린 부분은 무엇이었나요?
-            </label>
+            <div className="flex items-center">
+              <Swords size={16} className="text-[#F75A5A] mx-2" />
+              <label
+                htmlFor="difficulties"
+                className="text-sm font-medium text-gray-700"
+              >
+                가장 어려웠거나 예상보다 시간이 걸린 부분은 무엇이었나요?
+              </label>
+            </div>
             <textarea
               id="difficulties"
               value={difficulties}
@@ -59,16 +66,19 @@ export default function MiniRetroDialog({
                 setDifficulties(e.target.value)
               }
               placeholder="어떤 부분에서 막혔는지, 예상보다 오래 걸린 이유가 무엇이었는지 간단히 적어보세요."
-              className="w-full min-h-[100px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cm focus:border-transparent resize-none mt-2"
+              className="w-full min-h-[100px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cm focus:border-transparent resize-none"
             />
           </div>
           <div className="space-y-2">
-            <label
-              htmlFor="nextTasks"
-              className="text-sm font-medium text-gray-700 ml-2"
-            >
-              다음에 어떤 Task를 해볼 예정인가요?
-            </label>
+            <div className="flex items-center">
+              <Milestone size={16} className="text-[#4DA8DA] mx-2" />
+              <label
+                htmlFor="nextTasks"
+                className="text-sm font-medium text-gray-700"
+              >
+                다음에 어떤 Task를 해볼 예정인가요?
+              </label>
+            </div>
             <textarea
               id="nextTasks"
               value={nextTasks}
@@ -76,7 +86,7 @@ export default function MiniRetroDialog({
                 setNextTasks(e.target.value)
               }
               placeholder="바로 이어서 할 Task나, 진행 중 떠오른 아이디어가 있다면 간단히 적어보세요."
-              className="w-full min-h-[100px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cm focus:border-transparent resize-none mt-2"
+              className="w-full min-h-[100px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cm focus:border-transparent resize-none"
             />
           </div>
         </div>
