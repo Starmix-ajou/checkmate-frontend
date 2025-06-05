@@ -57,6 +57,7 @@ export default function KanbanView({
     columnKey: string
     initialData: TaskCreateRequest
   } | null>(null)
+  const [completedTaskId, setCompletedTaskId] = useState<string | null>(null)
 
   // 필터가 변경될 때마다 서버에서 데이터를 다시 가져옴
   useEffect(() => {
@@ -82,7 +83,9 @@ export default function KanbanView({
   }, [])
 
   useEffect(() => {
-    const handleTaskCompletion = () => {
+    const handleTaskCompletion = (e: Event) => {
+      const { taskId } = (e as CustomEvent).detail
+      setCompletedTaskId(taskId)
       setIsMiniRetroOpen(true)
     }
 
@@ -239,8 +242,13 @@ export default function KanbanView({
     }
   }
 
-  const handleTaskCompletion = () => {
-    setIsMiniRetroOpen(true)
+  const handleMiniRetroClose = () => {
+    setIsMiniRetroOpen(false)
+    setCompletedTaskId(null)
+  }
+
+  const handleMiniRetroSave = () => {
+    fetchTasks(filters)
   }
 
   if (error) {
@@ -412,7 +420,10 @@ export default function KanbanView({
       {/* 미니 회고 Dialog */}
       <MiniRetroDialog
         isOpen={isMiniRetroOpen}
-        onClose={() => setIsMiniRetroOpen(false)}
+        onClose={handleMiniRetroClose}
+        taskId={completedTaskId || ''}
+        onSave={handleMiniRetroSave}
+        getTaskById={getTaskById}
       />
     </>
   )

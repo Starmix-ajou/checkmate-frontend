@@ -1,3 +1,5 @@
+import { useAuthStore } from '@/stores/useAuthStore'
+import { Task } from '@cm/types/userTask'
 import {
   Dialog,
   DialogContent,
@@ -5,20 +7,95 @@ import {
   DialogTitle,
 } from '@cm/ui/components/ui/dialog'
 import { KeyRound, Milestone, Swords } from 'lucide-react'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 
 interface MiniRetroDialogProps {
   isOpen: boolean
   onClose: () => void
+  taskId: string
+  onSave: () => void
+  getTaskById: (taskId: string) => Promise<Task>
 }
 
 export default function MiniRetroDialog({
   isOpen,
   onClose,
+  taskId,
+  onSave,
+  getTaskById,
 }: MiniRetroDialogProps) {
+  const user = useAuthStore((state) => state.user)
   const [learned, setLearned] = useState('')
   const [difficulties, setDifficulties] = useState('')
   const [nextTasks, setNextTasks] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [currentTask, setCurrentTask] = useState<Task | null>(null)
+
+  useEffect(() => {
+    const fetchTask = async () => {
+      try {
+        const task = await getTaskById(taskId)
+        setCurrentTask(task)
+        setLearned(task.review?.learn || '')
+        setDifficulties(task.review?.hardest || '')
+        setNextTasks(task.review?.next || '')
+      } catch (error) {
+        console.error('태스크 정보를 불러오는데 실패했습니다:', error)
+      }
+    }
+
+    if (isOpen && taskId) {
+      fetchTask()
+    }
+  }, [isOpen, taskId, getTaskById])
+
+  const handleSave = async () => {
+    if (!user?.accessToken || !currentTask) {
+      console.error('인증 토큰이 없거나 태스크 정보가 없습니다.')
+      return
+    }
+
+    try {
+      setIsSaving(true)
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/task/${taskId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+          body: JSON.stringify({
+            title: currentTask.title,
+            description: currentTask.description || '',
+            status: currentTask.status,
+            assigneeEmail: currentTask.assignee?.email || '',
+            startDate: currentTask.startDate,
+            endDate: currentTask.endDate,
+            priority: currentTask.priority,
+            epicId: currentTask.epic.epicId,
+            review: {
+              learn: learned,
+              hardest: difficulties,
+              next: nextTasks,
+            },
+          }),
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('회고록 저장에 실패했습니다.')
+      }
+
+      onSave()
+      onClose()
+    } catch (error) {
+      console.error('회고록 저장 실패:', error)
+      alert('회고록 저장에 실패했습니다.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -94,16 +171,16 @@ export default function MiniRetroDialog({
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+            disabled={isSaving}
           >
             취소
           </button>
           <button
-            onClick={() => {
-              onClose()
-            }}
-            className="px-4 py-2 text-sm font-medium text-white bg-cm rounded-md hover:bg-cm-700"
+            onClick={handleSave}
+            className="px-4 py-2 text-sm font-medium text-white bg-cm rounded-md hover:bg-cm-700 disabled:opacity-50"
+            disabled={isSaving}
           >
-            저장하기
+            {isSaving ? '저장 중...' : '저장하기'}
           </button>
         </div>
       </DialogContent>

@@ -76,6 +76,11 @@ export default function TaskModal({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isVisible, setIsVisible] = useState(false)
+  const [learned, setLearned] = useState(initialTask.review?.learn || '')
+  const [difficulties, setDifficulties] = useState(
+    initialTask.review?.hardest || ''
+  )
+  const [nextTasks, setNextTasks] = useState(initialTask.review?.next || '')
 
   useEffect(() => {
     if (isOpen) {
@@ -105,6 +110,9 @@ export default function TaskModal({
         setSelectedAssignee(
           members.find((m) => m.email === updatedTask.assignee?.email) || null
         )
+        setLearned(updatedTask.review?.learn || '')
+        setDifficulties(updatedTask.review?.hardest || '')
+        setNextTasks(updatedTask.review?.next || '')
       } catch (error) {
         setError(
           error instanceof Error
@@ -189,6 +197,11 @@ export default function TaskModal({
         endDate: endDate.toISOString(),
         assigneeEmail: selectedAssignee?.email || '',
         epicId: task.epic.epicId,
+        review: {
+          learn: learned,
+          hardest: difficulties,
+          next: nextTasks,
+        },
       }
 
       await onUpdate(task.taskId, updateData)
@@ -478,30 +491,30 @@ export default function TaskModal({
                 </h4>
               </div>
               <textarea
-                value={description}
-                onChange={handleDescriptionChange}
+                value={learned}
+                onChange={(e) => setLearned(e.target.value)}
                 className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px] mb-4"
-                placeholder="Add a description..."
+                placeholder="이번 Task를 통해 학습한 기술이나 개념 등 간단히 적어보세요."
               />
               <div className="flex items-center mb-1">
                 <Swords size={16} className="text-[#F75A5A] mr-1" />
                 <h4 className="text-xs font-medium text-cm-300">Challenges</h4>
               </div>
               <textarea
-                value={description}
-                onChange={handleDescriptionChange}
+                value={difficulties}
+                onChange={(e) => setDifficulties(e.target.value)}
                 className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px] mb-4"
-                placeholder="Add a description..."
+                placeholder="어떤 부분에서 막혔는지, 예상보다 오래 걸린 이유가 무엇이었는지 간단히 적어보세요."
               />
               <div className="flex items-center mb-1">
                 <Milestone size={16} className="text-[#4DA8DA] mr-1" />
                 <h4 className="text-xs font-medium text-cm-300">Next Steps</h4>
               </div>
               <textarea
-                value={description}
-                onChange={handleDescriptionChange}
+                value={nextTasks}
+                onChange={(e) => setNextTasks(e.target.value)}
                 className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px]"
-                placeholder="Add a description..."
+                placeholder="바로 이어서 할 Task나, 진행 중 떠오른 아이디어가 있다면 간단히 적어보세요."
               />
             </div>
 
