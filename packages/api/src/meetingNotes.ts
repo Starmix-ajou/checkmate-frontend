@@ -1,4 +1,5 @@
 import { Meeting } from '@cm/types/meeting'
+import { ActionItemRow } from '@cm/types/sprint'
 
 interface LiveblocksRoom {
   type: string
@@ -12,6 +13,89 @@ interface LiveblocksRoom {
   defaultAccesses: string[]
   groupsAccesses: Record<string, string[]>
   usersAccesses: Record<string, string[]>
+}
+
+interface MeetingResponse {
+  meetingId: string
+  title: string
+  content: string
+  master: {
+    userId: string
+    name: string
+    email: string
+    profileImageUrl: string
+    profiles: Array<{
+      positions: string[]
+      projectId: string
+      role: string
+      isActive: boolean
+    }>
+  }
+  projectId: string
+  timestamp: string
+  summary: string
+}
+
+interface SendMeetingContentRequest {
+  meetingId: string
+  title: string
+  content: string
+  masterId: string
+}
+
+interface ActionItemRequest {
+  actionItems: string[]
+}
+
+interface TaskAssignee {
+  userId: string
+  name: string
+  email: string
+  profileImageUrl: string
+  profile: {
+    positions: string[]
+    projectId: string
+    role: string
+    isActive: boolean
+  }
+}
+
+interface TaskEpic {
+  epicId: string
+  title: string
+  description: string
+  projectId: string
+  featureId: string
+  startDate: string
+  endDate: string
+}
+
+interface TaskSprint {
+  sprintId: string
+  title: string
+  description: string
+  sequence: number
+  projectId: string
+  startDate: string
+  endDate: string
+  epics: TaskEpic[]
+}
+
+interface Task {
+  taskId: string
+  title: string
+  description: string
+  status: 'TODO' | 'IN_PROGRESS' | 'DONE'
+  assignee: TaskAssignee
+  startDate: string
+  endDate: string
+  priority: 'HIGH' | 'MEDIUM' | 'LOW'
+  epic: TaskEpic
+  review: string
+}
+
+interface UpdateActionItemsRequest {
+  tasks: Task[]
 }
 
 export const getMeetings = async (
@@ -95,6 +179,129 @@ export const getRoomDetails = async (
     }
   } catch (error) {
     console.error('회의실 정보 조회 에러:', error)
+    throw error
+  }
+}
+
+export const getMeeting = async (
+  accessToken: string,
+  meetingId: string
+): Promise<MeetingResponse> => {
+  if (!accessToken) {
+    throw new Error('인증 토큰이 없습니다.')
+  }
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/meeting/${meetingId}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error(`회의록 조회 실패: ${response.status}`)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error('회의록 조회 에러:', error)
+    throw error
+  }
+}
+
+export const sendMeetingContent = async (
+  accessToken: string,
+  data: SendMeetingContentRequest
+): Promise<void> => {
+  if (!accessToken) {
+    throw new Error('인증 토큰이 없습니다.')
+  }
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/sse/meeting`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(data),
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error(`회의록 내용 전송 실패: ${response.status}`)
+    }
+  } catch (error) {
+    console.error('회의록 내용 전송 에러:', error)
+    throw error
+  }
+}
+
+export const sendActionItems = async (
+  accessToken: string,
+  meetingId: string,
+  actionItems: string[]
+): Promise<void> => {
+  if (!accessToken) {
+    throw new Error('인증 토큰이 없습니다.')
+  }
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/sse/meeting/${meetingId}/action-items`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ actionItems }),
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error(`액션 아이템 전송 실패: ${response.status}`)
+    }
+  } catch (error) {
+    console.error('액션 아이템 전송 에러:', error)
+    throw error
+  }
+}
+
+export const updateActionItems = async (
+  accessToken: string,
+  meetingId: string,
+  tasks: ActionItemRow[]
+): Promise<void> => {
+  if (!accessToken) {
+    throw new Error('인증 토큰이 없습니다.')
+  }
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/sse/meeting/${meetingId}/action-items`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ tasks }),
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error(`액션 아이템 업데이트 실패: ${response.status}`)
+    }
+  } catch (error) {
+    console.error('액션 아이템 업데이트 에러:', error)
     throw error
   }
 }

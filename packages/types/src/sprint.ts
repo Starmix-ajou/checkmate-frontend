@@ -91,6 +91,16 @@ export type TaskRow = {
   status?: string
 }
 
+export type ActionItemRow = {
+  title: string
+  assigneeEmail: string
+  epicId: string
+  startDate: string
+  endDate: string
+  description?: string
+  status?: string
+}
+
 export type SprintUpdateRequest = {
   epicId: string
   tasks: {
