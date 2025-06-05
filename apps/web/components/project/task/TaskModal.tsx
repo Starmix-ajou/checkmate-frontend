@@ -9,7 +9,14 @@ import {
 } from '@cm/ui/components/ui/popover'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
-import { ChevronDown, Trash2, X } from 'lucide-react'
+import {
+  ChevronDown,
+  KeyRound,
+  Milestone,
+  Swords,
+  Trash2,
+  X,
+} from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { DayPicker, getDefaultClassNames } from 'react-day-picker'
@@ -451,6 +458,45 @@ export default function TaskModal({
               <h3 className="text-sm font-medium text-cm-gray mb-2">
                 Description
               </h3>
+              <textarea
+                value={description}
+                onChange={handleDescriptionChange}
+                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px]"
+                placeholder="Add a description..."
+              />
+            </div>
+
+            {/* 회고 */}
+            <div>
+              <h3 className="text-sm font-medium text-cm-gray mb-2">
+                Retrospective
+              </h3>
+              <div className="flex items-center mb-1">
+                <KeyRound size={16} className="text-[#FFD66B] mr-1" />
+                <h4 className="text-xs font-medium text-cm-300">
+                  Key Learnings
+                </h4>
+              </div>
+              <textarea
+                value={description}
+                onChange={handleDescriptionChange}
+                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px] mb-4"
+                placeholder="Add a description..."
+              />
+              <div className="flex items-center mb-1">
+                <Swords size={16} className="text-[#F75A5A] mr-1" />
+                <h4 className="text-xs font-medium text-cm-300">Challenges</h4>
+              </div>
+              <textarea
+                value={description}
+                onChange={handleDescriptionChange}
+                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px] mb-4"
+                placeholder="Add a description..."
+              />
+              <div className="flex items-center mb-1">
+                <Milestone size={16} className="text-[#4DA8DA] mr-1" />
+                <h4 className="text-xs font-medium text-cm-300">Next Steps</h4>
+              </div>
               <textarea
                 value={description}
                 onChange={handleDescriptionChange}
