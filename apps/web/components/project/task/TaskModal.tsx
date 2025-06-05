@@ -40,6 +40,11 @@ type TaskModalProps = {
       endDate: string
       priority: Task['priority']
       epicId: string
+      review: {
+        learn: string
+        hardest: string
+        next: string
+      }
     }>
   ) => Promise<void>
   getTaskById: (taskId: string) => Promise<Task>
