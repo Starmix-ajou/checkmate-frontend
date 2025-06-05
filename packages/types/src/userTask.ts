@@ -35,6 +35,11 @@ export type Task = {
   endDate: string
   priority: 'LOW' | 'MEDIUM' | 'HIGH'
   epic: Epic
+  review?: {
+    learn: string
+    hardest: string
+    next: string
+  }
 }
 
 export type TaskCreateRequest = {

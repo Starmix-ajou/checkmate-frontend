@@ -399,7 +399,11 @@ export function KanbanLogic(projectId: string) {
       if (toColumn === 'done') {
         showTaskCompletionToast({
           onWriteNow: () => {
-            const event = new CustomEvent('kanban:task-completion', {})
+            const event = new CustomEvent('kanban:task-completion', {
+              detail: {
+                taskId: moved.taskId,
+              },
+            })
             window.dispatchEvent(event)
           },
         })
