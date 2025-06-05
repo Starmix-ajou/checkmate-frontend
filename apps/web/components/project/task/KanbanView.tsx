@@ -209,6 +209,11 @@ export default function KanbanView({
       endDate: string
       priority: 'LOW' | 'MEDIUM' | 'HIGH'
       epicId: string
+      review: {
+        learn: string
+        hardest: string
+        next: string
+      }
     }>
   ) => {
     try {

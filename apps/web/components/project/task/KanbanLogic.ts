@@ -30,6 +30,11 @@ type TaskUpdateData = Partial<{
   priority: Task['priority']
   epicId: string
   projectId: string
+  review: {
+    learn: string
+    hardest: string
+    next: string
+  }
 }>
 
 type TaskFilters = {
@@ -298,6 +303,12 @@ export function KanbanLogic(projectId: string) {
         priority: data.priority || task.priority || 'MEDIUM',
         epicId: data.epicId || currentEpicId || EPICCUSTOM,
         projectId: projectId,
+        review: data.review ||
+          task.review || {
+            learn: '',
+            hardest: '',
+            next: '',
+          },
       }
 
       console.log('태스크 업데이트 데이터:', updateData)
@@ -383,6 +394,11 @@ export function KanbanLogic(projectId: string) {
         priority: moved.priority || 'MEDIUM',
         epicId: currentEpicId || EPICCUSTOM,
         projectId: projectId,
+        review: moved.review || {
+          learn: '',
+          hardest: '',
+          next: '',
+        },
       }
 
       updateTask(moved.taskId, updateData).catch((error) => {
