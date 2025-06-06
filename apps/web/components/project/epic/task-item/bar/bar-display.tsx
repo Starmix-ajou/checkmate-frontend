@@ -16,6 +16,7 @@ export type BarDisplayProps = {
   }
   isSelected: boolean
   onMouseDown: (event: React.MouseEvent<SVGPolygonElement, MouseEvent>) => void
+  onClick?: (event: React.MouseEvent<SVGPolygonElement, MouseEvent>) => void
 }
 
 export const BarDisplay: React.FC<BarDisplayProps> = ({
@@ -29,9 +30,10 @@ export const BarDisplay: React.FC<BarDisplayProps> = ({
   styles: { backgroundColor, progressColor },
   isSelected,
   onMouseDown,
+  onClick,
 }) => {
   return (
-    <g onMouseDown={onMouseDown}>
+    <g onMouseDown={onMouseDown} onClick={onClick}>
       <rect
         x={x}
         y={y}

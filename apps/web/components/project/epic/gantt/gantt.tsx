@@ -21,7 +21,7 @@ import { VerticalScroll } from '../other/vertical-scroll'
 import { TaskList, TaskListProps } from '../task-list/task-list'
 import styles from './gantt.module.css'
 import { TaskGantt } from './task-gantt'
-import { TaskGanttContentProps } from './task-gantt-content'
+import { TaskGanttContent, TaskGanttContentProps } from './task-gantt-content'
 
 export const Gantt: React.FunctionComponent<
   Omit<GanttProps, 'tasks'> & { epics: Epic[] }
@@ -36,7 +36,7 @@ export const Gantt: React.FunctionComponent<
   preStepsCount = 1,
   locale = 'en-GB',
   barFill = 60,
-  barCornerRadius = 3,
+  barCornerRadius = 4,
   barProgressColor = '#a3a3ff',
   barProgressSelectedColor = '#8282f5',
   barBackgroundColor = '#b8c2cc',
@@ -62,6 +62,7 @@ export const Gantt: React.FunctionComponent<
   onClick,
   onDelete,
   onSelect,
+  onExpanderClick,
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const taskListRef = useRef<HTMLDivElement>(null)
@@ -248,28 +249,25 @@ export const Gantt: React.FunctionComponent<
         milestoneBackgroundSelectedColor
       )
     )
-  }, [
-    filteredTasks,
-    viewMode,
-    preStepsCount,
-    rowHeight,
-    barCornerRadius,
-    columnWidth,
-    taskHeight,
-    handleWidth,
-    barProgressColor,
-    barProgressSelectedColor,
-    barBackgroundColor,
-    barBackgroundSelectedColor,
-    projectProgressColor,
-    projectProgressSelectedColor,
-    projectBackgroundColor,
-    projectBackgroundSelectedColor,
-    milestoneBackgroundColor,
-    milestoneBackgroundSelectedColor,
-    rtl,
-    scrollX,
-  ])
+  }, [filteredTasks, viewMode, preStepsCount, rtl, scrollX])
+
+  // ganttEvent가 변경될 때 토글 처리
+  useEffect(() => {
+    if (
+      ganttEvent.action === 'select' &&
+      ganttEvent.changedTask?.type === 'project'
+    ) {
+      setExpandedEpics((prev) => {
+        const newSet = new Set(prev)
+        if (newSet.has(ganttEvent.changedTask!.id)) {
+          newSet.delete(ganttEvent.changedTask!.id)
+        } else {
+          newSet.add(ganttEvent.changedTask!.id)
+        }
+        return newSet
+      })
+    }
+  }, [ganttEvent])
 
   useEffect(() => {
     if (ganttHeight) {
@@ -457,19 +455,20 @@ export const Gantt: React.FunctionComponent<
    * Task select event
    */
   const handleSelectedTask = (taskId: string) => {
-    const newSelectedTask = barTasks.find((t) => t.id === taskId)
-    const oldSelectedTask = barTasks.find(
-      (t) => !!selectedTask && t.id === selectedTask.id
-    )
-    if (onSelect) {
-      if (oldSelectedTask) {
-        onSelect(oldSelectedTask, false)
+    const task = barTasks.find((t) => t.id === taskId)
+    if (task) {
+      setSelectedTask(task)
+      if (onSelect) {
+        onSelect(task, true)
       }
-      if (newSelectedTask) {
-        onSelect(newSelectedTask, true)
+      // 에픽인 경우 토글 처리
+      if (task.type === 'project' && onExpanderClick) {
+        const originalTask = filteredTasks.find((t) => t.id === task.id)
+        if (originalTask) {
+          onExpanderClick(originalTask)
+        }
       }
     }
-    setSelectedTask(newSelectedTask)
   }
   const handleExpanderClick = (task: Task) => {
     const epicId = task.id
@@ -525,6 +524,7 @@ export const Gantt: React.FunctionComponent<
     onDoubleClick,
     onClick,
     onDelete,
+    onExpanderClick: handleExpanderClick,
   }
 
   const tableProps: TaskListProps = {
