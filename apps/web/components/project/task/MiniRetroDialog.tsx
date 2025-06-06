@@ -108,7 +108,7 @@ export default function MiniRetroDialog({
         <div className="space-y-6 py-4">
           <div className="space-y-2">
             <div className="flex items-center">
-              <KeyRound size={16} className="text-[#FFD66B] mx-2" />
+              <KeyRound size={16} className="text-[#FDB748] mx-2" />
               <label
                 htmlFor="learned"
                 className="text-sm font-medium text-gray-700"
@@ -128,7 +128,7 @@ export default function MiniRetroDialog({
           </div>
           <div className="space-y-2">
             <div className="flex items-center">
-              <Swords size={16} className="text-[#F75A5A] mx-2" />
+              <Swords size={16} className="text-[#F26673] mx-2" />
               <label
                 htmlFor="difficulties"
                 className="text-sm font-medium text-gray-700"
@@ -148,7 +148,7 @@ export default function MiniRetroDialog({
           </div>
           <div className="space-y-2">
             <div className="flex items-center">
-              <Milestone size={16} className="text-[#4DA8DA] mx-2" />
+              <Milestone size={16} className="text-[#5585F7] mx-2" />
               <label
                 htmlFor="nextTasks"
                 className="text-sm font-medium text-gray-700"

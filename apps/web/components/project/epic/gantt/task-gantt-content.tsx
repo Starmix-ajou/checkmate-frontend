@@ -269,7 +269,6 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
       </g>
       <g className="bar" fontFamily={fontFamily} fontSize={fontSize}>
         {tasks.map((task) => {
-          // 에픽이고 시작일, 종료일, 태스크가 없는 경우 바를 표시하지 않음
           if (
             task.type === 'project' &&
             !task.start &&

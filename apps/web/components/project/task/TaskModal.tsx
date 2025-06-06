@@ -490,7 +490,7 @@ export default function TaskModal({
                 Retrospective
               </h3>
               <div className="flex items-center mb-1">
-                <KeyRound size={16} className="text-[#FFD66B] mr-1" />
+                <KeyRound size={16} className="text-[#FDB748] mr-1" />
                 <h4 className="text-xs font-medium text-cm-300">
                   Key Learnings
                 </h4>
@@ -502,7 +502,7 @@ export default function TaskModal({
                 placeholder="이번 Task를 통해 학습한 기술이나 개념 등 간단히 적어보세요."
               />
               <div className="flex items-center mb-1">
-                <Swords size={16} className="text-[#F75A5A] mr-1" />
+                <Swords size={16} className="text-[#F26673] mr-1" />
                 <h4 className="text-xs font-medium text-cm-300">Challenges</h4>
               </div>
               <textarea
@@ -512,7 +512,7 @@ export default function TaskModal({
                 placeholder="어떤 부분에서 막혔는지, 예상보다 오래 걸린 이유가 무엇이었는지 간단히 적어보세요."
               />
               <div className="flex items-center mb-1">
-                <Milestone size={16} className="text-[#4DA8DA] mr-1" />
+                <Milestone size={16} className="text-[#5585F7] mr-1" />
                 <h4 className="text-xs font-medium text-cm-300">Next Steps</h4>
               </div>
               <textarea
