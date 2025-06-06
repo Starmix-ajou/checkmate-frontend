@@ -83,6 +83,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         dominantBaseline="middle"
         textAnchor={isTextInside ? 'middle' : 'start'}
         fill={isTextInside ? '#fff' : '#333'}
+        style={{ pointerEvents: 'none' }}
       >
         {task.name}
       </text>

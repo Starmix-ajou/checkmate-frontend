@@ -36,6 +36,9 @@ export const Bar: React.FC<TaskItemProps> = ({
         onMouseDown={(e) => {
           if (isDateChangeable) onEventStart('move', task, e)
         }}
+        onClick={(e) => {
+          onEventStart('select', task, e)
+        }}
       />
       <g className="handleGroup">
         {isDateChangeable && (

@@ -6,7 +6,7 @@ import {
   GanttContentMoveAction,
   GanttEvent,
 } from '@cm/types/gantt-task-actions'
-import { EventOption } from '@cm/types/public-types'
+import { EventOption, Task } from '@cm/types/public-types'
 import React, { useEffect, useState } from 'react'
 
 import { Arrow } from '../other/arrow'
@@ -38,6 +38,7 @@ export type TaskGanttContentProps = {
   setGanttEvent: (value: GanttEvent) => void
   setFailedTask: (value: BarTask | null) => void
   setSelectedTask: (taskId: string) => void
+  onExpanderClick: (task: Task) => void
 } & EventOption
 
 export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
@@ -63,6 +64,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
   onDoubleClick,
   onClick,
   onDelete,
+  onExpanderClick,
 }) => {
   const point = svg?.current?.createSVGPoint()
   const [xStep, setXStep] = useState(0)
@@ -219,6 +221,31 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
         onClick(selectedTask)
       }
       setSelectedTask(selectedTask.id)
+      // 에픽인 경우 토글 처리
+      if (selectedTask.type === 'project') {
+        const originalTask = tasks.find((t) => t.id === selectedTask.id)
+        if (originalTask && onExpanderClick) {
+          onExpanderClick({
+            id: originalTask.id,
+            name: originalTask.name,
+            start: originalTask.start,
+            end: originalTask.end,
+            progress: originalTask.progress,
+            type: originalTask.type,
+            hideChildren: originalTask.hideChildren,
+            tasks:
+              originalTask.barChildren?.map((child) => ({
+                id: child.id,
+                name: child.name,
+                start: child.start,
+                end: child.end,
+                progress: child.progress,
+                type: child.type,
+                hideChildren: child.hideChildren,
+              })) || [],
+          })
+        }
+      }
       return
     }
 
