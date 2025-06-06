@@ -28,8 +28,12 @@ export type Task = {
     name: string
     email: string
     profileImageUrl: string
-    profiles: Profile[]
-    role: string
+    profile: {
+      positions: string[]
+      projectId: string
+      role: string
+      isActive: boolean
+    }
   }
   startDate: string
   endDate: string

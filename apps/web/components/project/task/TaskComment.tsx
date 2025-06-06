@@ -17,11 +17,11 @@ interface Author {
   email: string
   profileImageUrl: string
   profile: {
-    stacks: string[]
     positions: string[]
     projectId: string
+    role: string
+    isActive: boolean
   }
-  role: string
 }
 
 interface Comment {
@@ -35,9 +35,10 @@ interface Comment {
 
 interface TaskCommentProps {
   taskId: string
+  assignee: Author
 }
 
-export default function TaskComment({ taskId }: TaskCommentProps) {
+export default function TaskComment({ taskId, assignee }: TaskCommentProps) {
   const user = useAuthStore((state) => state.user)
   const [comment, setComment] = useState('')
   const [comments, setComments] = useState<Comment[]>([])
@@ -113,6 +114,11 @@ export default function TaskComment({ taskId }: TaskCommentProps) {
     }
 
     try {
+      console.log('댓글 작성 요청 데이터:', {
+        taskId,
+        message: comment.trim(),
+      })
+
       const response = await fetch(
         `${API_ENDPOINTS.COMMENTS}?taskId=${taskId}`,
         {
@@ -131,6 +137,7 @@ export default function TaskComment({ taskId }: TaskCommentProps) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null)
+        console.error('댓글 작성 실패 응답:', errorData)
         throw new Error(
           errorData?.message || `HTTP error! status: ${response.status}`
         )
