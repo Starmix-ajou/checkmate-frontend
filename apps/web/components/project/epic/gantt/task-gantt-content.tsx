@@ -12,6 +12,13 @@ import React, { useEffect, useState } from 'react'
 import { Arrow } from '../other/arrow'
 import { TaskItem } from '../task-item/task-item'
 
+const BAR_COLORS = ['#5585F7', '#F26673', '#FDB748', '#24CD79']
+
+// 색상의 투명도를 80%로 설정하는 함수
+const setOpacity = (color: string) => {
+  return color + 'CC' // CC는 16진수로 80% 투명도를 의미
+}
+
 export type TaskGanttContentProps = {
   tasks: BarTask[]
   dates: Date[]
@@ -238,6 +245,9 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
     return y + rowHeight / 2
   }
 
+  // 에픽의 색상을 저장하는 Map
+  const epicColors = new Map<string, string>()
+
   return (
     <g className="content">
       <g className="arrows" fill={arrowColor} stroke={arrowColor}>
@@ -258,10 +268,36 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
         })}
       </g>
       <g className="bar" fontFamily={fontFamily} fontSize={fontSize}>
-        {tasks.map((task) => {
+        {tasks.map((task, index) => {
+          let colorIndex = index % BAR_COLORS.length
+          let color = BAR_COLORS[colorIndex]
+
+          // 에픽인 경우 색상을 저장
+          if (task.typeInternal === 'project') {
+            epicColors.set(task.id, color)
+          }
+          // 태스크인 경우 해당 에픽의 색상을 사용
+          else if (task.project) {
+            const epicColor = epicColors.get(task.project)
+            if (epicColor) {
+              color = setOpacity(epicColor)
+            }
+          }
+
+          const taskWithColor = {
+            ...task,
+            barColor: color,
+            progressColor: color,
+            styles: {
+              backgroundColor: color,
+              backgroundSelectedColor: color,
+              progressColor: color,
+              progressSelectedColor: color,
+            },
+          }
           return (
             <TaskItem
-              task={task}
+              task={taskWithColor}
               arrowIndent={arrowIndent}
               taskHeight={taskHeight}
               isProgressChangeable={!!onProgressChange && !task.isDisabled}
