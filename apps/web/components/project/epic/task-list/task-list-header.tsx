@@ -29,7 +29,7 @@ export const TaskListHeader: React.FC<{
             minWidth: '250px',
           }}
         >
-          &nbsp;{locale === 'ko' ? '작업명' : 'Task Name'}
+          &nbsp;{locale === 'ko' ? '에픽' : 'Epic'}
         </div>
         <div
           className={styles.ganttTable_HeaderSeparator}
