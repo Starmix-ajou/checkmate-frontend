@@ -524,7 +524,7 @@ export default function TaskModal({
             </div>
 
             {/* 댓글 섹션 */}
-            <TaskComment taskId={task.taskId} />
+            <TaskComment taskId={task.taskId} assignee={task.assignee} />
 
             <div className="flex justify-between items-center gap-2 mt-4">
               <Button
