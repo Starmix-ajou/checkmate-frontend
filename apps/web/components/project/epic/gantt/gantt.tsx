@@ -43,7 +43,7 @@ export const Gantt: React.FunctionComponent<
   barBackgroundSelectedColor = '#aeb8c2',
   projectProgressColor = '#7db59a',
   projectProgressSelectedColor = '#59a985',
-  projectBackgroundColor = '#fac465',
+  projectBackgroundColor = '#795548',
   projectBackgroundSelectedColor = '#f7bb53',
   milestoneBackgroundColor = '#f1c453',
   milestoneBackgroundSelectedColor = '#f29e4c',
@@ -540,7 +540,7 @@ export const Gantt: React.FunctionComponent<
   }
 
   return (
-    <div>
+    <div className="w-[calc(100vw-22rem)]">
       <div
         className={styles.wrapper}
         onKeyDown={handleKeyDown}

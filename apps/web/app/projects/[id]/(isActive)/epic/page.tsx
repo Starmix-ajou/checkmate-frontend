@@ -174,7 +174,7 @@ export default function ProjectEpic() {
           </div>
         </div>
 
-        <div className="bg-white p-6">
+        <div className="bg-white p-6 max-w-full overflow-scroll">
           {loading ? (
             <Skeleton className="h-[600px] w-full" />
           ) : (

@@ -1,7 +1,7 @@
 .barLabel {
   fill: #fff;
   text-anchor: middle;
-  font-weight: lighter;
+  font-weight: 500;
   dominant-baseline: central;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
