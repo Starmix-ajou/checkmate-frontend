@@ -268,8 +268,17 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
         })}
       </g>
       <g className="bar" fontFamily={fontFamily} fontSize={fontSize}>
-        {tasks.map((task, index) => {
-          let colorIndex = index % BAR_COLORS.length
+        {tasks.map((task) => {
+          // 에픽이고 시작일, 종료일, 태스크가 없는 경우 바를 표시하지 않음
+          if (
+            task.type === 'project' &&
+            !task.start &&
+            !task.end &&
+            (!task.tasks || task.tasks.length === 0)
+          ) {
+            return null
+          }
+          let colorIndex = task.index % BAR_COLORS.length
           let color = BAR_COLORS[colorIndex]
 
           // 에픽인 경우 색상을 저장

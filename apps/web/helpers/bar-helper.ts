@@ -24,8 +24,8 @@ export const convertToBarTasks = (
 ): BarTask[] => {
   let barIndex = 0
   const barTasks = tasks.map((task) => {
-    // null 날짜를 가진 태스크는 건너뛰기
-    if (!task.start || !task.end) {
+    // 에픽이 아닌 경우에만 null 날짜 체크
+    if (task.type !== 'project' && (!task.start || !task.end)) {
       return null
     }
 
@@ -80,8 +80,8 @@ const convertToBarTask = (
   milestoneBackgroundColor: string,
   milestoneBackgroundSelectedColor: string
 ): BarTask | null => {
-  // null 날짜를 가진 태스크는 null 반환
-  if (!task.start || !task.end) {
+  // 에픽이 아닌 경우에만 null 날짜 체크
+  if (task.type !== 'project' && (!task.start || !task.end)) {
     return null
   }
 
