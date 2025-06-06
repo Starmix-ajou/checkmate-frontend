@@ -20,6 +20,9 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
+      - name: Run Tests
+        run: pnpm test
+
       - name: Run Build
         env:
           LIVEBLOCKS_SECRET_KEY: ${{ secrets.LIVEBLOCKS_SECRET_KEY }}
