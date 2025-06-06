@@ -186,6 +186,31 @@ export default function ProjectEpic() {
           isOpen={isCreateEpicDialogOpen}
           onClose={() => setIsCreateEpicDialogOpen(false)}
           projectId={id as string}
+          onSuccess={() => {
+            // 에픽 목록 새로고침
+            const fetchEpics = async () => {
+              if (!user?.accessToken || !id) return
+              try {
+                const response = await fetch(
+                  `${API_BASE_URL}/epic?projectId=${id}`,
+                  {
+                    headers: {
+                      Accept: '*/*',
+                      Authorization: `Bearer ${user?.accessToken}`,
+                    },
+                  }
+                )
+                if (!response.ok) {
+                  throw new Error('에픽 목록 불러오기 실패')
+                }
+                const data = await response.json()
+                setEpics(data)
+              } catch (error) {
+                console.error(error)
+              }
+            }
+            fetchEpics()
+          }}
         />
         <DeleteEpicModal
           isOpen={isDeleteEpicDialogOpen}
