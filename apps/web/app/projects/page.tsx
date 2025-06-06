@@ -7,6 +7,8 @@ import { BaseNavbar } from '@cm/ui/components/common/BaseNavbar'
 import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import { ProjectList } from '@cm/ui/components/project'
 import ProjectAdd from '@cm/ui/components/project/ProjectAdd'
+import { Trophy } from 'lucide-react'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 const Home = () => {
@@ -55,6 +57,14 @@ const Home = () => {
         </div>
         <ProjectList projects={projects} />
       </div>
+
+      <Link
+        href="/projects/leaderboard"
+        className="fixed bottom-8 right-8 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 group"
+      >
+        <Trophy className="w-8 h-8" />
+        <span className="font-medium hidden sm:inline-block">리더보드</span>
+      </Link>
     </>
   )
 }
