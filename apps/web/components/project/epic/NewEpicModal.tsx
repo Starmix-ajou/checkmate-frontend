@@ -15,12 +15,14 @@ type NewEpicModalProps = {
   isOpen: boolean
   onClose: () => void
   projectId: string
+  onSuccess?: () => void
 }
 
 export default function NewEpicModal({
   isOpen,
   onClose,
   projectId,
+  onSuccess,
 }: NewEpicModalProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -56,6 +58,8 @@ export default function NewEpicModal({
       // 입력 필드 초기화
       setTitle('')
       setDescription('')
+      // 성공 콜백 호출
+      onSuccess?.()
     } catch (error) {
       console.error('에픽 생성 실패:', error)
       alert('에픽 생성에 실패했습니다.')
