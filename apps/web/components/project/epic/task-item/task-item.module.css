@@ -1,0 +1,11 @@
+.barLabel {
+  fill: #fff;
+  dominant-baseline: middle;
+  font-size: 12px;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.barLabelOutside {
+  fill: #333;
+  text-anchor: start;
+}

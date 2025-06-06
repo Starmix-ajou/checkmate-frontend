@@ -195,72 +195,47 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
     setGanttEvent,
   ])
 
-  /**
-   * Method is Start point of task change
-   */
-  const handleBarEventStart = async (
-    action: GanttContentMoveAction,
-    task: BarTask,
+  const handleBarEventStart = (
+    action: GanttEvent['action'],
+    selectedTask: BarTask,
     event?: React.MouseEvent | React.KeyboardEvent
   ) => {
-    if (!event) {
-      if (action === 'select') {
-        setSelectedTask(task.id)
+    if (action === 'delete') {
+      if (onDelete) {
+        onDelete(selectedTask)
       }
+      return
     }
-    // Keyboard events
-    else if (isKeyboardEvent(event)) {
-      if (action === 'delete') {
-        if (onDelete) {
-          try {
-            const result = await onDelete(task)
-            if (result !== undefined && result) {
-              setGanttEvent({ action, changedTask: task })
-            }
-          } catch (error) {
-            console.error('Error on Delete. ' + error)
-          }
-        }
+
+    if (action === 'select') {
+      if (onClick) {
+        onClick(selectedTask)
       }
+      setSelectedTask(selectedTask.id)
+      return
     }
-    // Mouse Events
-    else if (action === 'mouseenter') {
-      if (!ganttEvent.action) {
-        setGanttEvent({
-          action,
-          changedTask: task,
-          originalSelectedTask: task,
-        })
+
+    if (action === 'dblclick') {
+      if (onDoubleClick) {
+        onDoubleClick(selectedTask)
       }
-    } else if (action === 'mouseleave') {
-      if (ganttEvent.action === 'mouseenter') {
-        setGanttEvent({ action: '' })
-      }
-    } else if (action === 'dblclick') {
-      onDoubleClick?.(task)
-    } else if (action === 'click') {
-      onClick?.(task)
+      return
     }
-    // Change task event start
-    else if (action === 'move') {
-      if (!svg?.current || !point) return
-      point.x = event.clientX
-      const cursor = point.matrixTransform(
-        svg.current.getScreenCTM()?.inverse()
-      )
-      setInitEventX1Delta(cursor.x - task.x1)
-      setGanttEvent({
-        action,
-        changedTask: task,
-        originalSelectedTask: task,
-      })
-    } else {
-      setGanttEvent({
-        action,
-        changedTask: task,
-        originalSelectedTask: task,
-      })
+
+    if (action === 'progress' && onProgressChange) {
+      onProgressChange(selectedTask, selectedTask.barChildren)
+      return
     }
+
+    if (action === 'move' && onDateChange) {
+      onDateChange(selectedTask, selectedTask.barChildren)
+      return
+    }
+  }
+
+  const getY = (task: BarTask) => {
+    const y = task.index * rowHeight
+    return y + rowHeight / 2
   }
 
   return (
@@ -296,6 +271,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
               key={task.id}
               isSelected={!!selectedTask && task.id === selectedTask.id}
               rtl={rtl}
+              svg={svg}
             />
           )
         })}
