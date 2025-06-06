@@ -1,7 +1,6 @@
 import { useMeetingSSE } from '@/hooks/useMeetingSSE'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useMeetingStore } from '@/stores/useMeetingStore'
-import { EventSourcePolyfill } from 'event-source-polyfill'
 import {
   getMeeting,
   sendActionItems,
@@ -10,7 +9,7 @@ import {
 } from '@cm/api/meetingNotes'
 import { getProjectMembers } from '@cm/api/sprintConfiguration'
 import { Member, Project } from '@cm/types/project'
-import { Epic, ActionItemRow } from '@cm/types/sprint'
+import { ActionItemRow, Epic } from '@cm/types/sprint'
 import { ActionItemsTable } from '@cm/ui/components/project/ActionItemsTable'
 import { EditableTable } from '@cm/ui/components/project/EditableTable'
 import WizardLoadingScreen from '@cm/ui/components/project/WizardLoadingScreen'
@@ -22,11 +21,12 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { EventSourcePolyfill } from 'event-source-polyfill'
 import { ArrowRight, ChevronsRight } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { toast } from 'react-toastify'
+import { toast } from 'sonner'
 
 interface ActionItem {
   id: string
@@ -114,11 +114,9 @@ export default function MeetingWizard() {
   const clearMeetingContent = useMeetingStore(
     (state) => state.clearMeetingContent
   )
-  const [eventSource, setEventSource] = useState<EventSourcePolyfill | null>(null) as [
-    EventSourcePolyfill | null,
-    React.Dispatch<React.SetStateAction<EventSourcePolyfill | null>>
-  ]
-  const [sseConnected, setSseConnected] = useState(false)
+  const [eventSource, setEventSource] = useState<EventSourcePolyfill | null>(
+    null
+  )
   const [isInitialized, setIsInitialized] = useState(false)
 
   const { startSSE } = useMeetingSSE({
@@ -152,9 +150,10 @@ export default function MeetingWizard() {
       }
 
       try {
-        // data가 문자열 배열인 경우 JSON 파싱 시도
-        const tasks = Array.isArray(data) 
-          ? data.map(item => typeof item === 'string' ? JSON.parse(item) : item)
+        const tasks = Array.isArray(data)
+          ? data.map((item) =>
+              typeof item === 'string' ? JSON.parse(item) : item
+            )
           : data
 
         console.log('파싱된 태스크:', tasks)
@@ -183,7 +182,6 @@ export default function MeetingWizard() {
     onError: (error) => {
       console.error('SSE 에러:', error)
       toast.error('회의록 처리 중 오류가 발생했습니다.')
-      setSseConnected(false)
       setLoading(false)
     },
   })
@@ -195,7 +193,6 @@ export default function MeetingWizard() {
       !user?.accessToken ||
       !meetingContent ||
       step !== 0 ||
-      eventSource ||
       isInitialized
     ) {
       return
@@ -205,82 +202,81 @@ export default function MeetingWizard() {
       setLoading(true)
       setIsInitialized(true)
 
-      // 새로운 SSE 연결 생성
+      // 회의록 내용 전송
+      const meetingData = await getMeeting(user.accessToken, meetingId)
+      setOriginalContent(meetingContent)
+
+      // SSE 연결 생성
       const newEventSource = startSSE()
       if (!newEventSource) {
         throw new Error('SSE 연결에 실패했습니다.')
       }
 
-      // SSE 연결 상태 모니터링
       newEventSource.onopen = () => {
         console.log('SSE 연결 성공')
-        setSseConnected(true)
+        // SSE 연결이 성공한 후에 회의록 내용 전송
+        sendMeetingContent(user.accessToken, {
+          meetingId,
+          title: meetingData.title,
+          content: meetingContent,
+          masterId: meetingData.master.userId,
+        })
+          .then(() => {
+            clearMeetingContent()
+          })
+          .catch((error) => {
+            console.error('회의록 내용 전송 실패:', error)
+            toast.error('회의록 내용 전송에 실패했습니다.')
+          })
       }
 
-      newEventSource.onerror = () => {
-        console.log('SSE 연결 오류')
-        setSseConnected(false)
+      newEventSource.onerror = (error) => {
+        console.error('SSE 연결 오류:', error)
+        if (newEventSource.readyState === EventSource.CLOSED) {
+          setEventSource(null)
+          setIsInitialized(false)
+        }
       }
 
       setEventSource(newEventSource)
-
-      // 회의록 내용 전송
-      const meetingData = await getMeeting(user.accessToken, meetingId)
-      setOriginalContent(meetingContent)
-
-      await sendMeetingContent(user.accessToken, {
-        meetingId,
-        title: meetingData.title,
-        content: meetingContent,
-        masterId: meetingData.master.userId,
-      })
-
-      // SSE 연결이 성공적으로 설정된 후에만 meetingContent 클리어
-      clearMeetingContent()
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '알 수 없는 오류'
+      const errorMessage =
+        err instanceof Error ? err.message : '알 수 없는 오류'
       console.error('회의록 처리 중 오류:', errorMessage)
       toast.error(`회의록 처리 중 오류가 발생했습니다: ${errorMessage}`)
-
-      if (eventSource) {
-        eventSource.close()
-        setEventSource(null)
-      }
       setIsInitialized(false)
       setLoading(false)
     }
   }, [
     meetingId,
     user?.accessToken,
-    step,
     meetingContent,
-    eventSource,
+    step,
+    isInitialized,
     startSSE,
     clearMeetingContent,
-    isInitialized,
   ])
 
-  // SSE 연결 초기화
   useEffect(() => {
     initializeSSE()
 
     return () => {
       if (eventSource) {
+        console.log('컴포넌트 언마운트: SSE 연결 해제')
         eventSource.close()
         setEventSource(null)
+        setIsInitialized(false)
       }
-      setSseConnected(false)
-      setIsInitialized(false)
     }
-  }, [initializeSSE, eventSource])
+  }, [])
 
-  // SSE 연결 상태 모니터링
+  // SSE 재연결 시도
   useEffect(() => {
-    if (!sseConnected && isInitialized && step === 0) {
+    if (!eventSource && isInitialized && step === 0) {
       console.log('SSE 재연결 시도')
       initializeSSE()
     }
-  }, [sseConnected, isInitialized, step, initializeSSE])
+  }, [eventSource, isInitialized, step, initializeSSE])
 
   const loadProjectMembers = useCallback(async () => {
     if (!projectId || !user?.accessToken) return
@@ -303,7 +299,6 @@ export default function MeetingWizard() {
   const loadProjectDetails = useCallback(async () => {
     if (!projectId || !user?.accessToken) return
     try {
-      // 프로젝트 상세 정보 가져오기
       const projectResponse = await fetch(
         `${API_BASE_URL}/project/${projectId}`,
         {
@@ -321,7 +316,6 @@ export default function MeetingWizard() {
       const projectData = await projectResponse.json()
       setProject(projectData)
 
-      // 에픽 목록 가져오기
       const epicsResponse = await fetch(
         `${API_BASE_URL}/epic?projectId=${projectId}`,
         {
@@ -339,7 +333,6 @@ export default function MeetingWizard() {
       const epicsData = await epicsResponse.json()
       setEpics(epicsData)
 
-      // 멤버 정보 로드
       await loadProjectMembers()
     } catch (err) {
       const errorMessage =
@@ -348,7 +341,6 @@ export default function MeetingWizard() {
     }
   }, [projectId, user?.accessToken, loadProjectMembers])
 
-  // 프로젝트 정보 로드
   useEffect(() => {
     if (!projectId || !user?.accessToken) return
     loadProjectDetails()
@@ -357,31 +349,36 @@ export default function MeetingWizard() {
   const goToNextStep = async () => {
     if (!meetingId || !user?.accessToken) return
 
+    if (!canProceedToNextStep()) {
+      if (step === 1) {
+        toast.error('선택된 액션 아이템의 내용을 모두 입력해주세요.')
+      } else if (step === 2) {
+        toast.error('모든 Task의 Epic과 담당자를 선택해주세요.')
+      }
+      return
+    }
+
     setLoading(true)
     try {
       if (step === 0) {
-        // SSE는 이미 연결되어 있으므로 step만 변경
         setStep(1)
         setLoading(false)
       } else if (step === 1) {
-
         const selectedItems = actionItems
           .filter((item) => item.selected)
           .map((item) => item.content)
 
         await sendActionItems(user.accessToken, meetingId, selectedItems)
-        // step 변경은 onCreateActionItems 이벤트에서 처리
       } else if (step === 2) {
-        if (!sseConnected) {
-          throw new Error('SSE 연결이 끊어졌습니다. 페이지를 새로고침해주세요.')
-        }
-
-        const validTasks = tasks.filter((task) => task.assigneeEmail && task.epicId)
+        const validTasks = tasks.filter(
+          (task) => task.assigneeEmail && task.epicId
+        )
         await updateActionItems(user.accessToken, meetingId, validTasks)
         router.push(`/projects/${projectId}/overview`)
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '알 수 없는 오류'
+      const errorMessage =
+        err instanceof Error ? err.message : '알 수 없는 오류'
       toast.error(`처리 중 오류가 발생했습니다: ${errorMessage}`)
       setLoading(false)
     }
@@ -394,7 +391,14 @@ export default function MeetingWizard() {
   })
 
   const handleTaskDataChange = (newTasks: ActionItemRow[]) => {
-    setTasks(newTasks)
+    console.log('태스크 데이터 변경:', newTasks)
+    const validatedTasks = newTasks.map((task) => ({
+      ...task,
+      assigneeEmail: task.assigneeEmail || '',
+      epicId: task.epicId || '',
+    }))
+    console.log('검증된 태스크 데이터:', validatedTasks)
+    setTasks(validatedTasks)
   }
 
   const canProceedToNextStep = () => {
@@ -408,7 +412,15 @@ export default function MeetingWizard() {
       )
     }
     if (step === 2) {
-      return tasks.every((task) => task.assigneeEmail && task.epicId)
+      console.log('현재 태스크 상태:', tasks)
+      const isValid = tasks.every((task) => {
+        const hasAssignee = Boolean(task.assigneeEmail?.trim())
+        const hasEpic = Boolean(task.epicId?.trim())
+        console.log(`태스크 "${task.title}" 검증:`, { hasAssignee, hasEpic })
+        return hasAssignee && hasEpic
+      })
+      console.log('다음 단계 진행 가능 여부:', isValid)
+      return isValid
     }
     return false
   }

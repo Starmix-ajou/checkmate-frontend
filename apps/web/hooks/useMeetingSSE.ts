@@ -16,7 +16,7 @@ export const useMeetingSSE = ({
 }: UseMeetingSSEProps) => {
   const user = useAuthStore((state) => state.user)
 
-  const startSSE = (): EventSourcePolyfill | null => {
+  const startSSE = () => {
     const token = user?.accessToken
     if (!token) {
       console.warn('JWT 토큰이 존재하지 않습니다.')
@@ -89,4 +89,4 @@ export const useMeetingSSE = ({
   }
 
   return { startSSE }
-} 
+}

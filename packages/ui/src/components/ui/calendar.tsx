@@ -68,7 +68,7 @@ function Calendar({
         weekdays: 'text-xs text-neutral-95 font-light',
         weekday: 'font-medium',
         selected:
-          'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
+          'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-full',
         today: 'bg-accent text-accent-foreground rounded-full',
         outside:
           'day-outside text-muted-foreground aria-selected:text-muted-foreground',
