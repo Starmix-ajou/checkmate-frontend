@@ -3,6 +3,7 @@
 import DeleteEpicModal from '@/components/project/epic/DeleteEpicModal'
 import NewEpicModal from '@/components/project/epic/NewEpicModal'
 import { Gantt } from '@/components/project/epic/gantt/gantt'
+import { EpicSprintFilter } from '@/components/project/epic/other/epicSprintFilter'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Epic } from '@cm/types/epic'
 import { Project } from '@cm/types/project'
@@ -16,14 +17,8 @@ import {
   BreadcrumbSeparator,
 } from '@cm/ui/components/ui/breadcrumb'
 import { Button } from '@cm/ui/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@cm/ui/components/ui/dropdown-menu'
 import { Skeleton } from '@cm/ui/components/ui/skeleton'
-import { ChevronDown, PlusIcon, Trash2 } from 'lucide-react'
+import { PlusIcon, Trash2 } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
@@ -246,58 +241,15 @@ export default function ProjectEpic() {
                 Sprint
               </button>
               {viewMode === ViewMode.Week && viewType === 'SPRINT' && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="p-1 hover:bg-gray-100 rounded-sm">
-                      <ChevronDown className="w-4 h-4" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSelectedSprint(null)
-                        setViewMode(ViewMode.Week)
-                        setViewType('SPRINT')
-                      }}
-                      className="text-cm hover:text-cm-900"
-                    >
-                      ALL
-                    </DropdownMenuItem>
-                    {sprints.map((sprint) => (
-                      <DropdownMenuItem
-                        key={sprint.sprintId}
-                        onClick={() => {
-                          setSelectedSprint(sprint.sprintId)
-                          setViewMode(ViewMode.Week)
-                          setViewType('SPRINT')
-                        }}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span>{sprint.title}</span>
-                          <span className="text-xs text-cm-gray">
-                            {new Date(sprint.startDate)
-                              .toLocaleDateString('ko-KR', {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                              })
-                              .replace(/\. /g, '. ')
-                              .replace(/\.$/, '')}{' '}
-                            ~{' '}
-                            {new Date(sprint.endDate)
-                              .toLocaleDateString('ko-KR', {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                              })
-                              .replace(/\. /g, '. ')
-                              .replace(/\.$/, '')}
-                          </span>
-                        </div>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <EpicSprintFilter
+                  sprints={sprints}
+                  selectedSprintId={selectedSprint}
+                  onSprintSelect={(sprintId) => {
+                    setSelectedSprint(sprintId)
+                    setViewMode(ViewMode.Week)
+                    setViewType('SPRINT')
+                  }}
+                />
               )}
             </div>
             <Button
@@ -305,7 +257,8 @@ export default function ProjectEpic() {
               className="ml-auto mr-3 flex items-center"
               onClick={() => setIsCreateEpicDialogOpen(true)}
             >
-              <PlusIcon className="w-4 h-4" />새 에픽 생성
+              <PlusIcon className="w-4 h-4" />
+              NEW EPIC
             </Button>
             <Button
               variant="destructive"
@@ -313,7 +266,7 @@ export default function ProjectEpic() {
               onClick={() => setIsDeleteEpicDialogOpen(true)}
             >
               <Trash2 className="w-4 h-4" />
-              에픽 삭제
+              DELETE
             </Button>
           </div>
         </div>
