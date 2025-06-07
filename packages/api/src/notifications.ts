@@ -4,7 +4,7 @@ export const getNotification = async (
 ) => {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/sse/notification?projectId=${projectId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/sse/notification`,
       {
         method: 'GET',
         headers: {
