@@ -4,6 +4,7 @@ import { Member } from '@cm/types/project'
 import { Task, TaskCreateRequest } from '@cm/types/userTask'
 import { DndContext, DragOverlay } from '@dnd-kit/core'
 import { Check, Pencil, Pickaxe, Trash2, X } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import EpicSelectionModal from './EpicSelectionModal'
@@ -44,6 +45,8 @@ export default function KanbanView({
     fetchTasks,
     handleAddTask,
   } = KanbanLogic(projectId)
+
+  const searchParams = useSearchParams()
 
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set())
   const [isDeleting, setIsDeleting] = useState(false)
@@ -89,11 +92,40 @@ export default function KanbanView({
       setIsMiniRetroOpen(true)
     }
 
+    const handleOpenTaskModal = (e: Event) => {
+      const { taskId } = (e as CustomEvent).detail
+      for (const column of Object.values(columns)) {
+        const task = column.find((t) => t.taskId === taskId)
+        if (task) {
+          setSelectedTaskForModal(task)
+          break
+        }
+      }
+    }
+
     window.addEventListener('kanban:task-completion', handleTaskCompletion)
+    window.addEventListener('kanban:open-task-modal', handleOpenTaskModal)
+
     return () => {
       window.removeEventListener('kanban:task-completion', handleTaskCompletion)
+      window.removeEventListener('kanban:open-task-modal', handleOpenTaskModal)
     }
-  }, [])
+  }, [columns])
+
+  // URL 파라미터로부터 taskId를 가져와 모달 열기
+  useEffect(() => {
+    const taskId = searchParams.get('taskId')
+    if (taskId) {
+      // 모든 컬럼에서 해당 taskId를 가진 태스크 찾기
+      for (const column of Object.values(columns)) {
+        const task = column.find((t) => t.taskId === taskId)
+        if (task) {
+          setSelectedTaskForModal(task)
+          break
+        }
+      }
+    }
+  }, [searchParams, columns])
 
   // 검색어에 따라 태스크를 필터링하는 함수
   const filterTasks = (tasks: Task[]) => {
@@ -174,6 +206,9 @@ export default function KanbanView({
 
   const handleModalClose = () => {
     setSelectedTaskForModal(null)
+    const newUrl = new URL(window.location.href)
+    newUrl.searchParams.delete('taskId')
+    window.history.replaceState({}, '', newUrl.toString())
   }
 
   const handleTaskDelete = async (taskId: string) => {
