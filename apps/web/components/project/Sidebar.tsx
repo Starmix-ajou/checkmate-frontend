@@ -25,8 +25,7 @@ import {
 } from '@cm/ui/components/ui/sidebar'
 import { Skeleton } from '@cm/ui/components/ui/skeleton'
 import {
-  Bell,
-  BellRing,
+  BellIcon,
   BellRingIcon,
   BookUser,
   BookmarkCheck,
@@ -35,12 +34,12 @@ import {
   NotebookPen,
   Play,
   Settings,
-  X,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { NotificationPanel } from './NotificationPanel'
 
 export default function ProjectSidebar() {
   const { id } = useParams()
@@ -175,27 +174,6 @@ export default function ProjectSidebar() {
     fetchProjects(user.accessToken)
   }, [user?.accessToken, fetchProjects])
 
-  const items = [
-    { title: 'Overview', url: `/projects/${id}/overview`, icon: Home },
-    { title: 'Epic', url: `/projects/${id}/epic`, icon: Play },
-    { title: 'Task', url: `/projects/${id}/task`, icon: BookmarkCheck },
-    {
-      title: 'Meeting Notes',
-      url: `/projects/${id}/meeting-notes`,
-      icon: NotebookPen,
-    },
-    {
-      title: 'Members',
-      url: `/projects/${id}/members`,
-      icon: BookUser,
-    },
-    {
-      title: 'Settings',
-      url: `/projects/${id}/settings`,
-      icon: Settings,
-    },
-  ]
-
   const getNotificationLink = (notification: Notification) => {
     const { title, targetId, project } = notification
 
@@ -223,6 +201,27 @@ export default function ProjectSidebar() {
       setIsNotificationOpen(false)
     }
   }
+
+  const items = [
+    { title: 'Overview', url: `/projects/${id}/overview`, icon: Home },
+    { title: 'Epic', url: `/projects/${id}/epic`, icon: Play },
+    { title: 'Task', url: `/projects/${id}/task`, icon: BookmarkCheck },
+    {
+      title: 'Meeting Notes',
+      url: `/projects/${id}/meeting-notes`,
+      icon: NotebookPen,
+    },
+    {
+      title: 'Members',
+      url: `/projects/${id}/members`,
+      icon: BookUser,
+    },
+    {
+      title: 'Settings',
+      url: `/projects/${id}/settings`,
+      icon: Settings,
+    },
+  ]
 
   return (
     <Sidebar className="mt-12 h-[calc(100svh-3rem)]">
@@ -283,7 +282,7 @@ export default function ProjectSidebar() {
               size="icon"
               onClick={() => setIsNotificationOpen(!isNotificationOpen)}
             >
-              <Bell className="w-5 h-5" />
+              <BellIcon className="w-5 h-5" />
               {totalNotifications > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                   {totalNotifications}
@@ -299,79 +298,32 @@ export default function ProjectSidebar() {
           isNotificationOpen ? 'max-h-96 border-b' : 'max-h-0'
         }`}
       >
-        <div className="p-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-semibold">알림</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsNotificationOpen(false)}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-          <div className="max-h-[calc(24rem-4rem)] overflow-y-auto pr-2">
-            <ul className="divide-y divide-gray-100">
-              {notifications.length === 0 ? (
-                <li className="text-xs text-gray-500 text-center py-4">
-                  {isLoading
-                    ? '알림을 불러오는 중...'
-                    : '새로운 알림이 없습니다.'}
-                </li>
-              ) : (
-                notifications.map((notification, index) => {
-                  const link = getNotificationLink(notification)
-                  const NotificationContent = () => (
-                    <div className="relative py-3">
-                      {!notification.isRead && (
-                        <div className="absolute right-2 top-4 w-2 h-2 bg-cm rounded-full" />
-                      )}
-                      <div className="flex flex-col">
-                        <span className="font-medium text-sm">
-                          {notification.title}
-                        </span>
-                        <span className="mt-1 text-xs text-gray-600 break-keep">
-                          {notification.description}
-                        </span>
-                      </div>
-                    </div>
-                  )
-
-                  return (
-                    <li
-                      key={notification.notificationId}
-                      ref={
-                        index === notifications.length - 1
-                          ? lastNotificationRef
-                          : null
-                      }
-                      className={`transition ${
-                        notification.isRead
-                          ? 'text-gray-500 hover:bg-gray-50'
-                          : 'text-black hover:bg-gray-50'
-                      }`}
-                      onClick={() => handleNotificationClick(notification)}
-                    >
-                      {link ? (
-                        <Link href={link} className="block">
-                          <NotificationContent />
-                        </Link>
-                      ) : (
-                        <NotificationContent />
-                      )}
-                    </li>
-                  )
-                })
-              )}
-              {isLoading && (
-                <li className="text-xs text-gray-500 text-center py-2">
-                  알림을 불러오는 중...
-                </li>
-              )}
-            </ul>
-          </div>
-        </div>
+        <NotificationPanel
+          notifications={notifications}
+          isLoading={isLoading}
+          hasMore={hasMore}
+          lastNotificationRef={lastNotificationRef}
+          onClose={() => setIsNotificationOpen(false)}
+          handleNotificationClick={handleNotificationClick}
+          onNotificationRead={(notificationId) => {
+            setNotifications((prev) =>
+              prev.map((notification) =>
+                notification.notificationId === notificationId
+                  ? { ...notification, isRead: true }
+                  : notification
+              )
+            )
+            setTotalNotifications((prev) => Math.max(0, prev - 1))
+          }}
+          onNotificationDelete={(notificationId) => {
+            setNotifications((prev) =>
+              prev.filter((notification) => notification.notificationId !== notificationId)
+            )
+            setTotalNotifications((prev) => Math.max(0, prev - 1))
+          }}
+        />
       </div>
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Project</SidebarGroupLabel>

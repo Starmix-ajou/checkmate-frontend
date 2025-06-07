@@ -127,3 +127,47 @@ export const getNotification = async (
     throw error
   }
 }
+
+export const markNotificationAsRead = async (
+  accessToken: string,
+  notificationId: string
+): Promise<void> => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification/${notificationId}/read`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
+
+    if (!res.ok) throw new Error(`알림 읽음 처리 실패: ${res.status}`)
+  } catch (error) {
+    console.error('알림 읽음 처리 에러:', error)
+    throw error
+  }
+}
+
+export const deleteNotification = async (
+  accessToken: string,
+  notificationId: string
+): Promise<void> => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification/${notificationId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
+
+    if (!res.ok) throw new Error(`알림 삭제 실패: ${res.status}`)
+  } catch (error) {
+    console.error('알림 삭제 에러:', error)
+    throw error
+  }
+}
