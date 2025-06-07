@@ -1,7 +1,13 @@
 'use client'
 
 import { useAuth } from '@/providers/AuthProvider'
+import { useAuthStore } from '@/stores/useAuthStore'
+import {
+  ProjectStatisticsResponse,
+  getProjectStatistics,
+} from '@cm/api/statistics'
 import { BaseNavbar } from '@cm/ui/components/common/BaseNavbar'
+import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import { Card, CardContent } from '@cm/ui/components/ui/card'
 import {
   Tabs,
@@ -9,8 +15,9 @@ import {
   TabsList,
   TabsTrigger,
 } from '@cm/ui/components/ui/tabs'
-import { Medal, Star, Trophy } from 'lucide-react'
 import { useEffect, useState } from 'react'
+
+import { Podium } from './Podium'
 
 interface ProjectStats {
   id: string
@@ -33,108 +40,53 @@ interface ProjectStats {
   }
 }
 
-const generateMockData = (): ProjectStats[] => {
-  const projectNames = [
-    { name: '체크메이트', leader: '김민준' },
-    { name: '프로젝트X', leader: '이서연' },
-    { name: '넥스트스텝', leader: '박지훈' },
-    { name: '코드마스터', leader: '최수아' },
-    { name: '디벨로퍼스', leader: '정도윤' },
-    { name: '테크스쿼드', leader: '강하은' },
-    { name: '인노베이션', leader: '윤서준' },
-    { name: '퓨처랩', leader: '임지민' },
-  ]
+const transformApiData = (data: ProjectStatisticsResponse): ProjectStats[] => {
+  const projectMap = new Map<string, ProjectStats>()
 
-  return projectNames.map((project, index) => ({
-    id: `project-${index + 1}`,
-    name: project.name,
-    leaderName: project.leader,
-    taskStats: {
-      doneRate: Math.random() * 0.5 + 0.5,
-      totalTasks: Math.floor(Math.random() * 100) + 50,
-      completedTasks: Math.floor(Math.random() * 60) + 30,
-    },
-    dailyScrumStats: {
-      doneRate: Math.random() * 0.5 + 0.5,
-      totalDays: Math.floor(Math.random() * 60) + 30,
-      completedDays: Math.floor(Math.random() * 40) + 20,
-    },
-    reviewStats: {
-      doneRate: Math.random() * 0.5 + 0.5,
-      totalReviews: Math.floor(Math.random() * 80) + 40,
-      completedReviews: Math.floor(Math.random() * 50) + 25,
-    },
-  }))
-}
+  data.taskStatistics.forEach((stat) => {
+    projectMap.set(stat.project.projectId, {
+      id: stat.project.projectId,
+      name: stat.project.title,
+      leaderName: stat.project.leader.name,
+      taskStats: {
+        doneRate: stat.statistics.doneRate,
+        totalTasks: stat.statistics.totalCount,
+        completedTasks: stat.statistics.doneCount,
+      },
+      dailyScrumStats: {
+        doneRate: 0,
+        totalDays: 0,
+        completedDays: 0,
+      },
+      reviewStats: {
+        doneRate: 0,
+        totalReviews: 0,
+        completedReviews: 0,
+      },
+    })
+  })
+  data.dailyScrumStatistics.forEach((stat) => {
+    const project = projectMap.get(stat.project.projectId)
+    if (project) {
+      project.dailyScrumStats = {
+        doneRate: stat.statistics.doneRate,
+        totalDays: stat.statistics.totalDays,
+        completedDays: stat.statistics.doneDays,
+      }
+    }
+  })
+  data.reviewStatistics.forEach((stat) => {
+    const project = projectMap.get(stat.project.projectId)
+    if (project) {
+      project.reviewStats = {
+        doneRate: stat.statistics.doneRate,
+        totalReviews: stat.statistics.totalCount,
+        completedReviews: stat.statistics.doneCount,
+      }
+    }
+  })
 
-const mockProjects = generateMockData()
-
-const Podium = ({
-  projects,
-  getScore,
-}: {
-  projects: ProjectStats[]
-  getScore: (project: ProjectStats) => number
-}) => {
-  const sortedProjects = [...projects].sort((a, b) => getScore(b) - getScore(a))
-  const topThree = sortedProjects.slice(0, 3)
-
-  return (
-    <div className="relative h-80 mb-12">
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-end justify-center gap-8">
-        <div className="flex flex-col items-center">
-          <div className="w-36 h-36 bg-gradient-to-b from-gray-300 to-gray-400 rounded-t-2xl flex items-center justify-center shadow-lg">
-            <Medal className="w-14 h-14 text-white drop-shadow-md" />
-          </div>
-          <div className="mt-4 text-center">
-            <div className="font-bold text-lg">{topThree[1]?.name || '-'}</div>
-            <div className="text-sm text-muted-foreground mt-1">
-              {topThree[1]
-                ? `${Math.round(getScore(topThree[1]) * 100)}%`
-                : '-'}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              팀장: {topThree[1]?.leaderName || '-'}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center">
-          <div className="w-48 h-48 bg-gradient-to-b from-yellow-400 to-yellow-500 rounded-t-2xl flex items-center justify-center shadow-xl">
-            <Trophy className="w-20 h-20 text-white drop-shadow-md" />
-          </div>
-          <div className="mt-4 text-center">
-            <div className="font-bold text-xl">{topThree[0]?.name || '-'}</div>
-            <div className="text-sm text-muted-foreground mt-1">
-              {topThree[0]
-                ? `${Math.round(getScore(topThree[0]) * 100)}%`
-                : '-'}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              팀장: {topThree[0]?.leaderName || '-'}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center">
-          <div className="w-28 h-28 bg-gradient-to-b from-amber-600 to-amber-700 rounded-t-2xl flex items-center justify-center shadow-lg">
-            <Star className="w-10 h-10 text-white drop-shadow-md" />
-          </div>
-          <div className="mt-4 text-center">
-            <div className="font-bold text-lg">{topThree[2]?.name || '-'}</div>
-            <div className="text-sm text-muted-foreground mt-1">
-              {topThree[2]
-                ? `${Math.round(getScore(topThree[2]) * 100)}%`
-                : '-'}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              팀장: {topThree[2]?.leaderName || '-'}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+  return Array.from(projectMap.values())
 }
 
 const LeaderboardTable = ({
@@ -163,12 +115,10 @@ const LeaderboardTable = ({
         <thead>
           <tr className="border-b bg-muted/50">
             <th className="text-left p-4 font-semibold">순위</th>
-            <th className="text-left p-4 font-semibold">프로젝트</th>
-            <th className="text-left p-4 font-semibold">팀장</th>
-            <th className="text-right p-4 font-semibold">태스크 완료율</th>
-            <th className="text-right p-4 font-semibold">
-              데일리 스크럼 참여율
-            </th>
+            <th className="text-left p-4 font-semibold">Project</th>
+            <th className="text-left p-4 font-semibold">Leader</th>
+            <th className="text-right p-4 font-semibold">Task 완료율</th>
+            <th className="text-right p-4 font-semibold">Daily Scrum 참여율</th>
             <th className="text-right p-4 font-semibold">미니 회고 완료율</th>
           </tr>
         </thead>
@@ -225,7 +175,30 @@ export default function LeaderboardPage() {
     'review',
   ]
   const [sortBy, setSortBy] = useState<'task' | 'scrum' | 'review'>('task')
+  const [projects, setProjects] = useState<ProjectStats[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const { user, signOut } = useAuth()
+  const accessToken = useAuthStore((state) => state.user?.accessToken)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!accessToken) {
+        return
+      }
+
+      try {
+        const data = await getProjectStatistics(accessToken)
+        const transformedData = transformApiData(data)
+        setProjects(transformedData)
+      } catch (error) {
+        console.error('프로젝트 통계 데이터를 불러오는데 실패했습니다:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [accessToken])
 
   useEffect(() => {
     const randomCategory =
@@ -243,9 +216,9 @@ export default function LeaderboardPage() {
         return project.reviewStats.doneRate
     }
   }
-
   return (
     <div className="w-full h-full bg-cm-light">
+      <LoadingScreen loading={isLoading} />
       <BaseNavbar
         user={user}
         onSignOut={signOut}
@@ -253,7 +226,7 @@ export default function LeaderboardPage() {
         showFilters={false}
       />
       <div className="container mx-auto py-8 space-y-8 max-w-4xl">
-        <Card className=" shadow-none bg-gradient-to-b from-background to-muted/20">
+        <Card className="shadow-none bg-gradient-to-b from-background to-muted/20">
           <CardContent>
             <Tabs
               value={sortBy}
@@ -272,7 +245,7 @@ export default function LeaderboardPage() {
                   value="scrum"
                   className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all"
                 >
-                  데일리 스크럼
+                  Daily Scrum
                 </TabsTrigger>
                 <TabsTrigger
                   value="review"
@@ -283,11 +256,11 @@ export default function LeaderboardPage() {
               </TabsList>
 
               <TabsContent value={sortBy}>
-                <Podium projects={mockProjects} getScore={getScore} />
+                <Podium projects={projects} getScore={getScore} />
                 <span className="text-sm text-muted-foreground block text-right pb-4">
                   * 리더보드 결과는 매일 한국 시간 00:00에 초기화됩니다.
                 </span>
-                <LeaderboardTable projects={mockProjects} sortBy={sortBy} />
+                <LeaderboardTable projects={projects} sortBy={sortBy} />
               </TabsContent>
             </Tabs>
           </CardContent>
