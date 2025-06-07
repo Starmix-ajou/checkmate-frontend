@@ -258,7 +258,7 @@ export default function ProjectEpic() {
               onClick={() => setIsCreateEpicDialogOpen(true)}
             >
               <PlusIcon className="w-4 h-4" />
-              NEW EPIC
+              New Epic
             </Button>
             <Button
               variant="destructive"
@@ -266,7 +266,7 @@ export default function ProjectEpic() {
               onClick={() => setIsDeleteEpicDialogOpen(true)}
             >
               <Trash2 className="w-4 h-4" />
-              DELETE
+              Delete
             </Button>
           </div>
         </div>

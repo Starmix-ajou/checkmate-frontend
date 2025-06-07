@@ -23,6 +23,13 @@ export const EpicSprintFilter = ({
     (sprint) => sprint.sprintId === selectedSprintId
   )
 
+  const isCurrentSprint = (sprint: Sprint) => {
+    const today = new Date()
+    const startDate = new Date(sprint.startDate)
+    const endDate = new Date(sprint.endDate)
+    return today >= startDate && today <= endDate
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -54,7 +61,9 @@ export const EpicSprintFilter = ({
           >
             <div className="flex items-center gap-2">
               <span>{sprint.title}</span>
-              <span className="text-xs text-cm-gray">
+              <span
+                className={`text-xs ${isCurrentSprint(sprint) ? 'text-cm' : 'text-cm-gray'}`}
+              >
                 {new Date(sprint.startDate)
                   .toLocaleDateString('ko-KR', {
                     year: 'numeric',
