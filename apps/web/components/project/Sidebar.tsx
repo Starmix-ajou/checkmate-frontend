@@ -36,7 +36,7 @@ import {
   X,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useParams, usePathname } from 'next/navigation'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 interface Notification {
@@ -96,6 +96,7 @@ interface Notification {
 export default function ProjectSidebar() {
   const { id } = useParams()
   const pathname = usePathname()
+  const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const { projects, loading, fetchProjects } = useProjectStore()
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
@@ -153,12 +154,30 @@ export default function ProjectSidebar() {
     },
   ]
 
-  const currentProject = projects.find(
-    (project) => project.project.projectId === id
-  )
-  const currentUserRole = currentProject?.members.find(
-    (member) => member.email === user?.email
-  )?.role
+  const getNotificationLink = (notification: Notification) => {
+    const { title, targetId, project } = notification
+
+    switch (title) {
+      case '프로젝트 초대 요청이 도착했어요!':
+        return `/projects/${targetId}/overview`
+      case '내 정보가 변경되었어요!':
+        return `/projects/${targetId}/members`
+      case '회의록이 추가되었어요!':
+        return `/projects/${project.projectId}/meeting-notes/${targetId}`
+      case '스프린트가 추가되었어요!':
+        return `/projects/${targetId}/task`
+      default:
+        return null
+    }
+  }
+
+  const handleNotificationClick = (notification: Notification) => {
+    const link = getNotificationLink(notification)
+    if (link) {
+      router.push(link)
+      setIsNotificationOpen(false)
+    }
+  }
 
   return (
     <Sidebar className="mt-12 h-[calc(100svh-3rem)]">
@@ -178,12 +197,12 @@ export default function ProjectSidebar() {
                 ) : (
                   <>
                     <div className="flex flex-col grow">
-                      <span className="text-sm font-medium">{user.name}</span>
-                      <span className="text-xs text-gray-500">
-                        {currentUserRole}
+                      <span className="text-sm font-medium text-primary">
+                        {user.name}
                       </span>
+                      <span className="text-xs text-cm">{user.email}</span>
                     </div>
-                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                    <ChevronDown className="w-4 h-4 text-cm" />
                   </>
                 )}
               </div>
@@ -253,21 +272,35 @@ export default function ProjectSidebar() {
                   새로운 알림이 없습니다.
                 </li>
               ) : (
-                notifications.map((notification) => (
-                  <li
-                    key={notification.notificationId}
-                    className={`text-xs p-2 rounded-md transition ${
-                      notification.isRead
-                        ? 'text-gray-500 hover:bg-gray-50'
-                        : 'text-black bg-gray-50 hover:bg-gray-100'
-                    }`}
-                  >
+                notifications.map((notification) => {
+                  const link = getNotificationLink(notification)
+                  const NotificationContent = () => (
                     <div className="flex flex-col">
                       <span className="font-medium">{notification.title}</span>
                       <span className="mt-1">{notification.description}</span>
                     </div>
-                  </li>
-                ))
+                  )
+
+                  return (
+                    <li
+                      key={notification.notificationId}
+                      className={`text-xs p-2 rounded-md transition cursor-pointer ${
+                        notification.isRead
+                          ? 'text-gray-500 hover:bg-gray-50'
+                          : 'text-black bg-gray-50 hover:bg-gray-100'
+                      }`}
+                      onClick={() => handleNotificationClick(notification)}
+                    >
+                      {link ? (
+                        <Link href={link} className="block">
+                          <NotificationContent />
+                        </Link>
+                      ) : (
+                        <NotificationContent />
+                      )}
+                    </li>
+                  )
+                })
               )}
             </ul>
           </div>
