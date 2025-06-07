@@ -1,68 +1,15 @@
 import { useAuthStore } from '@/stores/useAuthStore'
+import { Notification } from '@cm/api/notifications'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 
 interface UseNotificationSSEProps {
-  onGetNotifications: (notifications: Notification[]) => void
+  onNewNotification: (notification: Notification) => void
   onError: (error: Error | MessageEvent) => void
   onOpen?: () => void
 }
 
-interface Notification {
-  notificationId: string
-  userId: string
-  title: string
-  description: string
-  targetId: string
-  isRead: boolean
-  project: {
-    projectId: string
-    title: string
-    description: string
-    startDate: string
-    endDate: string
-    members: Array<{
-      userId: string
-      name: string
-      email: string
-      profileImageUrl: string
-      profiles: Array<{
-        positions: string[]
-        projectId: string
-        role: string
-        isActive: boolean
-      }>
-    }>
-    leader: {
-      userId: string
-      name: string
-      email: string
-      profileImageUrl: string
-      profiles: Array<{
-        positions: string[]
-        projectId: string
-        role: string
-        isActive: boolean
-      }>
-    }
-    productManager: {
-      userId: string
-      name: string
-      email: string
-      profileImageUrl: string
-      profiles: Array<{
-        positions: string[]
-        projectId: string
-        role: string
-        isActive: boolean
-      }>
-    }
-    imageUrl: string | null
-    archived: boolean
-  }
-}
-
 export const UseNotificationSSE = ({
-  onGetNotifications,
+  onNewNotification,
   onError,
   onOpen,
 }: UseNotificationSSEProps) => {
@@ -90,13 +37,13 @@ export const UseNotificationSSE = ({
       onOpen?.()
     }
 
-    eventSource.addEventListener('get-notifications', (event) => {
+    eventSource.addEventListener('new-notification', (event) => {
       if ('data' in event) {
         const message = event as MessageEvent
         try {
           const data = JSON.parse(message.data)
-          console.log('SSE 알림 수신:', data)
-          onGetNotifications(data)
+          console.log('새 알림 수신:', data)
+          onNewNotification(data)
         } catch (error) {
           console.error('SSE 데이터 처리 오류:', error)
           onError(error instanceof Error ? error : new Error(String(error)))
