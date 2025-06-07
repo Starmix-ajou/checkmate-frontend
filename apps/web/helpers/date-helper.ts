@@ -197,13 +197,12 @@ export const getLocalDayOfWeek = (
   locale: string,
   format?: 'long' | 'short' | 'narrow' | undefined
 ) => {
-  let bottomValue = getCachedDateTimeFormat(locale, {
-    weekday: format,
+  // 영어 요일 표기를 위해 'en-US' 로케일 사용
+  let bottomValue = getCachedDateTimeFormat('en-US', {
+    weekday: 'short',
   }).format(date)
-  bottomValue = bottomValue.replace(
-    bottomValue[0],
-    bottomValue[0].toLocaleUpperCase()
-  )
+  // 대문자로 변환하고 첫 3글자만 사용
+  bottomValue = bottomValue.substring(0, 3).toUpperCase()
   return bottomValue
 }
 

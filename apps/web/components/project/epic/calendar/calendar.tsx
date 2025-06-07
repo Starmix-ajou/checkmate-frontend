@@ -183,9 +183,10 @@ export const Calendar: React.FC<CalendarProps> = ({
       bottomValues.push(
         <text
           key={date.getTime()}
-          y={headerHeight * 0.8}
+          y={headerHeight * 0.5 + headerHeight * 0.25}
           x={columnWidth * (i + +rtl) + columnWidth * 0.5}
           className={styles.calendarBottomText}
+          dominantBaseline="middle"
         >
           {bottomValue}
         </text>
@@ -220,16 +221,15 @@ export const Calendar: React.FC<CalendarProps> = ({
     const dates = dateSetup.dates
     for (let i = 0; i < dates.length; i++) {
       const date = dates[i]
-      const bottomValue = `${getLocalDayOfWeek(date, locale, 'short')}, ${date
-        .getDate()
-        .toString()}`
+      const bottomValue = date.getDate().toString()
 
       bottomValues.push(
         <text
           key={date.getTime()}
-          y={headerHeight * 0.8}
+          y={headerHeight * 0.5 + headerHeight * 0.25}
           x={columnWidth * i + columnWidth * 0.5}
           className={styles.calendarBottomText}
+          dominantBaseline="middle"
         >
           {bottomValue}
         </text>

@@ -178,7 +178,11 @@ export default function ProjectEpic() {
           {loading ? (
             <Skeleton className="h-[600px] w-full" />
           ) : (
-            <Gantt epics={epics} viewMode={viewMode} />
+            <Gantt
+              epics={epics}
+              viewMode={viewMode}
+              columnWidth={viewMode === ViewMode.Day ? 40 : 60}
+            />
           )}
         </div>
 
