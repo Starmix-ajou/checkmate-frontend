@@ -15,6 +15,7 @@ import { FileText, LogOut, Shield, User as UserIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { ReactNode } from 'react'
 
 export type BaseNavbarProps = {
   user: User | null
@@ -25,6 +26,7 @@ export type BaseNavbarProps = {
   currentFilter?: ProjectStatus
   logoUrl?: string
   logoAlt?: string
+  children?: ReactNode
 }
 
 export function BaseNavbar({
@@ -36,6 +38,7 @@ export function BaseNavbar({
   currentFilter = '',
   logoUrl = '/logo.svg',
   logoAlt = 'logo',
+  children,
 }: BaseNavbarProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -92,47 +95,50 @@ export function BaseNavbar({
           </div>
         )}
       </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger className="flex items-center gap-2">
-          {!user ? (
-            <Skeleton className="w-8 h-8 rounded-full" />
-          ) : user.image ? (
-            <Image
-              src={user.image}
-              alt={user.name || '프로필 이미지'}
-              width={32}
-              height={32}
-              className="rounded-full"
-            />
-          ) : (
-            <UserIcon className="w-8 h-8 text-gray-500" />
-          )}
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            className="flex items-center gap-2 cursor-pointer"
-            onClick={onSignOut}
-          >
-            <LogOut className="w-4 h-4" />
-            로그아웃
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="flex items-center gap-2 cursor-pointer"
-            onClick={() => router.push('/privacy')}
-          >
-            <FileText className="w-4 h-4" />
-            이용약관
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="flex items-center gap-2 cursor-pointer"
-            onClick={() => router.push('/terms')}
-          >
-            <Shield className="w-4 h-4" />
-            개인정보처리방침
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="flex items-center gap-2">
+        {children}
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center gap-2">
+            {!user ? (
+              <Skeleton className="w-8 h-8 rounded-full" />
+            ) : user.image ? (
+              <Image
+                src={user.image}
+                alt={user.name || '프로필 이미지'}
+                width={32}
+                height={32}
+                className="rounded-full"
+              />
+            ) : (
+              <UserIcon className="w-8 h-8 text-gray-500" />
+            )}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              className="flex items-center gap-2 cursor-pointer"
+              onClick={onSignOut}
+            >
+              <LogOut className="w-4 h-4" />
+              로그아웃
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="flex items-center gap-2 cursor-pointer"
+              onClick={() => router.push('/privacy')}
+            >
+              <FileText className="w-4 h-4" />
+              이용약관
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="flex items-center gap-2 cursor-pointer"
+              onClick={() => router.push('/terms')}
+            >
+              <Shield className="w-4 h-4" />
+              개인정보처리방침
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </nav>
   )
 }

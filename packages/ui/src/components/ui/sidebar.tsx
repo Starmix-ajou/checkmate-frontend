@@ -21,7 +21,7 @@ import { useIsMobile } from '@cm/ui/hooks/use-mobile'
 import { cn } from '@cm/ui/lib/utils'
 import { Slot } from '@radix-ui/react-slot'
 import { VariantProps, cva } from 'class-variance-authority'
-import { PanelLeftIcon } from 'lucide-react'
+import { PanelLeft, PanelLeftIcon } from 'lucide-react'
 import * as React from 'react'
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
@@ -272,7 +272,7 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <PanelLeftIcon />
+      <PanelLeft aria-hidden="true" />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )
