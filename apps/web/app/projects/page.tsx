@@ -1,9 +1,9 @@
 'use client'
 
+import { Navbar } from '@/components/Navbar'
 import { useAuth } from '@/providers/AuthProvider'
 import { getProjects } from '@cm/api/project'
 import { ProjectListItem, ProjectStatus } from '@cm/types/project'
-import { BaseNavbar } from '@cm/ui/components/common/BaseNavbar'
 import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import { ProjectList } from '@cm/ui/components/project'
 import ProjectAdd from '@cm/ui/components/project/ProjectAdd'
@@ -42,7 +42,7 @@ const Home = () => {
 
   return (
     <>
-      <BaseNavbar
+      <Navbar
         user={user}
         onSignOut={signOut}
         showSidebarTrigger={false}
@@ -62,7 +62,7 @@ const Home = () => {
         href="/projects/leaderboard"
         className="fixed bottom-8 right-8 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 group"
       >
-        <Trophy className="w-8 h-8" />
+        <Trophy aria-hidden="true" className="w-8 h-8" />
         <span className="font-medium hidden sm:inline-block">리더보드</span>
       </Link>
     </>

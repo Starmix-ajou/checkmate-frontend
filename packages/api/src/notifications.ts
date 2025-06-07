@@ -171,3 +171,27 @@ export const deleteNotification = async (
     throw error
   }
 }
+
+export const getGlobalNotifications = async (
+  accessToken: string,
+  page: number,
+  size: number
+): Promise<NotificationResponse> => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification?page=${page}&size=${size}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
+
+    if (!res.ok) throw new Error(`전체 알림 조회 실패: ${res.status}`)
+    return await res.json()
+  } catch (error) {
+    console.error('전체 알림 조회 에러:', error)
+    throw error
+  }
+}
