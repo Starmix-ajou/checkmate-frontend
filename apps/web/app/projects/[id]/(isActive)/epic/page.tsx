@@ -272,7 +272,28 @@ export default function ProjectEpic() {
                           setViewType('SPRINT')
                         }}
                       >
-                        {sprint.title}
+                        <div className="flex items-center gap-2">
+                          <span>{sprint.title}</span>
+                          <span className="text-xs text-cm-gray">
+                            {new Date(sprint.startDate)
+                              .toLocaleDateString('ko-KR', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                              })
+                              .replace(/\. /g, '. ')
+                              .replace(/\.$/, '')}{' '}
+                            ~{' '}
+                            {new Date(sprint.endDate)
+                              .toLocaleDateString('ko-KR', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                              })
+                              .replace(/\. /g, '. ')
+                              .replace(/\.$/, '')}
+                          </span>
+                        </div>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
