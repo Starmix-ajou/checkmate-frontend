@@ -183,11 +183,13 @@ export const seedDates = (
 }
 
 export const getLocaleMonth = (date: Date, locale: string) => {
-  let bottomValue = getCachedDateTimeFormat(locale, {
+  // 영어 월 표기를 위해 'en-US' 로케일 사용
+  let bottomValue = getCachedDateTimeFormat('en-US', {
     month: 'short',
   }).format(date)
   bottomValue = bottomValue.toUpperCase()
-  return bottomValue
+  // 정확히 3글자로 표시하기 위해 첫 3글자만 사용
+  return bottomValue.substring(0, 3)
 }
 
 export const getLocalDayOfWeek = (

@@ -34,7 +34,7 @@ export const Gantt: React.FunctionComponent<
   ganttHeight = 0,
   viewMode = ViewMode.Day,
   preStepsCount = 1,
-  locale = 'en-GB',
+  locale = 'ko-KR',
   barFill = 60,
   barCornerRadius = 4,
   barProgressColor = '#a3a3ff',
