@@ -130,6 +130,7 @@ export const Gantt: React.FunctionComponent<
             progress: 0,
             type: 'task' as const,
             hideChildren: true,
+            project: epic.epicId,
           })),
         } as Task,
         // 하위 태스크들 중 유효한 날짜를 가진 태스크만 표시
@@ -145,6 +146,7 @@ export const Gantt: React.FunctionComponent<
                 progress: 0,
                 type: 'task' as const,
                 hideChildren: true,
+                project: epic.epicId,
               }) as Task
           ),
       ]

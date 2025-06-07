@@ -275,6 +275,14 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
   // 에픽의 색상을 저장하는 Map
   const epicColors = new Map<string, string>()
 
+  // 먼저 모든 에픽의 색상을 설정
+  tasks.forEach((task) => {
+    if (task.typeInternal === 'project') {
+      const colorIndex = task.index % BAR_COLORS.length
+      epicColors.set(task.id, BAR_COLORS[colorIndex])
+    }
+  })
+
   return (
     <g className="content">
       <g className="arrows" fill={arrowColor} stroke={arrowColor}>
@@ -304,18 +312,32 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
           ) {
             return null
           }
-          let colorIndex = task.index % BAR_COLORS.length
-          let color = BAR_COLORS[colorIndex]
 
-          // 에픽인 경우 색상을 저장
+          let color: string
+
+          // 에픽인 경우
           if (task.typeInternal === 'project') {
-            epicColors.set(task.id, color)
+            const colorIndex = task.index % BAR_COLORS.length
+            color = BAR_COLORS[colorIndex]
           }
-          // 태스크인 경우 해당 에픽의 색상을 사용
-          else if (task.project) {
-            const epicColor = epicColors.get(task.project)
-            if (epicColor) {
-              color = setOpacity(epicColor)
+          // 태스크인 경우
+          else {
+            // 상위 에픽 찾기
+            const parentEpic = tasks.find(
+              (t) => t.typeInternal === 'project' && t.id === task.project
+            )
+
+            if (parentEpic) {
+              const epicColor = epicColors.get(parentEpic.id)
+              if (epicColor) {
+                color = setOpacity(epicColor)
+              } else {
+                const colorIndex = task.index % BAR_COLORS.length
+                color = BAR_COLORS[colorIndex]
+              }
+            } else {
+              const colorIndex = task.index % BAR_COLORS.length
+              color = BAR_COLORS[colorIndex]
             }
           }
 
