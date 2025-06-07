@@ -16,12 +16,26 @@ import {
   BreadcrumbSeparator,
 } from '@cm/ui/components/ui/breadcrumb'
 import { Button } from '@cm/ui/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@cm/ui/components/ui/dropdown-menu'
 import { Skeleton } from '@cm/ui/components/ui/skeleton'
-import { PlusIcon, Trash2 } from 'lucide-react'
+import { ChevronDown, PlusIcon, Trash2 } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
+
+// 가짜 스프린트 데이터
+const MOCK_SPRINTS = [
+  { id: '1', name: 'Sprint 1' },
+  { id: '2', name: 'Sprint 2' },
+  { id: '3', name: 'Sprint 3' },
+  { id: '4', name: 'Sprint 4' },
+]
 
 export default function ProjectEpic() {
   const { id } = useParams()
@@ -30,10 +44,13 @@ export default function ProjectEpic() {
   const [epics, setEpics] = useState<Epic[]>([])
   const [isCreateEpicDialogOpen, setIsCreateEpicDialogOpen] = useState(false)
   const [isDeleteEpicDialogOpen, setIsDeleteEpicDialogOpen] = useState(false)
+  const [isSprintDropdownOpen, setIsSprintDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const user = useAuthStore((state) => state.user)
 
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.Week)
   const [viewType, setViewType] = useState<'WEEK' | 'SPRINT'>('WEEK')
+  const [selectedSprint, setSelectedSprint] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user?.accessToken || !id) return
@@ -81,6 +98,23 @@ export default function ProjectEpic() {
 
     fetchProjectDetails()
   }, [id, user?.accessToken])
+
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsSprintDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   const projectTitle = project?.title || '프로젝트'
 
@@ -143,19 +177,44 @@ export default function ProjectEpic() {
             >
               Day
             </button>
-            {/* <button
-              className={`text-base font-medium mr-2 px-2 py-3.5 border-b-2 transition ${
-                viewMode === ViewMode.Week && viewType === 'SPRINT'
-                  ? 'text-cm-900 border-cm-900'
-                  : 'text-cm-100 border-transparent'
-              }`}
-              onClick={() => {
-                setViewMode(ViewMode.Week)
-                setViewType('SPRINT')
-              }}
-            >
-              Sprint
-            </button> */}
+            <div className="flex items-center">
+              <button
+                className={`text-base font-medium mr-2 px-2 py-3.5 border-b-2 transition ${
+                  viewMode === ViewMode.Week && viewType === 'SPRINT'
+                    ? 'text-cm-900 border-cm-900'
+                    : 'text-cm-100 border-transparent'
+                }`}
+                onClick={() => {
+                  setViewMode(ViewMode.Week)
+                  setViewType('SPRINT')
+                }}
+              >
+                Sprint
+              </button>
+              {viewMode === ViewMode.Week && viewType === 'SPRINT' && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="p-1 hover:bg-gray-100 rounded-sm">
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {MOCK_SPRINTS.map((sprint) => (
+                      <DropdownMenuItem
+                        key={sprint.id}
+                        onClick={() => {
+                          setSelectedSprint(sprint.id)
+                          setViewMode(ViewMode.Week)
+                          setViewType('SPRINT')
+                        }}
+                      >
+                        {sprint.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
             <Button
               variant="secondary"
               className="ml-auto mr-3 flex items-center"
