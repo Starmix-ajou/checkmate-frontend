@@ -37,6 +37,7 @@ import {
   Home,
   NotebookPen,
   Play,
+  Receipt,
   Rocket,
   Settings,
 } from 'lucide-react'
@@ -241,6 +242,11 @@ export default function ProjectSidebar() {
       title: 'Members',
       url: `/projects/${id}/members`,
       icon: BookUser,
+    },
+    {
+      title: 'Billing',
+      url: `/projects/${id}/billing`,
+      icon: Receipt,
     },
     {
       title: 'Settings',
