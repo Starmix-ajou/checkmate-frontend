@@ -61,10 +61,8 @@ export function NotificationPanel({
   const handleDeleteClick = (e: React.MouseEvent, notification: Notification) => {
     e.stopPropagation()
     if (notification.isRead) {
-      // 읽은 알림은 바로 삭제
       handleDelete(notification.notificationId)
     } else {
-      // 읽지 않은 알림은 확인 다이얼로그 표시
       setNotificationToDelete(notification)
     }
   }
@@ -94,14 +92,12 @@ export function NotificationPanel({
     }
 
     try {
-      // 모든 읽은 알림을 병렬로 삭제
       await Promise.all(
         readNotifications.map((notification) =>
           deleteNotification(user.accessToken, notification.notificationId)
         )
       )
       
-      // 삭제된 알림 ID 목록을 부모 컴포넌트에 전달
       readNotifications.forEach((notification) => {
         onNotificationDelete?.(notification.notificationId)
       })
@@ -142,7 +138,7 @@ export function NotificationPanel({
         </div>
         <div className="max-h-[calc(24rem-2.5rem)] overflow-y-auto">
           {notifications.length === 0 && !isLoading ? (
-            <div className="p-4 text-center text-sm text-gray-500">
+            <div className="p-4 text-center text-sm text-cm">
               알림이 없습니다
             </div>
           ) : (
@@ -151,7 +147,11 @@ export function NotificationPanel({
                 <li
                   key={notification.notificationId}
                   ref={index === notifications.length - 1 ? lastNotificationRef : null}
-                  className="px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                  className={`px-4 py-2 transition cursor-pointer ${
+                    notification.isRead
+                      ? 'opacity-50 hover:bg-cm-light'
+                      : 'hover:bg-cm-light'
+                  }`}
                   onClick={() => handleClick(notification)}
                 >
                   <div className="flex items-center gap-2">
@@ -165,7 +165,7 @@ export function NotificationPanel({
                     </div>
                     <div className="flex items-center gap-1">
                       {!notification.isRead && (
-                        <span className="w-2 h-2 rounded-full bg-cm" />
+                        <span className="w-2 h-2 rounded-full bg-red-500" />
                       )}
                       <Button
                         variant="ghost"
@@ -173,7 +173,7 @@ export function NotificationPanel({
                         className="h-5 w-5"
                         onClick={(e) => handleDeleteClick(e, notification)}
                       >
-                        <X className="w-2 h-2 text-gray-400 hover:text-red-500" />
+                        <X className="w-2 h-2 text-cm hover:text-red-500" />
                       </Button>
                     </div>
                   </div>
@@ -190,7 +190,7 @@ export function NotificationPanel({
                 </li>
               )}
               {!hasMore && notifications.length > 0 && (
-                <li className="p-2 text-center text-xs text-gray-500">
+                <li className="p-2 text-center text-xs text-cm">
                   더 이상 알림이 없습니다
                 </li>
               )}
@@ -199,7 +199,6 @@ export function NotificationPanel({
         </div>
       </div>
 
-      {/* 개별 알림 삭제 다이얼로그 */}
       <Dialog open={!!notificationToDelete} onOpenChange={() => setNotificationToDelete(null)}>
         <DialogContent>
           <DialogHeader>
@@ -224,7 +223,6 @@ export function NotificationPanel({
         </DialogContent>
       </Dialog>
 
-      {/* 읽은 알림 전체 삭제 다이얼로그 */}
       <Dialog open={isDeleteAllDialogOpen} onOpenChange={setIsDeleteAllDialogOpen}>
         <DialogContent>
           <DialogHeader>

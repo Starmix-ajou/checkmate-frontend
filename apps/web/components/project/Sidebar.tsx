@@ -3,7 +3,7 @@
 import { UseNotificationSSE } from '@/hooks/useNotificationSSE'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useProjectStore } from '@/stores/useProjectStore'
-import { Notification, getNotifications } from '@cm/api/notifications'
+import { Notification, getNotifications, getNotificationCount } from '@cm/api/notifications'
 import { Button } from '@cm/ui/components/ui/button'
 import {
   DropdownMenu,
@@ -47,12 +47,12 @@ export default function ProjectSidebar() {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const { projects, loading, fetchProjects } = useProjectStore()
+  const [totalNotifications, setTotalNotifications] = useState(0)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [page, setPage] = useState(0)
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
-  const [totalNotifications, setTotalNotifications] = useState(0)
   const observer = useRef<IntersectionObserver | null>(null)
   const PAGE_SIZE = 10
 
@@ -88,12 +88,24 @@ export default function ProjectSidebar() {
     },
     onError: (error) => {
       console.error('SSE 알림 오류:', error)
-      toast.error('알림을 받는 중 오류가 발생했습니다.')
+
     },
     onOpen: async () => {
       console.log('SSE 연결 성공')
     },
   })
+
+  const loadNotificationCount = useCallback(async () => {
+    if (!user?.accessToken || !id) return
+
+    try {
+      const response = await getNotificationCount(user.accessToken, id as string)
+      setTotalNotifications(response.count)
+    } catch (error) {
+      console.error('알림 개수 로드 실패:', error)
+      toast.error('알림 개수를 불러오는데 실패했습니다.')
+    }
+  }, [user?.accessToken, id])
 
   const loadInitialNotifications = useCallback(async () => {
     if (!user?.accessToken || !id) return
@@ -109,9 +121,9 @@ export default function ProjectSidebar() {
       setNotifications(response.content)
       setHasMore(!response.last)
       setPage(0)
-      setTotalNotifications(response.totalElements)
     } catch (error) {
       console.error('알림 로드 실패:', error)
+      toast.error('알림을 불러오는데 실패했습니다.')
     } finally {
       setIsLoading(false)
     }
@@ -158,9 +170,15 @@ export default function ProjectSidebar() {
 
   useEffect(() => {
     if (user?.accessToken && id) {
+      loadNotificationCount()
+    }
+  }, [user?.accessToken, id, loadNotificationCount])
+
+  useEffect(() => {
+    if (isNotificationOpen) {
       loadInitialNotifications()
     }
-  }, [user?.accessToken, id, loadInitialNotifications])
+  }, [isNotificationOpen, loadInitialNotifications])
 
   useEffect(() => {
     const eventSource = startSSE()
@@ -284,8 +302,8 @@ export default function ProjectSidebar() {
             >
               <BellIcon className="w-5 h-5" />
               {totalNotifications > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                  {totalNotifications}
+                <span className="absolute top-0 right-0 bg-red-500 text-white text-[0.7rem] rounded-full w-4 h-4 flex items-center justify-center">
+                  {totalNotifications > 99 ? '99+' : totalNotifications}
                 </span>
               )}
             </Button>
