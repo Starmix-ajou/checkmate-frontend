@@ -72,23 +72,27 @@ export default function NewEpicModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>새 에픽 생성</DialogTitle>
+          <DialogTitle>New Epic</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="title">제목</Label>
+            <Label htmlFor="title" className="ml-1.5">
+              Title
+            </Label>
             <Input
               id="title"
-              placeholder="에픽 제목을 입력하세요"
+              placeholder="Epic 제목을 입력하세요"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="description">설명</Label>
+            <Label htmlFor="description" className="ml-1.5">
+              Description
+            </Label>
             <textarea
               id="description"
-              placeholder="에픽에 대한 설명을 입력하세요"
+              placeholder="Epic에 대한 설명을 입력하세요"
               className="flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-1.5 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] resize-none"
               value={description}
               onChange={(e) => setDescription(e.target.value)}

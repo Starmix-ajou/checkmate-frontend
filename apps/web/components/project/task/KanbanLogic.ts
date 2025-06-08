@@ -450,16 +450,24 @@ export function KanbanLogic(projectId: string) {
           body: JSON.stringify(taskData),
         })
 
+        console.log('서버 응답 상태:', response.status)
         console.log(
           '서버 응답 헤더:',
           Object.fromEntries(response.headers.entries())
         )
 
+        const responseText = await response.text()
+        console.log('서버 응답 내용:', responseText)
+
         if (!response.ok) {
-          const errorData = await response.json().catch(() => null)
-          throw new Error(
-            errorData?.message || `HTTP error! status: ${response.status}`
-          )
+          let errorMessage = '요청을 처리하는 중 오류가 발생했습니다.'
+          try {
+            const errorData = JSON.parse(responseText)
+            errorMessage = errorData.message || errorMessage
+          } catch (e) {
+            console.error('JSON 파싱 실패:', e)
+          }
+          throw new Error(errorMessage)
         }
 
         // POST가 성공하면 전체 Task 목록을 가져옴
