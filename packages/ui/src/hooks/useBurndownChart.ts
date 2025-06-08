@@ -14,7 +14,12 @@ export const useBurndownChart = (tasks: Task[]) => {
 
     const validTasks = tasks.filter(
       (task): task is Task & { startDate: string; endDate: string } =>
-        task.startDate !== null && task.endDate !== null
+        task.startDate !== null &&
+        task.endDate !== null &&
+        task.startDate !== '' &&
+        task.endDate !== '' &&
+        !isNaN(new Date(task.startDate).getTime()) &&
+        !isNaN(new Date(task.endDate).getTime())
     )
 
     if (validTasks.length === 0) {
@@ -109,4 +114,4 @@ export const useBurndownChart = (tasks: Task[]) => {
     burndownData: calculateBurndownData(),
     today,
   }
-} 
+}
