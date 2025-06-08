@@ -195,3 +195,31 @@ export const getGlobalNotifications = async (
     throw error
   }
 }
+
+export interface NotificationCountResponse {
+  count: number
+}
+
+export const getNotificationCount = async (
+  accessToken: string,
+  projectId?: string
+): Promise<NotificationCountResponse> => {
+  try {
+    const url = projectId
+      ? `${process.env.NEXT_PUBLIC_API_URL}/notification/count?projectId=${projectId}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/notification/count`
+
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+
+    if (!res.ok) throw new Error(`알림 개수 조회 실패: ${res.status}`)
+    return await res.json()
+  } catch (error) {
+    console.error('알림 개수 조회 에러:', error)
+    throw error
+  }
+}

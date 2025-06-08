@@ -2,7 +2,7 @@
 
 import { GlobalNotificationPanel } from '@/components/project/GlobalNotificationPanel'
 import { UseNotificationSSE } from '@/hooks/useNotificationSSE'
-import { Notification, getGlobalNotifications } from '@cm/api/notifications'
+import { Notification, getGlobalNotifications, getNotificationCount } from '@cm/api/notifications'
 import {
   BaseNavbar,
   BaseNavbarProps,
@@ -22,6 +22,7 @@ export function Navbar(props: NavbarProps) {
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [totalNotifications, setTotalNotifications] = useState(0)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const observer = useRef<IntersectionObserver | null>(null)
   const PAGE_SIZE = 10
 
@@ -63,6 +64,18 @@ export function Navbar(props: NavbarProps) {
     },
   })
 
+  const loadNotificationCount = useCallback(async () => {
+    if (!props.user?.accessToken) return
+
+    try {
+      const response = await getNotificationCount(props.user.accessToken)
+      setTotalNotifications(response.count)
+    } catch (error) {
+      console.error('알림 개수 로드 실패:', error)
+      toast.error('알림 개수를 불러오는데 실패했습니다.')
+    }
+  }, [props.user?.accessToken])
+
   const loadInitialNotifications = useCallback(async () => {
     if (!props.user?.accessToken) return
 
@@ -76,7 +89,6 @@ export function Navbar(props: NavbarProps) {
       setNotifications(response.content)
       setHasMore(!response.last)
       setPage(0)
-      setTotalNotifications(response.totalElements)
     } catch (error) {
       console.error('알림 로드 실패:', error)
       toast.error('알림을 불러오는데 실패했습니다.')
@@ -146,9 +158,9 @@ export function Navbar(props: NavbarProps) {
 
   useEffect(() => {
     if (props.user?.accessToken) {
-      loadInitialNotifications()
+      loadNotificationCount()
     }
-  }, [props.user?.accessToken, loadInitialNotifications])
+  }, [props.user?.accessToken, loadNotificationCount])
 
   useEffect(() => {
     const eventSource = startSSE()
@@ -157,22 +169,33 @@ export function Navbar(props: NavbarProps) {
     }
   }, [props.user?.accessToken])
 
+  useEffect(() => {
+    if (isNotificationOpen) {
+      loadInitialNotifications()
+    }
+  }, [isNotificationOpen, loadInitialNotifications])
+
   return (
     <BaseNavbar {...props}>
       {props.user && (
         <div className="relative">
-          <GlobalNotificationPanel
-            notifications={notifications}
-            isLoading={isLoading}
-            hasMore={hasMore}
-            lastNotificationRef={lastNotificationRef}
-            onNotificationDelete={(notificationId) => {
-              setNotifications((prev) =>
-                prev.filter((n) => n.notificationId !== notificationId)
-              )
-              setTotalNotifications((prev) => Math.max(0, prev - 1))
-            }}
-          />
+          <div className="flex items-center gap-2">
+            <GlobalNotificationPanel
+              notifications={notifications}
+              isLoading={isLoading}
+              hasMore={hasMore}
+              lastNotificationRef={lastNotificationRef}
+              onNotificationDelete={(notificationId) => {
+                setNotifications((prev) =>
+                  prev.filter((n) => n.notificationId !== notificationId)
+                )
+                setTotalNotifications((prev) => Math.max(0, prev - 1))
+              }}
+              isOpen={isNotificationOpen}
+              onOpenChange={setIsNotificationOpen}
+              totalNotifications={totalNotifications}
+            />
+          </div>
         </div>
       )}
     </BaseNavbar>

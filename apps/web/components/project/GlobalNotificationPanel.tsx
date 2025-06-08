@@ -5,6 +5,7 @@ import {
   markNotificationAsRead,
 } from '@cm/api/notifications'
 import { Button } from '@cm/ui/components/ui/button'
+import { Skeleton } from '@cm/ui/components/ui/skeleton'
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,9 @@ interface GlobalNotificationPanelProps {
   hasMore?: boolean
   lastNotificationRef?: (node: HTMLLIElement | null) => void
   onNotificationDelete?: (notificationId: string) => void
+  isOpen?: boolean
+  onOpenChange?: (isOpen: boolean) => void
+  totalNotifications?: number
 }
 
 export function GlobalNotificationPanel({
@@ -38,13 +42,25 @@ export function GlobalNotificationPanel({
   hasMore = false,
   lastNotificationRef,
   onNotificationDelete,
+  isOpen: controlledIsOpen,
+  onOpenChange,
+  totalNotifications = 0,
 }: GlobalNotificationPanelProps) {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
-  const [isOpen, setIsOpen] = useState(false)
+  const [internalIsOpen, setInternalIsOpen] = useState(false)
   const [notificationToDelete, setNotificationToDelete] =
     useState<Notification | null>(null)
   const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState(false)
+
+  const isOpen = controlledIsOpen ?? internalIsOpen
+  const setIsOpen = (value: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(value)
+    } else {
+      setInternalIsOpen(value)
+    }
+  }
 
   const getNotificationLink = (notification: Notification) => {
     const { title, targetId, project } = notification
@@ -141,13 +157,28 @@ export function GlobalNotificationPanel({
     }
   }
 
+  const NotificationSkeleton = () => (
+    <li className="px-4 py-3">
+      <div className="flex items-center justify-between">
+        <div className="flex-1 min-w-0 space-y-2">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
+        </div>
+        <div className="flex items-center gap-1">
+          <Skeleton className="h-2 w-2 rounded-full" />
+          <Skeleton className="h-5 w-5 rounded-md" />
+        </div>
+      </div>
+    </li>
+  )
+
   return (
     <div className="relative">
       <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
         <Bell className="w-5 h-5" />
-        {notifications.length > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-            {notifications.length}
+        {totalNotifications > 0 && (
+          <span className="absolute top-0 right-0 bg-red-500 text-white text-[0.7rem] rounded-full w-4 h-4 flex items-center justify-center">
+            {totalNotifications > 99 ? '99+' : totalNotifications}
           </span>
         )}
       </Button>
@@ -183,65 +214,64 @@ export function GlobalNotificationPanel({
           <div className="max-h-[calc(24rem-4rem)] overflow-y-auto">
             <ul className="divide-y divide-gray-100">
               {notifications.length === 0 && !isLoading ? (
-                <li className="text-xs text-gray-500 text-center p-4">
+                <li className="text-xs text-cm text-center p-4">
                   새로운 알림이 없습니다.
                 </li>
               ) : (
-                notifications.map((notification, index) => (
-                  <li
-                    key={notification.notificationId}
-                    ref={
-                      index === notifications.length - 1
-                        ? lastNotificationRef
-                        : null
-                    }
-                    className={`transition cursor-pointer ${
-                      notification.isRead
-                        ? 'text-gray-500 hover:bg-gray-50'
-                        : 'text-black hover:bg-gray-50'
-                    }`}
-                    onClick={() => handleClick(notification)}
-                  >
-                    <div className="relative px-4 py-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium break-keep">
-                            {notification.title}
-                          </p>
-                          <p className="text-xs text-cm break-keep mt-1">
-                            {notification.description}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {!notification.isRead && (
-                            <span className="w-2 h-2 rounded-full bg-cm" />
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-5 w-5"
-                            onClick={(e) => handleDeleteClick(e, notification)}
-                          >
-                            <X className="w-2 h-2 text-gray-400 hover:text-red-500" />
-                          </Button>
+                <>
+                  {notifications.map((notification, index) => (
+                    <li
+                      key={notification.notificationId}
+                      ref={
+                        index === notifications.length - 1
+                          ? lastNotificationRef
+                          : null
+                      }
+                      className={`transition cursor-pointer ${
+                        notification.isRead
+                          ? 'opacity-50 hover:bg-cm-light'
+                          : 'hover:bg-cm-light'
+                      }`}
+                      onClick={() => handleClick(notification)}
+                    >
+                      <div className="relative px-4 py-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium break-keep">
+                              {notification.title}
+                            </p>
+                            <p className="text-xs text-cm break-keep mt-1">
+                              {notification.description}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {!notification.isRead && (
+                              <span className="w-2 h-2 rounded-full bg-red-500" />
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-5 w-5"
+                              onClick={(e) => handleDeleteClick(e, notification)}
+                            >
+                              <X className="w-2 h-2 text-cm hover:text-red-500" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </li>
-                ))
-              )}
-              {isLoading && (
-                <li className="p-2">
-                  <div className="flex items-start gap-2">
-                    <div className="flex-1">
-                      <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse mb-2" />
-                      <div className="h-3 w-1/2 bg-gray-200 rounded animate-pulse" />
-                    </div>
-                  </div>
-                </li>
+                    </li>
+                  ))}
+                  {isLoading && (
+                    <>
+                      <NotificationSkeleton />
+                      <NotificationSkeleton />
+                      <NotificationSkeleton />
+                    </>
+                  )}
+                </>
               )}
               {!hasMore && notifications.length > 0 && (
-                <li className="p-2 text-center text-xs text-gray-500">
+                <li className="p-2 text-center text-xs text-cm">
                   더 이상 알림이 없습니다
                 </li>
               )}
