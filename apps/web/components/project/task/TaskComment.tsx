@@ -53,22 +53,26 @@ export default function TaskComment({
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
   const [editingMessage, setEditingMessage] = useState('')
   const lastCommentRef = useRef<HTMLDivElement>(null)
+  const [isNewComment, setIsNewComment] = useState(false)
 
   const scrollToBottom = () => {
     const element = lastCommentRef.current
     if (element) {
       const container = element.closest('.overflow-y-auto')
       if (container) {
-        container.scrollTo({
-          top: container.scrollHeight,
-          behavior: 'smooth',
-        })
+        if (isNewComment) {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: 'smooth',
+          })
+        }
       }
     }
   }
 
   useEffect(() => {
     scrollToBottom()
+    setIsNewComment(false)
   }, [comments])
 
   useEffect(() => {
@@ -137,6 +141,7 @@ export default function TaskComment({
     }
 
     try {
+      setIsNewComment(true)
       console.log('댓글 작성 요청 데이터:', {
         taskId,
         message: comment.trim(),
@@ -275,6 +280,7 @@ export default function TaskComment({
     }
 
     try {
+      setIsNewComment(false)
       const response = await fetch(`${API_ENDPOINTS.COMMENTS}/${commentId}`, {
         method: 'PUT',
         headers: {
