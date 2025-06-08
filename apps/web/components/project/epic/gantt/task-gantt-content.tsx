@@ -1,5 +1,6 @@
 import { handleTaskBySVGMouseEvent } from '@/helpers/bar-helper'
 import { isKeyboardEvent } from '@/helpers/other-helper'
+import { useEpicColors } from '@/hooks/useEpicColors'
 import { BarTask } from '@cm/types/bar-task'
 import {
   BarMoveAction,
@@ -74,6 +75,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
   onDelete,
   onExpanderClick,
 }) => {
+  const { getTaskColor } = useEpicColors(tasks)
   const point = svg?.current?.createSVGPoint()
   const [xStep, setXStep] = useState(0)
   const [initEventX1Delta, setInitEventX1Delta] = useState(0)
@@ -280,17 +282,6 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
     return y + rowHeight / 2
   }
 
-  // 에픽의 색상을 저장하는 Map
-  const epicColors = new Map<string, string>()
-
-  // 먼저 모든 에픽의 색상을 설정
-  tasks.forEach((task) => {
-    if (task.typeInternal === 'project') {
-      const color = getEpicColor(task.id)
-      epicColors.set(task.id, color)
-    }
-  })
-
   return (
     <g className="content">
       <g className="arrows" fill={arrowColor} stroke={arrowColor}>
@@ -321,30 +312,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
             return null
           }
 
-          let color: string
-
-          // 에픽인 경우
-          if (task.typeInternal === 'project') {
-            color = getEpicColor(task.id)
-          }
-          // 태스크인 경우
-          else {
-            // 상위 에픽 찾기
-            const parentEpic = tasks.find(
-              (t) => t.typeInternal === 'project' && t.id === task.project
-            )
-
-            if (parentEpic) {
-              const epicColor = epicColors.get(parentEpic.id)
-              if (epicColor) {
-                color = setOpacity(epicColor)
-              } else {
-                color = setOpacity(getEpicColor(parentEpic.id))
-              }
-            } else {
-              color = setOpacity(getEpicColor(task.id))
-            }
-          }
+          const color = getTaskColor(task)
 
           const taskWithColor = {
             ...task,
