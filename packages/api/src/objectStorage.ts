@@ -6,8 +6,10 @@ export interface PresignedUrlResponse {
   expiredAt: string
 }
 
+export type BucketType = 'DEFINITION' | 'PROJECT'
+
 export interface PresignedUrlRequest {
-  bucket: 'DEFINITION'
+  bucket: BucketType
   fileName: string
 }
 
