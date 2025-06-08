@@ -2,6 +2,7 @@ import { Member } from '@cm/types/project'
 import { Task } from '@cm/types/userTask'
 import CheckmateSpinner from '@cm/ui/components/common/CheckmateSpinner'
 import { Button } from '@cm/ui/components/ui/button'
+import { Calendar } from '@cm/ui/components/ui/calendar'
 import {
   Popover,
   PopoverContent,
@@ -19,8 +20,6 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import { DayPicker, getDefaultClassNames } from 'react-day-picker'
-import 'react-day-picker/dist/style.css'
 
 import TaskComment from './TaskComment'
 
@@ -277,7 +276,7 @@ export default function TaskModal({
         onClick={handleClose}
       />
       <div
-        className={`fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto transition-transform duration-300 ${isVisible ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto transition-transform duration-300 ${isVisible ? 'translate-x-0' : 'translate-x-full'} z-30`}
       >
         <div className="p-6">
           <div className="flex justify-between items-start mb-6">
@@ -432,7 +431,7 @@ export default function TaskModal({
                   </div>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                  <DayPicker
+                  <Calendar
                     mode="range"
                     selected={{ from: startDate, to: endDate }}
                     onSelect={(range) => {
@@ -444,27 +443,28 @@ export default function TaskModal({
                       }
                     }}
                     locale={ko}
-                    captionLayout="label"
+                    numberOfMonths={1}
+                    className="rounded-md border"
                     classNames={{
-                      ...getDefaultClassNames(),
-                      today: 'font-black',
-                      selected: 'bg-[#795548] border-[#795548] text-black-01',
-                      root: `${getDefaultClassNames().root} shadow-lg p-5`,
-                      chevron: `${getDefaultClassNames().chevron} fill-[#795548] text-[#795548] hover:fill-[#795548] hover:text-[#795548]`,
+                      today: 'bg-cm rounded-full text-white',
+                      caption_label:
+                        'flex items-center justify-center h-10 ml-2 font-medium text-base',
+                      weekday:
+                        'text-muted-foreground font-normal [&:nth-child(1)]:text-destructive [&:nth-child(7)]:text-destructive',
+                      selected:
+                        'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-md',
+                      range_start:
+                        'range_start aria-selected:bg-primary aria-selected:text-primary-foreground rounded-md',
+                      range_end:
+                        'range_end aria-selected:bg-primary aria-selected:text-primary-foreground rounded-md',
                     }}
                     formatters={{
-                      formatCaption: (date) => format(date, 'yyyy. MM'),
+                      formatCaption: (date) =>
+                        format(date, 'yyyy. MM', { locale: ko }),
                       formatWeekdayName: (weekday) => {
                         const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
                         return weekdays[weekday.getDay()]
                       },
-                    }}
-                    modifiers={{
-                      weekend: (date) =>
-                        date.getDay() === 0 || date.getDay() === 6,
-                    }}
-                    modifiersStyles={{
-                      weekend: { color: '#D91F11' },
                     }}
                   />
                 </PopoverContent>
