@@ -193,6 +193,9 @@ importers:
       '@liveblocks/react-ui':
         specifier: ^2.24.2
         version: 2.24.2(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@portone/browser-sdk':
+        specifier: ^0.0.21
+        version: 0.0.21
       '@shadcn/ui':
         specifier: ^0.0.4
         version: 0.0.4
@@ -2313,6 +2316,9 @@ packages:
 
   '@popperjs/core@2.11.8':
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
+
+  '@portone/browser-sdk@0.0.21':
+    resolution: {integrity: sha512-VUNbECVwkza9OH7BI1f2F9bLWrqi01bIhScPzdwT5KpdHZ59PC/u7e9ouPbQAOQgDlv8P28kpoqh7vbj/vB7Mg==}
 
   '@radix-ui/number@1.1.1':
     resolution: {integrity: sha512-MkKCwxlXTgz6CFoJx3pCwn07GKp36+aZyu/u2Ln2VrA5DcdyCZkASEDBTd8x5whTQQL5CiYf4prXKLcgQdv29g==}
@@ -11128,6 +11134,8 @@ snapshots:
   '@polka/url@1.0.0-next.29': {}
 
   '@popperjs/core@2.11.8': {}
+
+  '@portone/browser-sdk@0.0.21': {}
 
   '@radix-ui/number@1.1.1': {}
 
