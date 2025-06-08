@@ -96,7 +96,7 @@ export default function ProjectEpic() {
         const transformedEpics = epicsData.map((epic: any) => ({
           epicId: epic.epicId,
           title: epic.title,
-          originalTitle: epic.epicId,
+          originalTitle: epic.title,
           displayTitle: (
             <div className="flex items-center gap-2">
               <span>{epic.title}</span>
