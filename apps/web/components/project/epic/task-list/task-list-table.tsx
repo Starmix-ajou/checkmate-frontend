@@ -48,7 +48,11 @@ export const TaskListTable: React.FC<{
                 minWidth: '270px',
                 maxWidth: rowWidth,
               }}
-              title={task.name}
+              title={
+                typeof task.name === 'string'
+                  ? task.name
+                  : task.originalTitle || ''
+              }
             >
               <div className={styles.taskListNameWrapper}>
                 <div className={styles.taskListExpander}>
