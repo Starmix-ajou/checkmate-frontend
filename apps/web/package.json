@@ -28,6 +28,7 @@
     "@liveblocks/react": "^2.24.2",
     "@liveblocks/react-blocknote": "^2.24.2",
     "@liveblocks/react-ui": "^2.24.2",
+    "@portone/browser-sdk": "^0.0.21",
     "@shadcn/ui": "^0.0.4",
     "@tanstack/react-table": "^8.21.3",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",

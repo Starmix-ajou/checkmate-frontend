@@ -3,7 +3,11 @@
 import { UseNotificationSSE } from '@/hooks/useNotificationSSE'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useProjectStore } from '@/stores/useProjectStore'
-import { Notification, getNotifications, getNotificationCount } from '@cm/api/notifications'
+import {
+  Notification,
+  getNotificationCount,
+  getNotifications,
+} from '@cm/api/notifications'
 import { Button } from '@cm/ui/components/ui/button'
 import {
   DropdownMenu,
@@ -33,12 +37,14 @@ import {
   Home,
   NotebookPen,
   Play,
+  Rocket,
   Settings,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+
 import { NotificationPanel } from './NotificationPanel'
 
 export default function ProjectSidebar() {
@@ -88,7 +94,6 @@ export default function ProjectSidebar() {
     },
     onError: (error) => {
       console.error('SSE 알림 오류:', error)
-
     },
     onOpen: async () => {
       console.log('SSE 연결 성공')
@@ -99,7 +104,10 @@ export default function ProjectSidebar() {
     if (!user?.accessToken || !id) return
 
     try {
-      const response = await getNotificationCount(user.accessToken, id as string)
+      const response = await getNotificationCount(
+        user.accessToken,
+        id as string
+      )
       setTotalNotifications(response.count)
     } catch (error) {
       console.error('알림 개수 로드 실패:', error)
@@ -203,7 +211,7 @@ export default function ProjectSidebar() {
       case '회의록이 추가되었어요!':
         return `/projects/${project.projectId}/meeting-notes/${targetId}`
       case '스프린트가 추가되었어요!':
-        return `/projects/${targetId}/task`
+        return `/projects/${id}/task`
       case 'Task의 담당자로 할당되었어요!':
       case 'Task에 새 댓글이 추가되었어요!':
         return `/projects/${project.projectId}/task?taskId=${targetId}`
@@ -335,7 +343,9 @@ export default function ProjectSidebar() {
           }}
           onNotificationDelete={(notificationId) => {
             setNotifications((prev) =>
-              prev.filter((notification) => notification.notificationId !== notificationId)
+              prev.filter(
+                (notification) => notification.notificationId !== notificationId
+              )
             )
             setTotalNotifications((prev) => Math.max(0, prev - 1))
           }}
@@ -371,7 +381,27 @@ export default function ProjectSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter>
+        <Link
+          href={`/projects/${id}/premium`}
+          className="group relative flex items-center gap-3 p-4 bg-gradient-to-r from-[#1a237e] via-[#283593] to-[#303f9f] text-white rounded-lg m-2 hover:shadow-xl transition-all duration-300 overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="relative flex items-center gap-3">
+            <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+              <Rocket className="w-5 h-5 text-blue-200" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-semibold tracking-wide">
+                프리미엄으로 업그레이드
+              </span>
+              <span className="text-sm text-blue-100/90">
+                월 19,900원으로 시작하세요
+              </span>
+            </div>
+          </div>
+        </Link>
+      </SidebarFooter>
     </Sidebar>
   )
 }
