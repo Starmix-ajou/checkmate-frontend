@@ -93,7 +93,8 @@ export const Gantt: React.FunctionComponent<
         return [
           {
             id: epic.epicId,
-            name: epic.title,
+            name: epic.displayTitle || epic.title,
+            originalTitle: epic.title,
             start: epicStart,
             end: epicEnd,
             progress: 0,
@@ -116,7 +117,8 @@ export const Gantt: React.FunctionComponent<
       return [
         {
           id: epic.epicId,
-          name: epic.title,
+          name: epic.displayTitle || epic.title,
+          originalTitle: epic.title,
           start: epicStart,
           end: epicEnd,
           progress: 0,
