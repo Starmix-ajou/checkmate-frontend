@@ -18,141 +18,24 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-
-type BurndownData = {
-  date: string
-  remaining: number
-  ideal: number
-}
-
-const calculateBurndownData = (tasks: Task[]): BurndownData[] => {
-  if (tasks.length === 0) {
-    return []
-  }
-
-  const validTasks = tasks.filter(
-    (task): task is Task & { startDate: string; endDate: string } =>
-      task.startDate !== null && task.endDate !== null
-  )
-
-  if (validTasks.length === 0) {
-    return []
-  }
-
-  const dates = validTasks
-    .map((task) => ({
-      startDate: new Date(task.startDate),
-      endDate: new Date(task.endDate),
-    }))
-    .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
-
-  if (dates.length === 0) {
-    return []
-  }
-
-  const [firstDate] = dates
-  const lastDate = dates[dates.length - 1]
-
-  if (!firstDate || !lastDate) {
-    return []
-  }
-
-  const startDate = firstDate.startDate
-  const endDate = lastDate.endDate
-  const totalDays = Math.ceil(
-    (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
-  )
-  const totalTasks = validTasks.length
-  const idealBurndown = totalTasks / totalDays
-
-  const dateMap = new Map<string, { remaining: number; ideal: number }>()
-
-  for (let i = 0; i <= totalDays; i++) {
-    const currentDate = new Date(startDate)
-    currentDate.setDate(startDate.getDate() + i)
-    const dateStr = currentDate.toISOString().split('T')[0]
-    if (dateStr) {
-      dateMap.set(dateStr, {
-        remaining: totalTasks,
-        ideal: Math.max(0, totalTasks - idealBurndown * i),
-      })
-    }
-  }
-
-  validTasks.forEach((task) => {
-    if (task.status === 'DONE') {
-      const endDateStr = new Date(task.endDate).toISOString().split('T')[0]
-      if (endDateStr) {
-        const currentData = dateMap.get(endDateStr)
-        if (currentData) {
-          dateMap.set(endDateStr, {
-            ...currentData,
-            remaining: currentData.remaining - 1,
-          })
-        }
-      }
-    }
-  })
-
-  let remainingTasks = totalTasks
-  const sortedDates = Array.from(dateMap.keys()).sort()
-
-  sortedDates.forEach((date) => {
-    const currentData = dateMap.get(date)
-    if (currentData && currentData.remaining !== totalTasks) {
-      remainingTasks = currentData.remaining
-    }
-    if (currentData) {
-      dateMap.set(date, {
-        ...currentData,
-        remaining: remainingTasks,
-      })
-    }
-  })
-
-  return Array.from(dateMap.entries()).map(([date, data]) => ({
-    date,
-    remaining: data.remaining,
-    ideal: Math.round(data.ideal * 100) / 100,
-  }))
-}
-
-const calculateEffortMetrics = (tasks: Task[]) => {
-  const totalTasks = tasks.length
-  const completedTasks = tasks.filter((task) => task.status === 'DONE').length
-  const remainingTasks = totalTasks - completedTasks
-  const expectedEffort = totalTasks
-  const actualEffort = completedTasks
-  const remainingEffort = remainingTasks
-
-  return {
-    expectedEffort,
-    actualEffort,
-    remainingEffort,
-  }
-}
+import { useBurndownChart } from '@cm/ui/hooks/useBurndownChart'
+import { useEffortMetrics } from '@cm/ui/hooks/useEffortMetrics'
 
 interface BurndownChartCardProps {
   tasks: Task[]
 }
 
 export default function BurndownChartCard({ tasks }: BurndownChartCardProps) {
-  const burndownData = calculateBurndownData(tasks)
-  const today = new Date(
-    new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' })
-  )
-    .toISOString()
-    .split('T')[0]
-  const { expectedEffort, actualEffort, remainingEffort } =
-    calculateEffortMetrics(tasks)
+  const { burndownData, today } = useBurndownChart(tasks)
+  const { expectedEffort, actualEffort, remainingEffort } = useEffortMetrics(tasks)
 
   if (burndownData.length === 0) {
     return (
-      <Card className="col-span-4 row-span-2">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>번다운차트</CardTitle>
+      <Card className="col-span-4 row-span-2 gap-0 p-0 pt-6">
+        <CardHeader className="flex flex-row items-center justify-between border-b">
+          <CardTitle>Burndown 차트</CardTitle>
         </CardHeader>
-        <CardContent className="flex h-[300px] items-center justify-center">
+        <CardContent className="flex h-[400px] items-center justify-center">
           <p className="text-muted-foreground">태스크 데이터가 없습니다.</p>
         </CardContent>
       </Card>
