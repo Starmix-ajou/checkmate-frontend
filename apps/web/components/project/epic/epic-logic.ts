@@ -1,3 +1,4 @@
+import { useEpicProgress } from '@/hooks/useEpicProgress'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Epic } from '@cm/types/epic'
 import { useCallback, useEffect, useState } from 'react'
@@ -70,4 +71,13 @@ export function useEpicLogic(projectId: string, sprintId?: string) {
     error,
     refetch: fetchEpics,
   }
+}
+
+export const calculateEpicProgress = (epic: Epic) => {
+  const { progress } = useEpicProgress(epic)
+  return progress
+}
+
+export const formatProgress = (progress: number) => {
+  return `${progress}%`
 }
