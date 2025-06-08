@@ -1,6 +1,10 @@
 'use client'
 
 import { useAuthStore } from '@/stores/useAuthStore'
+import {
+  getPresignedUrl,
+  uploadFileToPresignedUrl,
+} from '@cm/api/objectStorage'
 import { deleteProject, putProjectSettings } from '@cm/api/projectSettings'
 import { Project } from '@cm/types/project'
 import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
@@ -48,12 +52,7 @@ import { CalendarIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import {
-  type ControllerFieldState,
-  type ControllerRenderProps,
-  type UseFormStateReturn,
-  useForm,
-} from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import * as z from 'zod'
 
@@ -66,14 +65,6 @@ const formSchema = z.object({
   deleteConfirmation: z.string().optional(),
   endDate: z.string().min(1, '프로젝트 종료일을 입력해주세요'),
 })
-
-type FormValues = z.infer<typeof formSchema>
-
-type FormFieldProps<T extends keyof FormValues> = {
-  field: ControllerRenderProps<FormValues, T>
-  fieldState: ControllerFieldState
-  formState: UseFormStateReturn<FormValues>
-}
 
 export default function SettingsPage() {
   const { id } = useParams()
@@ -125,15 +116,45 @@ export default function SettingsPage() {
     fetchProjectDetails()
   }, [id, user?.accessToken, form])
 
+  const uploadImage = async (file: File): Promise<string> => {
+    if (!user?.accessToken) {
+      console.warn('JWT 토큰이 없습니다.')
+      return ''
+    }
+
+    try {
+      const { presignedUrl, url } = await getPresignedUrl(user.accessToken, {
+        bucket: 'PROJECT',
+        fileName: file.name,
+      })
+
+      await uploadFileToPresignedUrl(presignedUrl, file)
+      return url
+    } catch (error) {
+      console.error('이미지 업로드 에러:', error)
+      throw error
+    }
+  }
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      let imageUrl = project?.imageUrl || ''
+
+      if (values.image?.[0]) {
+        try {
+          imageUrl = await uploadImage(values.image[0])
+        } catch (error) {
+          console.error('이미지 업로드 실패:', error)
+          toast.error('이미지 업로드에 실패했습니다')
+          return
+        }
+      }
+
       await putProjectSettings({
         projectId: id as string,
         title: values.title,
         description: values.description,
-        imageUrl: values.image?.[0]
-          ? URL.createObjectURL(values.image[0])
-          : project?.imageUrl || '',
+        imageUrl,
         endDate: values.endDate,
         accessToken: user?.accessToken || '',
       })
@@ -268,23 +289,35 @@ export default function SettingsPage() {
                     <FormItem>
                       <FormLabel>프로젝트 이미지</FormLabel>
                       <FormControl>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(
-                            e: React.ChangeEvent<HTMLInputElement>
-                          ) => {
-                            const files = e.target.files
-                            if (files) {
-                              onChange(files)
-                            }
-                          }}
-                          {...field}
-                          value={undefined}
-                        />
+                        <div className="space-y-4">
+                          {project?.imageUrl && (
+                            <div className="relative w-32 h-32">
+                              <img
+                                src={project.imageUrl}
+                                alt="프로젝트 이미지"
+                                className="w-full h-full object-cover rounded-lg"
+                              />
+                            </div>
+                          )}
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>
+                            ) => {
+                              const files = e.target.files
+                              if (files) {
+                                onChange(files)
+                              }
+                            }}
+                            {...field}
+                            value={undefined}
+                          />
+                        </div>
                       </FormControl>
                       <FormDescription>
-                        프로젝트를 대표할 이미지를 업로드하세요.
+                        프로젝트를 대표할 이미지를 업로드하세요. (JPG, PNG, GIF
+                        형식 지원)
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
