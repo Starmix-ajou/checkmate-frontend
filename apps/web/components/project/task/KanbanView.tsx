@@ -273,12 +273,15 @@ export default function KanbanView({
     const taskData: TaskCreateRequest = {
       ...initialData,
       epicId,
+      projectId, // projectId 명시적 추가
     }
 
     try {
       await handleAddTask(pendingTaskData.columnKey as any, taskData)
+      setPendingTaskData(null) // 태스크 생성 후 pendingTaskData 초기화
     } catch (error) {
       console.error('태스크 생성 실패:', error)
+      alert('태스크 생성에 실패했습니다. 다시 시도해주세요.')
     }
   }
 
