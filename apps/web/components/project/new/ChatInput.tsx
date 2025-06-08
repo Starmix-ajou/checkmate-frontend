@@ -217,7 +217,7 @@ export function ChatInput({
                   setFile(null)
                 }
               }}
-              accept=".pdf,.doc,.docx"
+              accept=".txt,.pdf,.doc,.docx"
               className="flex-1"
               disabled={skipFile || isLoading}
             />

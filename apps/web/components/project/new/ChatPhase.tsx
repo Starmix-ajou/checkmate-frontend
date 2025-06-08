@@ -4,6 +4,10 @@ import { phases } from '@/components/project/new/phases'
 import { useProjectSSE } from '@/hooks/useProjectSSE'
 import { useAuthStore } from '@/stores/useAuthStore'
 import {
+  getPresignedUrl,
+  uploadFileToPresignedUrl,
+} from '@cm/api/objectStorage'
+import {
   getSpecification,
   postProjectDefinition,
   putDefinitionFeedback,
@@ -173,7 +177,27 @@ export default function ChatPhase({
     })
   }
 
-  const sendProjectDefinition = async () => {
+  const uploadFile = async (file: File): Promise<string> => {
+    if (!user?.accessToken) {
+      console.warn('JWT 토큰이 없습니다.')
+      return ''
+    }
+
+    try {
+      const { presignedUrl, url } = await getPresignedUrl(user.accessToken, {
+        bucket: 'DEFINITION',
+        fileName: file.name,
+      })
+
+      await uploadFileToPresignedUrl(presignedUrl, file)
+      return url
+    } catch (error) {
+      console.error('파일 업로드 에러:', error)
+      throw error
+    }
+  }
+
+  const sendProjectDefinition = async (definitionUrl: string) => {
     if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
     if (!dateRange?.from) return console.warn('시작 날짜가 없습니다.')
 
@@ -195,9 +219,7 @@ export default function ChatPhase({
         dateRange.to?.toISOString().split('T')[0] ??
         dateRange.from.toISOString().split('T')[0],
       members,
-      definitionUrl: file
-        ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${file.name}`
-        : '',
+      definitionUrl,
     }
 
     try {
@@ -293,6 +315,8 @@ export default function ChatPhase({
     if (!input.trim() && !dateRange && !file && !skipFile && !tableData) return
 
     let messageText = input
+    let uploadedUrl: string = ''
+
     if (phase.inputType === 'dateRange' && dateRange) {
       if (dateRange.to) {
         messageText = `${format(dateRange.from!, 'PPP', { locale: ko })} ~ ${format(dateRange.to, 'PPP', { locale: ko })}`
@@ -300,9 +324,17 @@ export default function ChatPhase({
         messageText = format(dateRange.from!, 'PPP', { locale: ko })
       }
     } else if (phase.inputType === 'file') {
-      messageText = skipFile
-        ? '파일 업로드를 건너뜁니다.'
-        : `파일 업로드: ${file?.name}`
+      if (file) {
+        try {
+          uploadedUrl = await uploadFile(file)
+          messageText = `파일 업로드: ${file.name}`
+        } catch (error) {
+          console.error('파일 업로드 실패:', error)
+          return
+        }
+      } else {
+        messageText = skipFile ? '파일 업로드를 건너뜁니다.' : ''
+      }
     }
 
     if (phase.id === 1) setProjectDescription(input)
@@ -323,7 +355,9 @@ export default function ChatPhase({
     switch (phase.id) {
       case 5:
         const eventSource = startSSE()
-        if (eventSource) await sendProjectDefinition()
+        if (eventSource) {
+          await sendProjectDefinition(uploadedUrl)
+        }
         break
       case 6:
         await sendDefinitionFeedback(messageText)
