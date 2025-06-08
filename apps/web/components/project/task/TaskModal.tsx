@@ -446,17 +446,8 @@ export default function TaskModal({
                     numberOfMonths={1}
                     className="rounded-md border"
                     classNames={{
-                      today: 'bg-cm rounded-full text-white',
                       caption_label:
-                        'flex items-center justify-center h-10 ml-2 font-medium text-base',
-                      weekday:
-                        'text-muted-foreground font-normal [&:nth-child(1)]:text-destructive [&:nth-child(7)]:text-destructive',
-                      selected:
-                        'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-md',
-                      range_start:
-                        'range_start aria-selected:bg-primary aria-selected:text-primary-foreground rounded-md',
-                      range_end:
-                        'range_end aria-selected:bg-primary aria-selected:text-primary-foreground rounded-md',
+                        'flex items-center justify-center h-10 ml-2 text-sm font-medium',
                     }}
                     formatters={{
                       formatCaption: (date) =>

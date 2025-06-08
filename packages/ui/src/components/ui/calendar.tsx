@@ -26,7 +26,7 @@ function Calendar({
           orientation === 'left' ? (
             <ChevronLeft
               className={cn(
-                'size-5 hover:cursor-pointer hover:opacity-50 transition-opacity duration-200',
+                'size-5 hover:cursor-pointer hover:opacity-50 transition-opacity duration-200 !fill-none',
                 className
               )}
               {...props}
@@ -34,7 +34,7 @@ function Calendar({
           ) : (
             <ChevronRight
               className={cn(
-                'size-5 hover:cursor-pointer hover:opacity-50 transition-opacity duration-200',
+                'size-5 hover:cursor-pointer hover:opacity-50 transition-opacity duration-200 !fill-none',
                 className
               )}
               {...props}
@@ -45,7 +45,7 @@ function Calendar({
         months: 'flex flex-row gap-2 relative',
         month: 'flex flex-col gap-4 relative',
         caption: 'flex justify-center pt-1 relative items-center w-full h-10',
-        caption_label: 'text-sm font-medium z-10',
+        caption_label: 'text-sm font-medium z-10 ml-2',
         nav: 'flex items-center justify-end absolute top-[0.1rem] right-0 gap-4',
         nav_button: cn(
           buttonVariants({ variant: 'outline' }),
@@ -63,21 +63,22 @@ function Calendar({
         ),
         day_button: cn(
           buttonVariants({ variant: 'ghost' }),
-          'size-8 p-0 font-normal aria-selected:opacity-100 rounded-full'
+          'size-8 p-0 font-normal aria-selected:opacity-100 rounded-md'
         ),
         weekdays: 'text-xs text-neutral-95 font-light',
-        weekday: 'font-medium',
+        weekday:
+          'font-medium [&:nth-child(1)]:text-destructive [&:nth-child(7)]:text-destructive',
         selected:
-          'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-full',
-        today: 'bg-accent text-accent-foreground rounded-full',
+          'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-md',
+        today: 'bg-cm rounded-full text-white',
         outside:
           'day-outside text-muted-foreground aria-selected:text-muted-foreground',
         disabled: 'text-muted-foreground opacity-50',
         hidden: 'invisible',
         range_start:
-          'range_start aria-selected:bg-primary aria-selected:text-primary-foreground rounded-full',
+          'range_start aria-selected:bg-primary aria-selected:text-primary-foreground rounded-md',
         range_end:
-          'range_end aria-selected:bg-primary aria-selected:text-primary-foreground rounded-full',
+          'range_end aria-selected:bg-primary aria-selected:text-primary-foreground rounded-md',
         range_middle:
           'range_middle aria-selected:bg-accent aria-selected:text-accent-foreground rounded-none',
         ...classNames,

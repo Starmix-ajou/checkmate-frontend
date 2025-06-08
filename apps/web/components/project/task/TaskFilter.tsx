@@ -93,7 +93,7 @@ export default function TaskFilter({
                 Priority
               </button>
               {activeFilter === 'priority' && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-20">
+                <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-20">
                   <div
                     className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap text-[#795548]"
                     onClick={() => handleFilterChange('priority', 'ALL')}
@@ -136,7 +136,7 @@ export default function TaskFilter({
                 Epic
               </button>
               {activeFilter === 'epicId' && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-20">
+                <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-20">
                   <div
                     className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap text-[#795548]"
                     onClick={() => handleFilterChange('epicId', '')}
@@ -172,7 +172,7 @@ export default function TaskFilter({
                 Sprint
               </button>
               {activeFilter === 'sprintId' && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-20">
+                <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-20">
                   <div
                     className="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm whitespace-nowrap text-[#795548]"
                     onClick={() => handleFilterChange('sprintId', '')}
