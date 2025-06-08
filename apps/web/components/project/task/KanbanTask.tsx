@@ -1,4 +1,5 @@
 import { Task } from '@cm/types/userTask'
+import { Calendar } from '@cm/ui/components/ui/calendar'
 import {
   Popover,
   PopoverContent,
@@ -259,7 +260,7 @@ export default function KanbanTask({
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <DayPicker
+          <Calendar
             mode="range"
             selected={{ from: tempStartDate, to: tempEndDate }}
             onSelect={(range) => {
@@ -271,26 +272,21 @@ export default function KanbanTask({
               }
             }}
             locale={ko}
-            captionLayout="label"
+            numberOfMonths={1}
+            className="rounded-md border"
             classNames={{
-              ...getDefaultClassNames(),
-              today: 'font-black',
-              selected: 'bg-[#795548] border-[#795548] text-black-01',
-              root: `${getDefaultClassNames().root} shadow-lg p-5`,
-              chevron: `${getDefaultClassNames().chevron} fill-[#795548] text-[#795548] hover:fill-[#795548] hover:text-[#795548]`,
+              today: 'text-cm',
+              caption_label:
+                'flex items-center justify-center h-10 ml-2 font-medium text-base',
+              weekday:
+                'text-muted-foreground font-normal [&:nth-child(1)]:text-destructive [&:nth-child(7)]:text-destructive',
             }}
             formatters={{
-              formatCaption: (date) => format(date, 'yyyy. MM'),
+              formatCaption: (date) => format(date, 'yyyy. MM', { locale: ko }),
               formatWeekdayName: (weekday) => {
                 const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
                 return weekdays[weekday.getDay()]
               },
-            }}
-            modifiers={{
-              weekend: (date) => date.getDay() === 0 || date.getDay() === 6,
-            }}
-            modifiersStyles={{
-              weekend: { color: '#D91F11' },
             }}
           />
         </PopoverContent>
