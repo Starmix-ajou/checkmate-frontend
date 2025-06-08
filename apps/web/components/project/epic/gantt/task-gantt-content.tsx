@@ -19,6 +19,14 @@ const setOpacity = (color: string) => {
   return color + 'CC' // CC는 16진수로 80% 투명도를 의미
 }
 
+// 에픽 ID를 기반으로 일관된 색상을 반환하는 함수
+const getEpicColor = (epicId: string) => {
+  // epicId의 마지막 문자를 숫자로 변환하여 색상 인덱스로 사용
+  const lastChar = epicId.slice(-1)
+  const colorIndex = parseInt(lastChar, 16) % BAR_COLORS.length
+  return BAR_COLORS[colorIndex]
+}
+
 export type TaskGanttContentProps = {
   tasks: BarTask[]
   dates: Date[]
@@ -278,8 +286,8 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
   // 먼저 모든 에픽의 색상을 설정
   tasks.forEach((task) => {
     if (task.typeInternal === 'project') {
-      const colorIndex = task.index % BAR_COLORS.length
-      epicColors.set(task.id, BAR_COLORS[colorIndex])
+      const color = getEpicColor(task.id)
+      epicColors.set(task.id, color)
     }
   })
 
@@ -317,8 +325,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
 
           // 에픽인 경우
           if (task.typeInternal === 'project') {
-            const colorIndex = task.index % BAR_COLORS.length
-            color = BAR_COLORS[colorIndex]
+            color = getEpicColor(task.id)
           }
           // 태스크인 경우
           else {
@@ -332,12 +339,10 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
               if (epicColor) {
                 color = setOpacity(epicColor)
               } else {
-                const colorIndex = task.index % BAR_COLORS.length
-                color = BAR_COLORS[colorIndex]
+                color = setOpacity(getEpicColor(parentEpic.id))
               }
             } else {
-              const colorIndex = task.index % BAR_COLORS.length
-              color = BAR_COLORS[colorIndex]
+              color = setOpacity(getEpicColor(task.id))
             }
           }
 
