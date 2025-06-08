@@ -5,6 +5,7 @@
     "paths": {
       "@cm/ui": ["./src/index.ts"],
       "@cm/ui/*": ["./src/*"],
+      "@cm/api/*": ["../../packages/api/src/*"],
       "@cm/types/*": ["../../packages/types/src/*"]
     }
   },

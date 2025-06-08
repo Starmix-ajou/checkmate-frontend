@@ -1,4 +1,4 @@
-import { ProjectStatistics } from '@/lib/api/project'
+import { ProjectStatistics } from '@cm/api/insight'
 import {
   Card,
   CardContent,
@@ -24,7 +24,7 @@ export default function ProgressCharts({ statistics }: ProgressChartsProps) {
 
   const data = [
     {
-      name: '데일리 스크럼',
+      name: 'Daily Scrum',
       완료: dailyScrumStatistics.doneDays,
       전체: dailyScrumStatistics.totalDays,
       완료율: `${(dailyScrumStatistics.doneRate * 100).toFixed(1)}%`,

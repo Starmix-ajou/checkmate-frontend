@@ -86,6 +86,12 @@ export interface Task {
       }[]
     }
   }
+  doneDate?: string | null
+  review?: {
+    learn: string
+    hardest: string
+    next: string
+  } | null
 }
 
 export interface DailyScrumResponse {

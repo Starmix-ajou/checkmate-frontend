@@ -1,4 +1,5 @@
 import { Task } from '@cm/types/project'
+import { addHours, format } from 'date-fns'
 
 type BurndownData = {
   date: string
@@ -27,10 +28,18 @@ export const useBurndownChart = (tasks: Task[]) => {
     }
 
     const dates = validTasks
-      .map((task) => ({
-        startDate: new Date(task.startDate),
-        endDate: new Date(task.endDate),
-      }))
+      .map((task) => {
+        const startDate = new Date(task.startDate)
+        const endDate = new Date(task.endDate)
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+          return null
+        }
+        return { startDate, endDate, task }
+      })
+      .filter(
+        (date): date is { startDate: Date; endDate: Date; task: Task } =>
+          date !== null
+      )
       .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
 
     if (dates.length === 0) {
@@ -52,63 +61,72 @@ export const useBurndownChart = (tasks: Task[]) => {
     const totalTasks = validTasks.length
     const idealBurndown = totalTasks / totalDays
 
-    const dateMap = new Map<string, { remaining: number; ideal: number }>()
+    const completedTasksByDate = new Map<string, number>()
+    const allDates = new Set<string>()
 
     for (let i = 0; i <= totalDays; i++) {
       const currentDate = new Date(startDate)
       currentDate.setDate(startDate.getDate() + i)
       const dateStr = currentDate.toISOString().split('T')[0]
       if (dateStr) {
-        dateMap.set(dateStr, {
-          remaining: totalTasks,
-          ideal: Math.max(0, totalTasks - idealBurndown * i),
-        })
+        allDates.add(dateStr)
+        completedTasksByDate.set(dateStr, 0)
       }
     }
 
     validTasks.forEach((task) => {
-      if (task.status === 'DONE') {
-        const endDateStr = new Date(task.endDate).toISOString().split('T')[0]
-        if (endDateStr) {
-          const currentData = dateMap.get(endDateStr)
-          if (currentData) {
-            dateMap.set(endDateStr, {
-              ...currentData,
-              remaining: currentData.remaining - 1,
-            })
+      let completionDate: Date | null = null
+
+      if (task.doneDate) {
+        const doneDate = new Date(task.doneDate)
+        if (!isNaN(doneDate.getTime())) {
+          completionDate = doneDate
+        }
+      } else if (task.status === 'DONE') {
+        const endDate = new Date(task.endDate)
+        if (!isNaN(endDate.getTime())) {
+          completionDate = endDate
+        }
+      }
+
+      if (completionDate) {
+        const completionDateStr = completionDate.toISOString().split('T')[0]
+        if (completionDateStr) {
+          for (const date of allDates) {
+            if (date >= completionDateStr) {
+              completedTasksByDate.set(
+                date,
+                (completedTasksByDate.get(date) || 0) + 1
+              )
+            }
           }
         }
       }
     })
 
-    let remainingTasks = totalTasks
-    const sortedDates = Array.from(dateMap.keys()).sort()
+    const burndownData = Array.from(allDates)
+      .sort()
+      .map((date) => {
+        const completedTasks = completedTasksByDate.get(date) || 0
+        const dayIndex = Math.floor(
+          (new Date(date).getTime() - startDate.getTime()) /
+            (1000 * 60 * 60 * 24)
+        )
 
-    sortedDates.forEach((date) => {
-      const currentData = dateMap.get(date)
-      if (currentData && currentData.remaining !== totalTasks) {
-        remainingTasks = currentData.remaining
-      }
-      if (currentData) {
-        dateMap.set(date, {
-          ...currentData,
-          remaining: remainingTasks,
-        })
-      }
-    })
+        return {
+          date,
+          remaining: Math.max(0, totalTasks - completedTasks),
+          ideal: Math.max(
+            0,
+            Math.round((totalTasks - idealBurndown * dayIndex) * 100) / 100
+          ),
+        }
+      })
 
-    return Array.from(dateMap.entries()).map(([date, data]) => ({
-      date,
-      remaining: data.remaining,
-      ideal: Math.round(data.ideal * 100) / 100,
-    }))
+    return burndownData
   }
 
-  const today = new Date(
-    new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' })
-  )
-    .toISOString()
-    .split('T')[0]
+  const today = format(addHours(new Date(), 9), 'yyyy-MM-dd')
 
   return {
     burndownData: calculateBurndownData(),
