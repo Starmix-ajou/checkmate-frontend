@@ -23,7 +23,7 @@ export const UseNotificationSSE = ({
     }
 
     const eventSource = new EventSourcePolyfill(
-      `${process.env.NEXT_PUBLIC_API_URL}/sse/subscribe`,
+      `${process.env.NEXT_PUBLIC_API_URL}/sse/notification`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
