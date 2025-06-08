@@ -26,10 +26,10 @@ export const TaskListHeader: React.FC<{
         <div
           className={styles.ganttTable_HeaderItem}
           style={{
-            minWidth: '250px',
+            minWidth: '270px',
           }}
         >
-          &nbsp;{locale === 'ko' ? '에픽' : 'Epic'}
+          &nbsp;{locale === 'ko' ? '에픽 (진행률)' : 'Epic (progress rate)'}
         </div>
         <div
           className={styles.ganttTable_HeaderSeparator}
@@ -41,7 +41,7 @@ export const TaskListHeader: React.FC<{
         <div
           className={styles.ganttTable_HeaderItem}
           style={{
-            minWidth: '130px',
+            minWidth: '120px',
           }}
         >
           &nbsp;{locale === 'ko' ? '시작일' : 'Start Date'}
@@ -56,7 +56,7 @@ export const TaskListHeader: React.FC<{
         <div
           className={styles.ganttTable_HeaderItem}
           style={{
-            minWidth: '130px',
+            minWidth: '120px',
           }}
         >
           &nbsp;{locale === 'ko' ? '종료일' : 'End Date'}

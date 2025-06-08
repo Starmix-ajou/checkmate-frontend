@@ -3,6 +3,10 @@
 import DeleteEpicModal from '@/components/project/epic/DeleteEpicModal'
 import NewEpicModal from '@/components/project/epic/NewEpicModal'
 import { Gantt } from '@/components/project/epic/gantt/gantt'
+import {
+  calculateEpicProgress,
+  formatProgress,
+} from '@/components/project/epic/other/EpicProgress'
 import { EpicSprintFilter } from '@/components/project/epic/other/epicSprintFilter'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Epic } from '@cm/types/epic'
@@ -91,7 +95,14 @@ export default function ProjectEpic() {
         // API 응답을 Epic 타입에 맞게 변환
         const transformedEpics = epicsData.map((epic: any) => ({
           epicId: epic.epicId,
-          title: epic.title,
+          title: (
+            <div className="flex items-center gap-2">
+              <span>{epic.title}</span>
+              <span className="text-cm-gray font-normal text-xs">
+                {formatProgress(calculateEpicProgress(epic))}
+              </span>
+            </div>
+          ),
           description: epic.description,
           startDate: epic.startDate || new Date().toISOString(),
           endDate: epic.endDate || new Date().toISOString(),
