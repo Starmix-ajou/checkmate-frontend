@@ -213,7 +213,7 @@ export default function ProjectSidebar() {
         setProjectBrief(briefData)
       } catch (error) {
         console.error(error)
-      } 
+      }
     }
 
     fetchProjectBrief()
@@ -410,25 +410,27 @@ export default function ProjectSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <Link
-          href={`/projects/${id}/premium`}
-          className="group relative flex items-center gap-3 p-4 bg-gradient-to-r from-[#1a237e] via-[#283593] to-[#303f9f] text-white rounded-lg m-2 hover:shadow-xl transition-all duration-300 overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="relative flex items-center gap-3">
-            <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
-              <Rocket className="w-5 h-5 text-blue-200" />
+        {projectBrief && !projectBrief.isPremium && (
+          <Link
+            href={`/projects/${id}/premium`}
+            className="group relative flex items-center gap-3 p-4 bg-gradient-to-r from-[#1a237e] via-[#283593] to-[#303f9f] text-white rounded-lg m-2 hover:shadow-xl transition-all duration-300 overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative flex items-center gap-3">
+              <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                <Rocket className="w-5 h-5 text-blue-200" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-semibold tracking-wide">
+                  프리미엄으로 업그레이드
+                </span>
+                <span className="text-sm text-blue-100/90">
+                  월 19,900원으로 시작하세요
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="font-semibold tracking-wide">
-                프리미엄으로 업그레이드
-              </span>
-              <span className="text-sm text-blue-100/90">
-                월 19,900원으로 시작하세요
-              </span>
-            </div>
-          </div>
-        </Link>
+          </Link>
+        )}
       </SidebarFooter>
     </Sidebar>
   )

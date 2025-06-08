@@ -69,7 +69,16 @@ export interface PaymentHistory {
   paymentId: string
   status: PaymentStatus
   orderName: string
-  totalAmount: string
+  totalAmount: {
+    total: string
+    taxFree: string
+    vat: string
+    supply: string
+    discount: string
+    paid: string
+    cancelled: string
+    cancelledTaxFree: string
+  }
   currency: string
   payMethod: string
   timestamp: string
