@@ -8,6 +8,8 @@ import {
   getNotificationCount,
   getNotifications,
 } from '@cm/api/notifications'
+import { getProjectBrief } from '@cm/api/project'
+import { ProjectBrief } from '@cm/types/project'
 import { Button } from '@cm/ui/components/ui/button'
 import {
   DropdownMenu,
@@ -62,6 +64,7 @@ export default function ProjectSidebar() {
   const [isLoading, setIsLoading] = useState(false)
   const observer = useRef<IntersectionObserver | null>(null)
   const PAGE_SIZE = 10
+  const [projectBrief, setProjectBrief] = useState<ProjectBrief | null>(null)
 
   const { startSSE } = UseNotificationSSE({
     onNewNotification: (newNotification) => {
@@ -201,6 +204,21 @@ export default function ProjectSidebar() {
     fetchProjects(user.accessToken)
   }, [user?.accessToken, fetchProjects])
 
+  useEffect(() => {
+    if (!user?.accessToken || !id) return
+
+    const fetchProjectBrief = async () => {
+      try {
+        const briefData = await getProjectBrief(id as string, user.accessToken)
+        setProjectBrief(briefData)
+      } catch (error) {
+        console.error(error)
+      } 
+    }
+
+    fetchProjectBrief()
+  }, [id, user?.accessToken])
+
   const getNotificationLink = (notification: Notification) => {
     const { title, targetId, project } = notification
 
@@ -243,11 +261,15 @@ export default function ProjectSidebar() {
       url: `/projects/${id}/members`,
       icon: BookUser,
     },
-    {
-      title: 'Billing',
-      url: `/projects/${id}/billing`,
-      icon: Receipt,
-    },
+    ...(projectBrief?.isPremium
+      ? [
+          {
+            title: 'Billing',
+            url: `/projects/${id}/billing`,
+            icon: Receipt,
+          },
+        ]
+      : []),
     {
       title: 'Settings',
       url: `/projects/${id}/settings`,

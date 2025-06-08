@@ -35,6 +35,7 @@ import {
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { getProjectBrief } from '@cm/api/project'
 
 interface PremiumProject {
   id: string
@@ -60,24 +61,38 @@ export default function PremiumProjectPage() {
   const projectId = params.id as string
 
   useEffect(() => {
-    // TODO: API 연동 후 실제 데이터로 교체
-    setProject({
-      id: 'premium-project',
-      name: '프리미엄 프로젝트',
-      price: 19900,
-      description:
-        '프리미엄 프로젝트로 업그레이드하여 더 많은 기능을 사용해보세요.',
-      features: [
-        '무제한 스프린트 재구성',
-        '회의록 길이 무제한',
-        '고급 분석 도구',
-        '우선 지원',
-        '팀 협업 기능',
-        '월 19,900원 정기 결제',
-        '언제든지 해지 가능',
-      ],
-    })
-  }, [])
+    const fetchProjectInfo = async () => {
+      if (!session?.accessToken) return
+      
+      try {
+        const projectBrief = await getProjectBrief(projectId, session.accessToken)
+        setProject({
+          id: projectId,
+          name: projectBrief.title,
+          price: 19900,
+          description:
+            '프리미엄 프로젝트로 업그레이드하여 더 많은 기능을 사용해보세요.',
+          features: [
+            '무제한 스프린트 재구성',
+            '회의록 길이 무제한',
+            '고급 분석 도구',
+            '우선 지원',
+            '팀 협업 기능',
+            '월 19,900원 정기 결제',
+            '언제든지 해지 가능',
+          ],
+        })
+      } catch (error) {
+        console.error('프로젝트 정보 불러오기 실패:', error)
+        setPaymentStatus({
+          status: 'FAILED',
+          message: '프로젝트 정보를 불러오는데 실패했습니다.',
+        })
+      }
+    }
+
+    fetchProjectInfo()
+  }, [projectId, session?.accessToken])
 
   function generatePaymentId() {
     return [...crypto.getRandomValues(new Uint32Array(2))]
@@ -103,7 +118,7 @@ export default function PremiumProjectPage() {
         storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID!,
         channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!,
         paymentId,
-        orderName: project.id,
+        orderName: project.name,
         totalAmount: project.price,
         currency: 'KRW',
         payMethod: 'EASY_PAY',
