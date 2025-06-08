@@ -62,6 +62,15 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     }
   }
 
+  const getTaskName = () => {
+    if (typeof task.name === 'string') {
+      return task.name
+    }
+    // ReactNode인 경우 원본 제목만 표시
+    const epic = task as any
+    return epic.originalTitle || 'Untitled'
+  }
+
   return (
     <g>
       <Bar
@@ -85,7 +94,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         fill={isTextInside ? '#fff' : '#333'}
         style={{ pointerEvents: 'none' }}
       >
-        {task.name}
+        {getTaskName()}
       </text>
     </g>
   )

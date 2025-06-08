@@ -2,7 +2,8 @@ import { ReactNode } from 'react'
 
 export type Epic = {
   epicId: string
-  title: string | ReactNode
+  title: string
+  displayTitle?: ReactNode
   description: string
   startDate: string
   endDate: string

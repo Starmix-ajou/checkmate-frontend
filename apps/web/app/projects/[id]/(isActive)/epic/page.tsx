@@ -95,7 +95,9 @@ export default function ProjectEpic() {
         // API 응답을 Epic 타입에 맞게 변환
         const transformedEpics = epicsData.map((epic: any) => ({
           epicId: epic.epicId,
-          title: (
+          title: epic.title,
+          originalTitle: epic.epicId,
+          displayTitle: (
             <div className="flex items-center gap-2">
               <span>{epic.title}</span>
               <span className="text-cm-gray font-normal text-xs">
