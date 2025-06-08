@@ -1,5 +1,6 @@
 'use client'
 
+import { Badge } from '@cm/ui/components/ui/badge'
 import { Button } from '@cm/ui/components/ui/button'
 import { Checkbox } from '@cm/ui/components/ui/checkbox'
 import { cn } from '@cm/ui/lib/utils'
@@ -105,13 +106,22 @@ export function FileUpload({
         ) : (
           <div className="flex flex-col items-center gap-2">
             <Upload className="h-8 w-8 text-muted-foreground" />
-            <div className="text-center">
+            <div className="text-center space-y-1">
               <p className="text-sm font-medium">
                 파일을 여기에 드래그하거나 클릭하여 업로드
               </p>
-              <p className="text-xs text-muted-foreground">
-                PDF, DOC, DOCX 파일만 업로드 가능
-              </p>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground/80">
+                <Badge variant="secondary" className="font-normal">
+                  PDF
+                </Badge>
+                <Badge variant="secondary" className="font-normal">
+                  DOC
+                </Badge>
+                <Badge variant="secondary" className="font-normal">
+                  DOCX
+                </Badge>
+                <span className="text-muted-foreground/60">파일 형식 지원</span>
+              </div>
             </div>
           </div>
         )}
