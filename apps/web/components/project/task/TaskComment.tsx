@@ -36,9 +36,14 @@ interface Comment {
 interface TaskCommentProps {
   taskId: string
   assignee: Author
+  onCommentAdded?: () => void
 }
 
-export default function TaskComment({ taskId, assignee }: TaskCommentProps) {
+export default function TaskComment({
+  taskId,
+  assignee,
+  onCommentAdded,
+}: TaskCommentProps) {
   const user = useAuthStore((state) => state.user)
   const [comment, setComment] = useState('')
   const [comments, setComments] = useState<Comment[]>([])
@@ -47,6 +52,24 @@ export default function TaskComment({ taskId, assignee }: TaskCommentProps) {
   const isFetching = useRef(false)
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
   const [editingMessage, setEditingMessage] = useState('')
+  const lastCommentRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    const element = lastCommentRef.current
+    if (element) {
+      const container = element.closest('.overflow-y-auto')
+      if (container) {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth',
+        })
+      }
+    }
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [comments])
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -164,6 +187,14 @@ export default function TaskComment({ taskId, assignee }: TaskCommentProps) {
       const updatedComments = await commentsResponse.json()
       setComments(updatedComments)
       setComment('')
+
+      // 댓글 작성 후 콜백 호출
+      onCommentAdded?.()
+
+      // 댓글 작성 후 스크롤을 맨 아래로 이동
+      setTimeout(() => {
+        scrollToBottom()
+      }, 100)
     } catch (error) {
       console.error('댓글 작성 실패:', error)
       setError(
@@ -313,8 +344,12 @@ export default function TaskComment({ taskId, assignee }: TaskCommentProps) {
       <div className="space-y-4">
         {/* 댓글 목록 */}
         <div className="space-y-4">
-          {comments.map((comment) => (
-            <div key={comment.commentId} className="flex gap-3">
+          {comments.map((comment, index) => (
+            <div
+              key={comment.commentId}
+              className="flex gap-3"
+              ref={index === comments.length - 1 ? lastCommentRef : null}
+            >
               <div className="w-6 h-6 rounded-full bg-cm-light flex-shrink-0 flex items-center justify-center">
                 {comment.author.profileImageUrl ? (
                   <Image

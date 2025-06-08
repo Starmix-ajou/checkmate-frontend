@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/stores/useAuthStore'
 import { Member } from '@cm/types/project'
 import { Task } from '@cm/types/userTask'
 import CheckmateSpinner from '@cm/ui/components/common/CheckmateSpinner'
@@ -19,7 +20,7 @@ import {
   X,
 } from 'lucide-react'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import TaskComment from './TaskComment'
 
@@ -59,6 +60,7 @@ export default function TaskModal({
   getTaskById,
   deleteTask,
 }: TaskModalProps) {
+  const user = useAuthStore((state) => state.user)
   const [task, setTask] = useState<Task>(initialTask)
   const [title, setTitle] = useState(initialTask.title)
   const [description, setDescription] = useState(initialTask.description || '')
@@ -85,6 +87,7 @@ export default function TaskModal({
     initialTask.review?.hardest || ''
   )
   const [nextTasks, setNextTasks] = useState(initialTask.review?.next || '')
+  const modalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (isOpen) {
@@ -276,6 +279,7 @@ export default function TaskModal({
         onClick={handleClose}
       />
       <div
+        ref={modalRef}
         className={`fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto transition-transform duration-300 ${isVisible ? 'translate-x-0' : 'translate-x-full'} z-30`}
       >
         <div className="p-6">
@@ -515,7 +519,18 @@ export default function TaskModal({
             </div>
 
             {/* 댓글 섹션 */}
-            <TaskComment taskId={task.taskId} assignee={task.assignee} />
+            <TaskComment
+              taskId={task.taskId}
+              assignee={task.assignee}
+              onCommentAdded={() => {
+                if (modalRef.current) {
+                  modalRef.current.scrollTo({
+                    top: modalRef.current.scrollHeight,
+                    behavior: 'smooth',
+                  })
+                }
+              }}
+            />
 
             <div className="flex justify-between items-center gap-2 mt-4">
               <Button
