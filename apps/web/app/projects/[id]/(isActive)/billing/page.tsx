@@ -1,29 +1,10 @@
 'use client'
 
+import { useAuthStore } from '@/stores/useAuthStore'
 import { getPaymentHistory } from '@cm/api/payment'
 import type { PaymentHistory } from '@cm/api/payment'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@cm/ui/components/ui/table'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@cm/ui/components/ui/card'
-import { Loader2, Receipt, Calendar, Clock, Sparkles } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { ProjectBrief } from '@cm/types/project'
 import { getProjectBrief } from '@cm/api/project'
+import { ProjectBrief } from '@cm/types/project'
 import LoadingScreen from '@cm/ui/components/common/LoadingScreen'
 import {
   Breadcrumb,
@@ -33,7 +14,43 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@cm/ui/components/ui/breadcrumb'
+import { Button } from '@cm/ui/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@cm/ui/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@cm/ui/components/ui/dialog'
 import { Skeleton } from '@cm/ui/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@cm/ui/components/ui/table'
+import {
+  Calendar,
+  Clock,
+  Loader2,
+  Receipt,
+  Sparkles,
+  XCircle,
+} from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function BillingPage() {
   const { data: session } = useSession()
@@ -45,6 +62,8 @@ export default function BillingPage() {
   const [error, setError] = useState<string | null>(null)
   const [projectBrief, setProjectBrief] = useState<ProjectBrief | null>(null)
   const [loadingBrief, setLoadingBrief] = useState(true)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const customerServiceUrl = process.env.NEXT_PUBLIC_CUSTOMER_SERVICE
 
   useEffect(() => {
     if (!user?.accessToken || !projectId) return
@@ -71,7 +90,11 @@ export default function BillingPage() {
         const history = await getPaymentHistory(session.accessToken, projectId)
         setPayments(history)
       } catch (err) {
-        setError(err instanceof Error ? err.message : '결제 내역을 불러오는데 실패했습니다.')
+        setError(
+          err instanceof Error
+            ? err.message
+            : '결제 내역을 불러오는데 실패했습니다.'
+        )
       } finally {
         setIsLoading(false)
       }
@@ -83,21 +106,28 @@ export default function BillingPage() {
   const getSubscriptionInfo = (payments: PaymentHistory[]) => {
     if (payments.length === 0) return null
 
-    const paidPayments = payments.filter(p => p.status === 'PAID')
+    const paidPayments = payments.filter((p) => p.status === 'PAID')
     if (paidPayments.length === 0) return null
 
     const oldestPayment = paidPayments.reduce((oldest, current) => {
-      return new Date(current.timestamp) < new Date(oldest.timestamp) ? current : oldest
+      return new Date(current.timestamp) < new Date(oldest.timestamp)
+        ? current
+        : oldest
     })
 
     const startDate = new Date(oldestPayment.timestamp)
-    const months = Math.floor((new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30))
+    const months = Math.floor(
+      (new Date().getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
+    )
 
     return {
       startDate,
       months,
       totalPayments: paidPayments.length,
-      totalAmount: paidPayments.reduce((sum, p) => sum + Number(p.totalAmount), 0)
+      totalAmount: paidPayments.reduce(
+        (sum, p) => sum + Number(p.totalAmount.total),
+        0
+      ),
     }
   }
 
@@ -155,11 +185,53 @@ export default function BillingPage() {
           </div>
 
           {subscriptionInfo && (
-            <Card className="mb-6 bg-gradient-to-r from-[#1a237e]/5 via-[#283593]/5 to-[#303f9f]/5 border-none">
+            <Card className="mb-6 border-[#283593]/20 bg-gradient-to-r from-[#1a237e]/5 via-[#283593]/5 to-[#303f9f]/5">
               <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-[#283593]" />
-                  <CardTitle>프리미엄 구독 정보</CardTitle>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-[#283593]" />
+                    <CardTitle>프리미엄 구독 정보</CardTitle>
+                  </div>
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-2 underline text-gray-500"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        구독 취소
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>프리미엄 구독 취소</DialogTitle>
+                        <DialogDescription>
+                          프리미엄 구독을 취소하시려면 고객센터를 통해
+                          접수해주세요. 고객센터에서 빠르게 도와드리겠습니다.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsDialogOpen(false)}
+                        >
+                          닫기
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={() => {
+                            if (customerServiceUrl) {
+                              window.open(customerServiceUrl, '_blank')
+                            }
+                            setIsDialogOpen(false)
+                          }}
+                        >
+                          고객센터로 이동
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
                 <CardDescription>
                   현재 프로젝트의 프리미엄 구독 상태입니다
@@ -174,11 +246,14 @@ export default function BillingPage() {
                     <div>
                       <p className="text-sm text-gray-500">구독 시작일</p>
                       <p className="font-medium">
-                        {subscriptionInfo.startDate.toLocaleDateString('ko-KR', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
+                        {subscriptionInfo.startDate.toLocaleDateString(
+                          'ko-KR',
+                          {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          }
+                        )}
                       </p>
                     </div>
                   </div>
@@ -188,7 +263,9 @@ export default function BillingPage() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">구독 기간</p>
-                      <p className="font-medium">{subscriptionInfo.months}개월</p>
+                      <p className="font-medium">
+                        {subscriptionInfo.months + 1}개월
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -231,7 +308,10 @@ export default function BillingPage() {
                 <TableBody>
                   {payments.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-gray-500">
+                      <TableCell
+                        colSpan={5}
+                        className="text-center text-gray-500"
+                      >
                         결제 내역이 없습니다.
                       </TableCell>
                     </TableRow>
@@ -249,7 +329,10 @@ export default function BillingPage() {
                         </TableCell>
                         <TableCell>{payment.orderName}</TableCell>
                         <TableCell>
-                          {Number(payment.totalAmount).toLocaleString('ko-KR')} {payment.currency}
+                          {Number(payment.totalAmount.total).toLocaleString(
+                            'ko-KR'
+                          )}{' '}
+                          {payment.currency}
                         </TableCell>
                         <TableCell>{payment.payMethod}</TableCell>
                         <TableCell>
@@ -258,19 +341,19 @@ export default function BillingPage() {
                               payment.status === 'PAID'
                                 ? 'bg-green-100 text-green-800'
                                 : payment.status === 'FAILED'
-                                ? 'bg-red-100 text-red-800'
-                                : payment.status === 'PENDING'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-gray-100 text-gray-800'
+                                  ? 'bg-red-100 text-red-800'
+                                  : payment.status === 'PENDING'
+                                    ? 'bg-yellow-100 text-yellow-800'
+                                    : 'bg-gray-100 text-gray-800'
                             }`}
                           >
                             {payment.status === 'PAID'
                               ? '결제 완료'
                               : payment.status === 'FAILED'
-                              ? '결제 실패'
-                              : payment.status === 'PENDING'
-                              ? '결제 중'
-                              : '대기 중'}
+                                ? '결제 실패'
+                                : payment.status === 'PENDING'
+                                  ? '결제 중'
+                                  : '대기 중'}
                           </span>
                         </TableCell>
                       </TableRow>
@@ -284,4 +367,4 @@ export default function BillingPage() {
       </div>
     </>
   )
-} 
+}

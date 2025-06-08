@@ -5,6 +5,7 @@ import {
   completePayment,
   upgradeProject,
 } from '@cm/api/payment'
+import { getProjectBrief } from '@cm/api/project'
 import { Button } from '@cm/ui/components/ui/button'
 import {
   Card,
@@ -35,7 +36,6 @@ import {
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { getProjectBrief } from '@cm/api/project'
 
 interface PremiumProject {
   id: string
@@ -63,23 +63,24 @@ export default function PremiumProjectPage() {
   useEffect(() => {
     const fetchProjectInfo = async () => {
       if (!session?.accessToken) return
-      
+
       try {
-        const projectBrief = await getProjectBrief(projectId, session.accessToken)
+        const projectBrief = await getProjectBrief(
+          projectId,
+          session.accessToken
+        )
         setProject({
           id: projectId,
           name: projectBrief.title,
           price: 19900,
           description:
-            '프리미엄 프로젝트로 업그레이드하여 더 많은 기능을 사용해보세요.',
+            '팀의 가능성을 극대화할 프리미엄 기능을 지금 만나보세요.',
           features: [
             '무제한 스프린트 재구성',
-            '회의록 길이 무제한',
-            '고급 분석 도구',
-            '우선 지원',
-            '팀 협업 기능',
-            '월 19,900원 정기 결제',
-            '언제든지 해지 가능',
+            '무제한 회의록 저장으로 모든 아이디어를 보관',
+            '데이터 기반 의사결정을 위한 고급 분석',
+            '우선 고객 지원',
+            '월 ₩19,900로 모든 기능 무제한 이용',
           ],
         })
       } catch (error) {
@@ -150,7 +151,7 @@ export default function PremiumProjectPage() {
       try {
         console.log('결제 완료 요청:', {
           paymentId: payment.paymentId,
-          accessToken: '***', // 민감 정보 마스킹
+          accessToken: '***',
         })
 
         const paymentComplete = await completePayment(session.accessToken, {
@@ -227,19 +228,19 @@ export default function PremiumProjectPage() {
       <div className="container mx-auto py-12 px-4">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-[#1a237e] via-[#283593] to-[#303f9f] bg-clip-text text-transparent mb-4">
-            프로젝트를 프리미엄으로 업그레이드
+            Premium 업그레이드
           </h1>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            프리미엄 기능으로 프로젝트의 생산성과 협업을 한 단계 더 높여보세요
+            팀의 가능성을 극대화할 프리미엄 기능을 지금 만나보세요.
           </p>
         </div>
 
         <div className="max-w-5xl mx-auto">
-          <Card className="border-none shadow-xl bg-white/80 backdrop-blur-sm">
+          <Card className="shadow-none border-[#283593]/20 bg-gradient-to-r from-[#1a237e]/3 via-[#283593]/3 to-[#303f9f]/3">
             <CardHeader className="relative overflow-hidden">
               <div className="relative">
                 <CardTitle className="text-3xl font-bold mb-2">
-                  프리미엄 프로젝트
+                  checkmate Premium
                 </CardTitle>
                 <CardDescription className="text-lg">
                   더 강력한 기능과 더 나은 경험을 제공합니다
