@@ -102,4 +102,5 @@ export type ProjectBrief = {
   projectId: string
   title: string
   description: string
+  isPremium: boolean
 }
