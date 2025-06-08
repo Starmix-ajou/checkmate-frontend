@@ -35,6 +35,7 @@ import {
   BellRingIcon,
   BookUser,
   BookmarkCheck,
+  ChartLine,
   ChevronDown,
   Home,
   NotebookPen,
@@ -260,6 +261,11 @@ export default function ProjectSidebar() {
       title: 'Members',
       url: `/projects/${id}/members`,
       icon: BookUser,
+    },
+    {
+      title: 'Insight',
+      url: `/projects/${id}/insight`,
+      icon: ChartLine,
     },
     ...(projectBrief?.isPremium
       ? [

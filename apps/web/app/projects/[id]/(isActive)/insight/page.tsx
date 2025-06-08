@@ -1,7 +1,7 @@
 'use client'
 
-import { ProjectStatistics, getProjectStatistics } from '@/lib/api/project'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { ProjectStatistics, getProjectStatistics } from '@cm/api/insight'
 import { getProjectTasks } from '@cm/api/task'
 import { Project } from '@cm/types/project'
 import { Task } from '@cm/types/project'
@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
-export default function ProjectOverview() {
+export default function InsightPage() {
   const { id } = useParams()
   const user = useAuthStore((state) => state.user)
   const [project, setProject] = useState<Project | null>(null)
@@ -86,10 +86,24 @@ export default function ProjectOverview() {
                   <BreadcrumbPage>{project?.title}</BreadcrumbPage>
                 )}
               </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Insight</BreadcrumbPage>
+              </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
 
-          <ProjectHeader project={project} loading={loading} />
+          <div className="flex justify-between items-center mt-2 mb-4">
+            {loading ? (
+              <>
+                <Skeleton className="h-8 w-[200px]" />
+              </>
+            ) : (
+              <>
+                <h1 className="text-3xl font-bold">{project?.title}</h1>
+              </>
+            )}
+          </div>
 
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <BurndownChartCard tasks={tasks} />
