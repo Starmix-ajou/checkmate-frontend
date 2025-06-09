@@ -180,7 +180,11 @@ export default function TaskFilter({
                     ALL
                   </div>
                   {sprints
-                    .sort((a, b) => a.sequence - b.sequence)
+                    .sort(
+                      (a, b) =>
+                        new Date(a.startDate).getTime() -
+                        new Date(b.startDate).getTime()
+                    )
                     .map((sprint) => (
                       <div
                         key={sprint.sprintId}
