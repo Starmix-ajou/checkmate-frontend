@@ -56,6 +56,4 @@ export const deleteProject = async ({
   if (!response.ok) {
     throw new Error('프로젝트 삭제에 실패했습니다')
   }
-
-  return response.json()
 }

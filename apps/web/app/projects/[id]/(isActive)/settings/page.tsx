@@ -53,7 +53,7 @@ import { useParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'react-toastify'
+import { toast } from 'sonner'
 import * as z from 'zod'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL

@@ -1,7 +1,6 @@
 import { useAuthStore } from '@/stores/useAuthStore'
 import { addMember } from '@cm/api/member'
 import { Position } from '@cm/types/NewProjectTeamMember'
-import { Badge } from '@cm/ui/components/ui/badge'
 import { Button } from '@cm/ui/components/ui/button'
 import {
   Dialog,
@@ -12,10 +11,12 @@ import {
   DialogTrigger,
 } from '@cm/ui/components/ui/dialog'
 import { Input } from '@cm/ui/components/ui/input'
+import { selectStyles } from '@cm/ui/lib/select-styles'
+import { UserPlus } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
-import { toast } from 'react-toastify'
+import { toast } from 'sonner'
 
 const getEnumOptions = (e: object) =>
   Object.values(e).map((value) => ({ label: value, value }))
@@ -40,8 +41,18 @@ export function AddMemberDialog({
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleAddMember = async () => {
-    if (!user?.accessToken || !projectId || !email || positions.length === 0) {
-      toast.error('이메일과 포지션을 모두 입력해주세요')
+    if (!user?.accessToken || !projectId) {
+      toast.error('로그인이 필요합니다')
+      return
+    }
+
+    if (!email || !email.includes('@')) {
+      toast.error('올바른 이메일 형식이 아닙니다')
+      return
+    }
+
+    if (positions.length === 0) {
+      toast.error('포지션을 하나 이상 선택해주세요')
       return
     }
 
@@ -60,8 +71,11 @@ export function AddMemberDialog({
       setEmail('')
       setPositions([])
     } catch (error) {
-      console.error(error)
-      toast.error('멤버 추가에 실패했습니다')
+      if (error instanceof Error) {
+        toast.error(error.message)
+      } else {
+        toast.error('멤버 추가에 실패했습니다')
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -70,70 +84,57 @@ export function AddMemberDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="cmoutline">멤버 추가</Button>
+        <Button variant="cmoutline">
+          <UserPlus className="w-4 h-4" />
+          멤버 추가
+        </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>새 멤버 추가</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">이메일</label>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium">
+              이메일
+            </label>
             <Input
+              id="email"
+              type="email"
+              placeholder="example@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="example@email.com"
               disabled={isSubmitting}
             />
           </div>
-          <div className="grid gap-2">
+          <div className="space-y-2">
             <label className="text-sm font-medium">포지션</label>
             <CreatableSelect
-              menuPlacement="auto"
-              styles={{
-                menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-              }}
-              options={ROLE_OPTIONS.filter(
-                (option) => !positions.includes(option.value as Position)
-              )}
-              value={null}
-              onChange={(option) => {
-                if (!option) return
-                const newPosition = option.value as Position
-                if (!positions.includes(newPosition)) {
-                  setPositions([...positions, newPosition])
-                }
-              }}
-              placeholder="역할을 선택하거나 입력하세요"
-              className="w-full"
-              isClearable
+              isMulti
+              options={ROLE_OPTIONS}
+              value={positions.map((pos) => ({ label: pos, value: pos }))}
+              onChange={(newValue) =>
+                setPositions(newValue.map((v) => v.value as Position))
+              }
+              placeholder="포지션을 선택하세요"
               isDisabled={isSubmitting}
-              formatCreateLabel={(inputValue) => `"${inputValue}" 추가`}
+              styles={selectStyles}
             />
-            <div className="flex flex-wrap gap-1 mt-2">
-              {positions.map((position, idx) => (
-                <Badge key={idx} className="flex items-center gap-1">
-                  {position}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (isSubmitting) return
-                      setPositions(
-                        positions.filter((item) => item !== position)
-                      )
-                    }}
-                    className="ml-1 text-xs"
-                    disabled={isSubmitting}
-                  >
-                    ✕
-                  </button>
-                </Badge>
-              ))}
-            </div>
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={handleAddMember} disabled={isSubmitting}>
+          <Button
+            variant="cmoutline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+          >
+            취소
+          </Button>
+          <Button
+            variant="cm"
+            onClick={handleAddMember}
+            disabled={isSubmitting}
+          >
             {isSubmitting ? '추가 중...' : '추가'}
           </Button>
         </DialogFooter>

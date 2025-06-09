@@ -91,6 +91,20 @@ export async function addMember(
   })
 
   if (!response.ok) {
-    throw new Error('멤버 추가 실패')
+    const errorData = await response.json().catch(() => ({}))
+    switch (response.status) {
+      case 400:
+        throw new Error('이미 프로젝트에 참여중인 사용자입니다.')
+      case 401:
+        throw new Error('권한이 없습니다. 다시 로그인해주세요.')
+      case 403:
+        throw new Error('프로젝트 멤버를 추가할 권한이 없습니다.')
+      case 404:
+        throw new Error('해당 이메일의 사용자를 찾을 수 없습니다.')
+      case 409:
+        throw new Error('이미 프로젝트에 참여 중인 멤버입니다.')
+      default:
+        throw new Error(errorData.message || '멤버 추가에 실패했습니다.')
+    }
   }
 }
