@@ -36,10 +36,7 @@ export default function KanbanColumn({
   const { setNodeRef } = useDroppable({ id: columnKey })
 
   return (
-    <div
-      ref={setNodeRef}
-      className="w-1/3 min-h-[200px] m-0 flex flex-col gap-3"
-    >
+    <div ref={setNodeRef} className="w-1/3 m-0 flex flex-col gap-3 relative">
       <div
         className={`${bg} p-[15px] rounded-md flex flex-col justify-between`}
       >
@@ -87,7 +84,6 @@ export default function KanbanColumn({
               sideOffset={3}
               className="relative [&>svg]:!hidden top-0"
             >
-              {/* <div className="absolute left-3 -top-1 w-2 h-2 bg-primary rotate-45" /> */}
               <div className="relative z-10">
                 Task를 추가하면 자동으로 본인에게 할당됩니다.
               </div>
@@ -95,6 +91,7 @@ export default function KanbanColumn({
           </Tooltip>
         </TooltipProvider>
       </div>
+      <div className="absolute bottom-0 left-0 right-0 h-[300px] -z-10" />
     </div>
   )
 }
