@@ -53,7 +53,6 @@ export default function ProjectSidebar() {
   const pathname = usePathname()
   const user = useAuthStore((state) => state.user)
   const { projects, loading, fetchProjects } = useProjectStore()
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
 
   useEffect(() => {
     if (!user?.accessToken) return
@@ -62,22 +61,11 @@ export default function ProjectSidebar() {
 
   const items = [
     { title: 'Overview', url: `/projects/${id}/overview`, icon: Home },
-    { title: 'Epic', url: `/projects/${id}/epic`, icon: Play },
     { title: 'Task', url: `/projects/${id}/task`, icon: BookmarkCheck },
-    {
-      title: 'Meeting Notes',
-      url: `/projects/${id}/meeting-notes`,
-      icon: NotebookPen,
-    },
     {
       title: 'Members',
       url: `/projects/${id}/members`,
       icon: BookUser,
-    },
-    {
-      title: 'Settings',
-      url: `/projects/${id}/settings`,
-      icon: Settings,
     },
   ]
 
@@ -117,9 +105,6 @@ export default function ProjectSidebar() {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className="w-full">
-              <DropdownMenuItem>프로필 보기</DropdownMenuItem>
-              <DropdownMenuItem>로그아웃</DropdownMenuItem>
-              <div className="border-t my-2" />
               <div className="px-2 text-xs font-semibold text-gray-500">
                 내 프로젝트
               </div>
@@ -141,41 +126,9 @@ export default function ProjectSidebar() {
                   ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-          >
-            <Bell className="w-5 h-5" />
-          </Button>
         </div>
       </SidebarHeader>
 
-      <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          isNotificationOpen ? 'max-h-40 border-b' : 'max-h-0'
-        }`}
-      >
-        <div className="p-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-semibold">Notifications</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsNotificationOpen(false)}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-          <ul className="space-y-2">
-            {notifications.map((notification) => (
-              <li key={notification.id} className="text-xs text-gray-700">
-                {notification.text}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Project</SidebarGroupLabel>
