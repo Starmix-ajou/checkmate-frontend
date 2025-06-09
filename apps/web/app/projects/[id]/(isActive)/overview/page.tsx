@@ -46,41 +46,46 @@ export default function ProjectOverview() {
   const [loading, setLoading] = useState(true)
   const [showSprintDialog, setShowSprintDialog] = useState(false)
 
+  const fetchProjectAndSprintDetails = async () => {
+    if (!user?.accessToken) return
+
+    try {
+      const [projectResponse, sprintResponse] = await Promise.all([
+        fetch(`${API_BASE_URL}/project/${id}`, {
+          headers: {
+            Accept: '*/*',
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        }),
+        getSprints(id as string, user.accessToken),
+      ])
+
+      if (!projectResponse.ok) {
+        throw new Error('프로젝트 상세 정보 불러오기 실패')
+      }
+
+      const projectData = await projectResponse.json()
+      setProject(projectData)
+      setSprints(sprintResponse.sprints)
+
+      if (sprintResponse.sprints.length === 0) {
+        setShowSprintDialog(true)
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (!user?.accessToken || !id) return
-
-    const fetchProjectAndSprintDetails = async () => {
-      try {
-        const [projectResponse, sprintResponse] = await Promise.all([
-          fetch(`${API_BASE_URL}/project/${id}`, {
-            headers: {
-              Accept: '*/*',
-              Authorization: `Bearer ${user?.accessToken}`,
-            },
-          }),
-          getSprints(id as string, user.accessToken),
-        ])
-
-        if (!projectResponse.ok) {
-          throw new Error('프로젝트 상세 정보 불러오기 실패')
-        }
-
-        const projectData = await projectResponse.json()
-        setProject(projectData)
-        setSprints(sprintResponse.sprints)
-
-        if (sprintResponse.sprints.length === 0) {
-          setShowSprintDialog(true)
-        }
-      } catch (error) {
-        console.error(error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchProjectAndSprintDetails()
   }, [id, user?.accessToken])
+
+  const handleMembersUpdate = () => {
+    fetchProjectAndSprintDetails()
+  }
 
   const handleSprintReconfigure = () => {
     router.push(`/projects/${id}/newsprint`)
@@ -127,7 +132,11 @@ export default function ProjectOverview() {
             </BreadcrumbList>
           </Breadcrumb>
 
-          <ProjectHeader project={project} loading={loading} />
+          <ProjectHeader
+            project={project}
+            loading={loading}
+            onMembersUpdate={handleMembersUpdate}
+          />
 
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <DailyScrumCard projectId={id as string} />

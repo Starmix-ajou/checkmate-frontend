@@ -2,7 +2,6 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { removeMember, updateMemberPositions } from '@cm/api/member'
 import { Position } from '@cm/types/NewProjectTeamMember'
 import { Member } from '@cm/types/project'
-import { Badge } from '@cm/ui/components/ui/badge'
 import { Button } from '@cm/ui/components/ui/button'
 import {
   Dialog,
@@ -15,7 +14,7 @@ import {
 import { selectStyles } from '@cm/ui/lib/select-styles'
 import { UserPen } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 import { toast } from 'sonner'
 
@@ -42,6 +41,22 @@ export function EditMembersDialog({
   >({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [open, setOpen] = useState(false)
+  const [currentMemberIndex, setCurrentMemberIndex] = useState(0)
+
+  const currentMember = members[currentMemberIndex]
+  const isLastMember = currentMemberIndex === members.length - 1
+  const isFirstMember = currentMemberIndex === 0
+
+  useEffect(() => {
+    if (currentMember && !editingMemberPositions[currentMember.userId]) {
+      setEditingMemberPositions((prev) => ({
+        ...prev,
+        [currentMember.userId]: [
+          ...(currentMember.profile.positions || []),
+        ] as Position[],
+      }))
+    }
+  }, [currentMember, editingMemberPositions])
 
   const handleUpdateMember = async (memberId: string) => {
     if (!user?.accessToken || !projectId) return
@@ -55,7 +70,12 @@ export function EditMembersDialog({
         user.accessToken
       )
       toast.success('멤버 정보가 수정되었습니다')
-      onMembersUpdate?.()
+      if (isLastMember) {
+        setOpen(false)
+        onMembersUpdate?.()
+      } else {
+        setCurrentMemberIndex((prev) => prev + 1)
+      }
     } catch (error) {
       console.error(error)
       toast.error('멤버 정보 수정에 실패했습니다')
@@ -68,8 +88,12 @@ export function EditMembersDialog({
     try {
       await removeMember(projectId as string, memberId, user.accessToken)
       toast.success('멤버가 삭제되었습니다')
-      setOpen(false)
-      onMembersUpdate?.()
+      if (isLastMember) {
+        setOpen(false)
+        onMembersUpdate?.()
+      } else {
+        setCurrentMemberIndex((prev) => prev + 1)
+      }
     } catch (error) {
       console.error(error)
       toast.error('멤버 삭제에 실패했습니다')
@@ -81,116 +105,97 @@ export function EditMembersDialog({
     setIsSubmitting(true)
 
     try {
-      await Promise.all(
-        members.map((member) => handleUpdateMember(member.userId))
-      )
-      setOpen(false)
+      await handleUpdateMember(currentMember.userId)
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen)
+    if (!newOpen) {
+      setCurrentMemberIndex(0)
+      setEditingMemberPositions({})
+    }
+  }
+
+  const handlePositionChange = (newValue: any) => {
+    if (!currentMember) return
+    const positions = newValue.map((v: any) => v.value as Position)
+    setEditingMemberPositions((prev) => ({
+      ...prev,
+      [currentMember.userId]: positions,
+    }))
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="cmoutline" disabled={disabled}>
           <UserPen className="w-4 h-4" />
           멤버 정보 수정
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] max-h-[80vh] flex flex-col">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>멤버 정보 수정</DialogTitle>
+          <DialogTitle>
+            멤버 정보 수정 ({currentMemberIndex + 1}/{members.length})
+          </DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4 overflow-y-auto flex-1">
-          {members.map((member) => {
-            const isProductManager =
-              member.profile.role?.includes('PRODUCT_MANAGER')
-            return (
-              <div key={member.userId} className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-medium">
-                    {member.name}
-                    {isProductManager && (
-                      <span className="ml-2 text-sm text-gray-500">
-                        (Product Manager)
-                      </span>
-                    )}
-                  </h4>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleRemoveMember(member.userId)}
-                    disabled={isSubmitting}
-                  >
-                    삭제
-                  </Button>
-                </div>
-                {!isProductManager && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">포지션</label>
-                      <div className="relative z-[9999]">
-                        <CreatableSelect
-                          isMulti
-                          options={ROLE_OPTIONS}
-                          value={
-                            editingMemberPositions[member.userId]?.map(
-                              (pos) => ({ label: pos, value: pos })
-                            ) || []
-                          }
-                          onChange={(newValue) =>
-                            setEditingMemberPositions({
-                              ...editingMemberPositions,
-                              [member.userId]: newValue.map(
-                                (v) => v.value as Position
-                              ),
-                            })
-                          }
-                          placeholder="포지션을 선택하세요"
-                          isDisabled={isSubmitting}
-                          styles={selectStyles}
-                        />
-                      </div>
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {(
-                          editingMemberPositions[member.userId] ||
-                          member.profile.positions ||
-                          []
-                        ).map((position, idx) => (
-                          <Badge key={idx} className="flex items-center gap-1">
-                            {position}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const currentPositions =
-                                  editingMemberPositions[member.userId] ||
-                                  member.profile.positions ||
-                                  []
-                                setEditingMemberPositions({
-                                  ...editingMemberPositions,
-                                  [member.userId]: currentPositions.filter(
-                                    (item) => item !== position
-                                  ),
-                                })
-                              }}
-                              className="ml-1 text-xs"
-                            >
-                              ✕
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
+        <div className="py-4">
+          {currentMember && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h4 className="font-medium">
+                  {currentMember.name}
+                  {currentMember.profile.role?.includes('PRODUCT_MANAGER') && (
+                    <span className="ml-2 text-sm text-gray-500">
+                      (Product Manager)
+                    </span>
+                  )}
+                </h4>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleRemoveMember(currentMember.userId)}
+                  disabled={isSubmitting}
+                >
+                  삭제
+                </Button>
+              </div>
+              {!currentMember.profile.role?.includes('PRODUCT_MANAGER') && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">포지션</label>
+                    <div className="relative">
+                      <CreatableSelect
+                        isMulti
+                        options={ROLE_OPTIONS}
+                        value={(
+                          editingMemberPositions[currentMember.userId] || []
+                        ).map((pos) => ({ label: pos, value: pos }))}
+                        onChange={handlePositionChange}
+                        placeholder="포지션을 선택하세요"
+                        isDisabled={isSubmitting}
+                        styles={selectStyles}
+                      />
                     </div>
                   </div>
-                )}
-              </div>
-            )
-          })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
-        <DialogFooter className="flex-shrink-0">
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? '수정 중...' : '수정 완료'}
+        <DialogFooter className="flex justify-between">
+          <Button
+            variant="cmoutline"
+            onClick={() => setCurrentMemberIndex((prev) => prev - 1)}
+            disabled={isFirstMember || isSubmitting}
+          >
+            이전
+          </Button>
+          <Button variant="cm" onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? '수정 중...' : isLastMember ? '완료' : '다음'}
           </Button>
         </DialogFooter>
       </DialogContent>

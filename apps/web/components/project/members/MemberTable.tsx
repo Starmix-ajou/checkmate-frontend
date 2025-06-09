@@ -39,10 +39,8 @@ export function MemberTable({
 }: MemberTableProps) {
   const regularMembers = members.filter(
     (member) =>
-      leader &&
-      member.userId !== leader.userId &&
-      productManager &&
-      member.userId !== productManager.userId
+      (!leader || member.userId !== leader.userId) &&
+      (!productManager || member.userId !== productManager.userId)
   )
 
   const renderMemberRow = (member: Member, isLeader = false) => (
