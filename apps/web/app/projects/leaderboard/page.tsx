@@ -107,6 +107,88 @@ const LeaderboardTable = ({
     }
   }
 
+  const getColumnHeaders = () => {
+    switch (sortBy) {
+      case 'task':
+        return (
+          <>
+            <th className="text-right p-4 font-semibold">완료 Task</th>
+            <th className="text-right p-4 font-semibold">전체 Task</th>
+            <th className="text-right p-4 font-semibold">Task 완료율</th>
+          </>
+        )
+      case 'scrum':
+        return (
+          <>
+            <th className="text-right p-4 font-semibold">참여 일수</th>
+            <th className="text-right p-4 font-semibold">전체 일수</th>
+            <th className="text-right p-4 font-semibold">Daily Scrum 참여율</th>
+          </>
+        )
+      case 'review':
+        return (
+          <>
+            <th className="text-right p-4 font-semibold">완료 회고</th>
+            <th className="text-right p-4 font-semibold">전체 회고</th>
+            <th className="text-right p-4 font-semibold">미니 회고 완료율</th>
+          </>
+        )
+    }
+  }
+
+  const getColumnContent = (project: ProjectStats) => {
+    switch (sortBy) {
+      case 'task':
+        return (
+          <>
+            <td className="p-4 text-right font-medium">
+              {project.taskStats.completedTasks}
+            </td>
+            <td className="p-4 text-right font-medium">
+              {project.taskStats.totalTasks}
+            </td>
+            <td className="p-4 text-right">
+              <div className="font-medium">
+                {Math.round(project.taskStats.doneRate * 100)}%
+              </div>
+            </td>
+          </>
+        )
+      case 'scrum':
+        return (
+          <>
+            <td className="p-4 text-right font-medium">
+              {project.dailyScrumStats.completedDays}
+            </td>
+            <td className="p-4 text-right font-medium">
+              {project.dailyScrumStats.totalDays}
+            </td>
+            <td className="p-4 text-right">
+              <div className="font-medium">
+                {Math.round(project.dailyScrumStats.doneRate * 100)}%
+              </div>
+            </td>
+          </>
+        )
+      case 'review':
+        return (
+          <>
+            <td className="p-4 text-right font-medium">
+              {project.reviewStats.completedReviews}
+            </td>
+            <td className="p-4 text-right font-medium">
+              {project.reviewStats.totalReviews}
+            </td>
+            <td className="p-4 text-right">
+              <div className="font-medium">
+                {Math.round(project.reviewStats.doneRate * 100)}%
+              </div>
+            </td>
+          </>
+        )
+    }
+  }
+
   const sortedProjects = [...projects].sort((a, b) => getScore(b) - getScore(a))
 
   return (
@@ -117,9 +199,7 @@ const LeaderboardTable = ({
             <th className="text-left p-4 font-semibold">순위</th>
             <th className="text-left p-4 font-semibold">Project</th>
             <th className="text-left p-4 font-semibold">Leader</th>
-            <th className="text-right p-4 font-semibold">Task 완료율</th>
-            <th className="text-right p-4 font-semibold">Daily Scrum 참여율</th>
-            <th className="text-right p-4 font-semibold">미니 회고 완료율</th>
+            {getColumnHeaders()}
           </tr>
         </thead>
         <tbody>
@@ -133,33 +213,7 @@ const LeaderboardTable = ({
               <td className="p-4 text-muted-foreground">
                 {project.leaderName}
               </td>
-              <td className="p-4 text-right">
-                <div className="font-medium">
-                  {Math.round(project.taskStats.doneRate * 100)}%
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {project.taskStats.completedTasks}/
-                  {project.taskStats.totalTasks}
-                </div>
-              </td>
-              <td className="p-4 text-right">
-                <div className="font-medium">
-                  {Math.round(project.dailyScrumStats.doneRate * 100)}%
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {project.dailyScrumStats.completedDays}/
-                  {project.dailyScrumStats.totalDays}일
-                </div>
-              </td>
-              <td className="p-4 text-right">
-                <div className="font-medium">
-                  {Math.round(project.reviewStats.doneRate * 100)}%
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {project.reviewStats.completedReviews}/
-                  {project.reviewStats.totalReviews}
-                </div>
-              </td>
+              {getColumnContent(project)}
             </tr>
           ))}
         </tbody>
@@ -257,9 +311,6 @@ export default function LeaderboardPage() {
 
               <TabsContent value={sortBy}>
                 <Podium projects={projects} getScore={getScore} />
-                <span className="text-sm text-muted-foreground block text-right pb-4">
-                  * 리더보드 결과는 매일 한국 시간 00:00에 초기화됩니다.
-                </span>
                 <LeaderboardTable projects={projects} sortBy={sortBy} />
               </TabsContent>
             </Tabs>
