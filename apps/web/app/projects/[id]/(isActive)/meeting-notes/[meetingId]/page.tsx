@@ -1,10 +1,14 @@
 'use client'
 
-import { MeetingResponse, getMeeting, getRoomDetails, updateMeeting } from '@cm/api/meetingNotes'
-import { Member } from '@cm/types/project'
 import { useAuthStore } from '@/stores/useAuthStore'
+import {
+  MeetingResponse,
+  getMeeting,
+  getRoomDetails,
+  updateMeeting,
+} from '@cm/api/meetingNotes'
+import { Member } from '@cm/types/project'
 import { Button } from '@cm/ui/components/ui/button'
-import { Input } from '@cm/ui/components/ui/input'
 import {
   Dialog,
   DialogContent,
@@ -13,8 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@cm/ui/components/ui/dialog'
-import { useParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { Input } from '@cm/ui/components/ui/input'
 import {
   Tooltip,
   TooltipContent,
@@ -22,6 +25,9 @@ import {
   TooltipTrigger,
 } from '@cm/ui/components/ui/tooltip'
 import { Sparkles } from 'lucide-react'
+import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 import { Editor } from './Editor'
 import { MeetingNoteDetails } from './MeetingNoteDetails'
@@ -43,11 +49,11 @@ export default function MeetingNotePage() {
       name: '',
       email: '',
       profileImageUrl: '',
-      profiles: []
+      profiles: [],
     },
     projectId: '',
     timestamp: new Date().toISOString(),
-    summary: ''
+    summary: '',
   })
   const [members, setMembers] = useState<Member[]>([])
   const [roomInfo, setRoomInfo] = useState<{
@@ -186,19 +192,34 @@ export default function MeetingNotePage() {
               readOnly={!isEditingTitle}
             />
             <div className="flex items-center gap-2">
-              <Button
-                variant="cmoutline"
-                onClick={() => setShowSummaryDialog(true)}
-                disabled={!meetingInfo.summary?.trim()}
-              >
-                요약본 확인
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button
+                        variant="cmoutline"
+                        onClick={() => setShowSummaryDialog(true)}
+                        disabled={!meetingInfo.summary?.trim()}
+                      >
+                        요약본 확인
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {!meetingInfo.summary?.trim() ? (
+                      <p>AI 요약을 먼저 진행해주세요.</p>
+                    ) : (
+                      <p>AI가 생성한 회의록 요약본을 확인합니다.</p>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="cm" onClick={handleComplete}>
                       <Sparkles className="w-4 h-4" />
-                      완료
+                      AI 요약 시작
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -238,41 +259,46 @@ export default function MeetingNotePage() {
       <Dialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>회의록 완료</DialogTitle>
+            <DialogTitle>AI 요약 시작</DialogTitle>
             <DialogDescription>
-              회의록을 완료하고 요약 및 액션 아이템 추출을 진행하시겠습니까?
+              AI를 통해 회의록을 요약하고 액션 아이템을 추출하시겠습니까?
               <br />
               완료 후에는 회의록을 수정할 수 없습니다.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button
-              variant="outline"
+              variant="cmoutline"
               onClick={() => setShowCompleteDialog(false)}
             >
               취소
             </Button>
             <Button variant="cm" onClick={handleConfirmComplete}>
-              확인
+              <Sparkles className="w-4 h-4 mr-2" />
+              AI 요약 시작
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       <Dialog open={showSummaryDialog} onOpenChange={setShowSummaryDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-3xl max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>회의록 요약</DialogTitle>
             <DialogDescription>
               AI가 생성한 회의록 요약본입니다.
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <p className="whitespace-pre-wrap">{meetingInfo.summary}</p>
+          <div className="mt-4 p-4 bg-muted/50 rounded-lg overflow-y-auto max-h-[calc(80vh-200px)] prose prose-sm max-w-none">
+            {meetingInfo.summary ? (
+              <ReactMarkdown>{meetingInfo.summary}</ReactMarkdown>
+            ) : (
+              <p className="text-gray-500">요약본이 없습니다.</p>
+            )}
           </div>
           <DialogFooter>
             <Button
-              variant="outline"
+              variant="cmoutline"
               onClick={() => setShowSummaryDialog(false)}
             >
               닫기

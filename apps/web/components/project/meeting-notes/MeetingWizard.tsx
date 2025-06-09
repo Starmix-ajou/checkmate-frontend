@@ -186,7 +186,6 @@ export default function MeetingWizard() {
     },
   })
 
-  // SSE 연결 초기화 및 관리
   const initializeSSE = useCallback(async () => {
     if (
       !meetingId ||
@@ -202,11 +201,9 @@ export default function MeetingWizard() {
       setLoading(true)
       setIsInitialized(true)
 
-      // 회의록 내용 전송
       const meetingData = await getMeeting(user.accessToken, meetingId)
       setOriginalContent(meetingContent)
 
-      // SSE 연결 생성
       const newEventSource = startSSE()
       if (!newEventSource) {
         throw new Error('SSE 연결에 실패했습니다.')
@@ -214,7 +211,6 @@ export default function MeetingWizard() {
 
       newEventSource.onopen = () => {
         console.log('SSE 연결 성공')
-        // SSE 연결이 성공한 후에 회의록 내용 전송
         sendMeetingContent(user.accessToken, {
           meetingId,
           title: meetingData.title,
@@ -270,7 +266,6 @@ export default function MeetingWizard() {
     }
   }, [])
 
-  // SSE 재연결 시도
   useEffect(() => {
     if (!eventSource && isInitialized && step === 0) {
       console.log('SSE 재연결 시도')
@@ -485,6 +480,7 @@ export default function MeetingWizard() {
                 addButtonText="+ 액션 아이템 추가"
                 defaultRow={DEFAULT_ACTION_ITEM}
                 showHeader={false}
+                canAddRow={false}
                 meta={{
                   updateData: (
                     rowIndex: number,
