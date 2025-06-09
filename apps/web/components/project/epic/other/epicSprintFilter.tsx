@@ -52,39 +52,44 @@ export const EpicSprintFilter = ({
         >
           ALL
         </DropdownMenuItem>
-        {sprints.map((sprint) => (
-          <DropdownMenuItem
-            key={sprint.sprintId}
-            onClick={() => {
-              onSprintSelect(sprint.sprintId)
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <span>{sprint.title}</span>
-              <span
-                className={`text-xs ${isCurrentSprint(sprint) ? 'text-cm' : 'text-cm-gray'}`}
-              >
-                {new Date(sprint.startDate)
-                  .toLocaleDateString('ko-KR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                  })
-                  .replace(/\. /g, '. ')
-                  .replace(/\.$/, '')}{' '}
-                ~{' '}
-                {new Date(sprint.endDate)
-                  .toLocaleDateString('ko-KR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                  })
-                  .replace(/\. /g, '. ')
-                  .replace(/\.$/, '')}
-              </span>
-            </div>
-          </DropdownMenuItem>
-        ))}
+        {sprints
+          .sort(
+            (a, b) =>
+              new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+          )
+          .map((sprint) => (
+            <DropdownMenuItem
+              key={sprint.sprintId}
+              onClick={() => {
+                onSprintSelect(sprint.sprintId)
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <span>{sprint.title}</span>
+                <span
+                  className={`text-xs ${isCurrentSprint(sprint) ? 'text-cm' : 'text-cm-gray'}`}
+                >
+                  {new Date(sprint.startDate)
+                    .toLocaleDateString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                    })
+                    .replace(/\. /g, '. ')
+                    .replace(/\.$/, '')}{' '}
+                  ~{' '}
+                  {new Date(sprint.endDate)
+                    .toLocaleDateString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                    })
+                    .replace(/\. /g, '. ')
+                    .replace(/\.$/, '')}
+                </span>
+              </div>
+            </DropdownMenuItem>
+          ))}
       </DropdownMenuContent>
     </DropdownMenu>
   )

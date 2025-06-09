@@ -296,6 +296,13 @@ export default function TasksPage() {
             members={project?.members || []}
             searchText={searchText}
             filters={filters}
+            onTaskChange={() => {
+              // 태스크 변경 시 멤버 필터링 시각적 상태만 초기화
+              setFilters((prev) => ({
+                ...prev,
+                assigneeEmails: [],
+              }))
+            }}
           />
         )}
       </div>
