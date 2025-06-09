@@ -2,7 +2,7 @@
 
 import { Member } from '@cm/types/project'
 import { Task, TaskCreateRequest } from '@cm/types/userTask'
-import { DndContext, DragOverlay } from '@dnd-kit/core'
+import { DndContext, DragEndEvent, DragOverlay } from '@dnd-kit/core'
 import { Check, Pencil, Pickaxe, Trash2, X } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -14,12 +14,7 @@ import { KanbanLogic } from './KanbanLogic'
 import MiniRetroDialog from './MiniRetroDialog'
 import TaskModal from './TaskModal'
 
-export default function KanbanView({
-  projectId,
-  members,
-  searchText,
-  filters,
-}: {
+interface KanbanViewProps {
   projectId: string
   members: Member[]
   searchText: string
@@ -29,14 +24,23 @@ export default function KanbanView({
     sprintId: string
     assigneeEmails: string[]
   }
-}) {
+  onTaskChange?: () => void
+}
+
+export default function KanbanView({
+  projectId,
+  members,
+  searchText,
+  filters,
+  onTaskChange,
+}: KanbanViewProps) {
   const {
     columns,
     activeTask,
     setActiveTask,
     sensors,
     handleDragOver,
-    handleDragEnd,
+    handleDragEnd: originalHandleDragEnd,
     error,
     setColumns,
     deleteTask,
@@ -264,21 +268,19 @@ export default function KanbanView({
     }
   }
 
-  const handleEpicSelect = async (
-    epicId: string,
-    initialData: TaskCreateRequest
-  ) => {
+  const handleEpicSelect = async (epicId: string) => {
     if (!pendingTaskData) return
 
     const taskData: TaskCreateRequest = {
-      ...initialData,
+      ...pendingTaskData.initialData,
       epicId,
-      projectId, // projectId 명시적 추가
+      projectId,
     }
 
     try {
       await handleAddTask(pendingTaskData.columnKey as any, taskData)
-      setPendingTaskData(null) // 태스크 생성 후 pendingTaskData 초기화
+      setPendingTaskData(null)
+      onTaskChange?.()
     } catch (error) {
       console.error('태스크 생성 실패:', error)
       alert('태스크 생성에 실패했습니다. 다시 시도해주세요.')
@@ -292,6 +294,24 @@ export default function KanbanView({
 
   const handleMiniRetroSave = () => {
     fetchTasks(filters)
+  }
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    if (!event.over) return
+
+    const { active, over } = event
+
+    if (active.id === over.id) {
+      return
+    }
+
+    try {
+      await originalHandleDragEnd()
+      onTaskChange?.()
+    } catch (error) {
+      console.error('태스크 상태 업데이트 실패:', error)
+      alert('태스크 상태 업데이트에 실패했습니다. 다시 시도해주세요.')
+    }
   }
 
   if (error) {
