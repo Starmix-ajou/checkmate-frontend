@@ -1,6 +1,7 @@
 'use client'
 
 import { Member } from '@cm/types/project'
+import { MeetingResponse } from '@cm/api/meetingNotes'
 import {
   Popover,
   PopoverContent,
@@ -15,8 +16,8 @@ interface MeetingNoteDetailsProps {
   createdAt: Date
   updatedAt: Date
   members: Member[]
-  initialScrumMaster: Member
-  onScrumMasterChange: (member: Member) => void
+  initialScrumMaster: MeetingResponse['master']
+  onScrumMasterChange: (memberId: string) => void
 }
 
 export function MeetingNoteDetails({
@@ -28,12 +29,18 @@ export function MeetingNoteDetails({
 }: MeetingNoteDetailsProps) {
   const [isScrumMasterOpen, setIsScrumMasterOpen] = useState(false)
   const [selectedScrumMaster, setSelectedScrumMaster] =
-    useState<Member>(initialScrumMaster)
+    useState<MeetingResponse['master']>(initialScrumMaster)
 
   const handleScrumMasterChange = (member: Member) => {
-    setSelectedScrumMaster(member)
+    setSelectedScrumMaster({
+      userId: member.userId,
+      name: member.name,
+      email: member.email,
+      profileImageUrl: member.profileImageUrl,
+      profiles: [member.profile]
+    })
     setIsScrumMasterOpen(false)
-    onScrumMasterChange(member)
+    onScrumMasterChange(member.userId)
   }
 
   return (

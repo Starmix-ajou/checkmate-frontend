@@ -22,11 +22,7 @@ export default function MeetingNotesList({
   const router = useRouter()
 
   const handleRowClick = (meeting: Meeting) => {
-    router.push(
-      `/projects/${projectId}/meeting-notes/${meeting.meetingId}?title=${encodeURIComponent(
-        meeting.title
-      )}&roomId=${meeting.meetingId}`
-    )
+    router.push(`/projects/${projectId}/meeting-notes/${meeting.meetingId}`)
   }
 
   return (

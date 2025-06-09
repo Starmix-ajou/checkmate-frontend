@@ -15,7 +15,7 @@ interface LiveblocksRoom {
   usersAccesses: Record<string, string[]>
 }
 
-interface MeetingResponse {
+export interface MeetingResponse {
   meetingId: string
   title: string
   content: string
@@ -96,6 +96,11 @@ interface Task {
 
 interface UpdateActionItemsRequest {
   tasks: Task[]
+}
+
+interface UpdateMeetingRequest {
+  title: string
+  masterId: string
 }
 
 export const getMeetings = async (
@@ -302,6 +307,37 @@ export const updateActionItems = async (
     }
   } catch (error) {
     console.error('액션 아이템 업데이트 에러:', error)
+    throw error
+  }
+}
+
+export const updateMeeting = async (
+  accessToken: string,
+  meetingId: string,
+  data: UpdateMeetingRequest
+): Promise<void> => {
+  if (!accessToken) {
+    throw new Error('인증 토큰이 없습니다.')
+  }
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/meeting/${meetingId}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(data),
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error(`회의 정보 업데이트 실패: ${response.status}`)
+    }
+  } catch (error) {
+    console.error('회의 정보 업데이트 에러:', error)
     throw error
   }
 }
