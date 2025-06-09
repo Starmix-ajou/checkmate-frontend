@@ -1,4 +1,10 @@
 import { ColumnType, Task } from '@cm/types/userTask'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@cm/ui/components/ui/tooltip'
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { Plus } from 'lucide-react'
@@ -59,18 +65,35 @@ export default function KanbanColumn({
           </SortableContext>
         </div>
 
-        <button
-          className="flex items-center text-sm text-[#474747] my-2 hover:text-black-01"
-          onClick={() => {
-            const event = new CustomEvent('kanban:add-task', {
-              detail: { columnKey },
-            })
-            window.dispatchEvent(event)
-          }}
-        >
-          <Plus size={20} className="font-medium mr-1.5 text-inherit" />
-          Add
-        </button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                className="flex items-center text-sm text-[#474747] my-2 hover:text-black-01"
+                onClick={() => {
+                  const event = new CustomEvent('kanban:add-task', {
+                    detail: { columnKey },
+                  })
+                  window.dispatchEvent(event)
+                }}
+              >
+                <Plus size={20} className="font-medium mr-1.5 text-inherit" />
+                Add
+              </button>
+            </TooltipTrigger>
+            <TooltipContent
+              side="bottom"
+              align="start"
+              sideOffset={3}
+              className="relative [&>svg]:!hidden top-0"
+            >
+              {/* <div className="absolute left-3 -top-1 w-2 h-2 bg-primary rotate-45" /> */}
+              <div className="relative z-10">
+                Task를 추가하면 자동으로 본인에게 할당됩니다.
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   )
