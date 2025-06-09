@@ -1,6 +1,7 @@
 'use client'
 
 import { UseNotificationSSE } from '@/hooks/useNotificationSSE'
+import { useAuth } from '@/providers/AuthProvider'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useProjectStore } from '@/stores/useProjectStore'
 import {
@@ -55,7 +56,8 @@ export default function ProjectSidebar() {
   const { id } = useParams()
   const pathname = usePathname()
   const router = useRouter()
-  const user = useAuthStore((state) => state.user)
+  const { user } = useAuthStore()
+  const { signOut } = useAuth()
   const { projects, loading, fetchProjects } = useProjectStore()
   const [totalNotifications, setTotalNotifications] = useState(0)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
@@ -248,6 +250,14 @@ export default function ProjectSidebar() {
     }
   }
 
+  const handleLogout = async () => {
+    try {
+      await signOut()
+    } catch (error) {
+      console.error('로그아웃 실패:', error)
+    }
+  }
+
   const items = [
     { title: 'Overview', url: `/projects/${id}/overview`, icon: Home },
     { title: 'Epic', url: `/projects/${id}/epic`, icon: Play },
@@ -312,8 +322,9 @@ export default function ProjectSidebar() {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className="w-full">
-              <DropdownMenuItem>프로필 보기</DropdownMenuItem>
-              <DropdownMenuItem>로그아웃</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
+                로그아웃
+              </DropdownMenuItem>
               <div className="border-t my-2" />
               <div className="px-2 text-xs font-semibold text-gray-500">
                 내 프로젝트
@@ -427,11 +438,11 @@ export default function ProjectSidebar() {
                 <Rocket className="w-5 h-5 text-blue-200" />
               </div>
               <div className="flex flex-col">
-                <span className="font-semibold tracking-wide">
-                  프리미엄으로 업그레이드
+                <span className="font-semibold text-md">
+                  Premium 업그레이드
                 </span>
-                <span className="text-sm text-blue-100/90">
-                  월 19,900원으로 시작하세요
+                <span className="text-sm text-blue-100/90 break-keep">
+                  월 19,900원으로 팀의 가능성을 극대화하세요.
                 </span>
               </div>
             </div>

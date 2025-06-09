@@ -5,7 +5,7 @@ import { User } from '@cm/types/user'
 import { signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { createContext, useContext } from 'react'
-import { toast } from 'react-toastify'
+import { toast } from 'sonner'
 
 type AuthContextType = {
   user: User | null
