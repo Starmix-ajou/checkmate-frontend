@@ -1,8 +1,10 @@
 'use client'
 
-import { getRoomDetails } from '@cm/api/meetingNotes'
+import { MeetingResponse, getMeeting, getRoomDetails, updateMeeting } from '@cm/api/meetingNotes'
 import { Member } from '@cm/types/project'
+import { useAuthStore } from '@/stores/useAuthStore'
 import { Button } from '@cm/ui/components/ui/button'
+import { Input } from '@cm/ui/components/ui/input'
 import {
   Dialog,
   DialogContent,
@@ -11,8 +13,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@cm/ui/components/ui/dialog'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@cm/ui/components/ui/tooltip'
+import { Sparkles } from 'lucide-react'
 
 import { Editor } from './Editor'
 import { MeetingNoteDetails } from './MeetingNoteDetails'
@@ -22,11 +31,24 @@ import { Threads } from './Threads'
 export default function MeetingNotePage() {
   const params = useParams()
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const user = useAuthStore((state) => state.user)
   const meetingId = params.meetingId as string
   const projectId = params.id as string
-  const title = searchParams.get('title') || '새로운 회의'
-  const roomId = searchParams.get('roomId') || meetingId
+  const [meetingInfo, setMeetingInfo] = useState<MeetingResponse>({
+    meetingId: '',
+    title: '새로운 회의',
+    content: '',
+    master: {
+      userId: '',
+      name: '',
+      email: '',
+      profileImageUrl: '',
+      profiles: []
+    },
+    projectId: '',
+    timestamp: new Date().toISOString(),
+    summary: ''
+  })
   const [members, setMembers] = useState<Member[]>([])
   const [roomInfo, setRoomInfo] = useState<{
     createdAt: Date
@@ -36,10 +58,23 @@ export default function MeetingNotePage() {
     updatedAt: new Date(),
   })
   const [showCompleteDialog, setShowCompleteDialog] = useState(false)
+  const [showSummaryDialog, setShowSummaryDialog] = useState(false)
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const [editedTitle, setEditedTitle] = useState('')
 
-  const handleScrumMasterChange = (member: Member) => {
-    // TODO: API 호출하여 스크럼마스터 변경
-    console.log('스크럼마스터 변경:', member)
+  const handleScrumMasterChange = async (memberId: string) => {
+    if (!user?.accessToken || memberId === meetingInfo.master.userId) return
+
+    try {
+      await updateMeeting(user.accessToken, meetingId, {
+        title: meetingInfo.title,
+        masterId: memberId,
+      })
+      const updatedMeeting = await getMeeting(user.accessToken, meetingId)
+      setMeetingInfo(updatedMeeting)
+    } catch (error) {
+      console.error('스크럼마스터 변경 실패:', error)
+    }
   }
 
   const handleComplete = () => {
@@ -51,6 +86,17 @@ export default function MeetingNotePage() {
   }
 
   useEffect(() => {
+    if (!user?.accessToken) return
+
+    const fetchMeetingInfo = async () => {
+      try {
+        const meeting = await getMeeting(user.accessToken, meetingId)
+        setMeetingInfo(meeting)
+      } catch (error) {
+        console.error('회의 정보 조회 에러:', error)
+      }
+    }
+
     const fetchMembers = async () => {
       try {
         const response = await fetch(
@@ -58,6 +104,7 @@ export default function MeetingNotePage() {
           {
             headers: {
               Accept: '*/*',
+              Authorization: `Bearer ${user.accessToken}`,
             },
           }
         )
@@ -75,30 +122,95 @@ export default function MeetingNotePage() {
 
     const fetchRoomDetails = async () => {
       try {
-        const details = await getRoomDetails(roomId)
+        const details = await getRoomDetails(meetingId)
         setRoomInfo(details)
       } catch (error) {
         console.error('Error fetching room details:', error)
       }
     }
 
+    fetchMeetingInfo()
     fetchMembers()
     fetchRoomDetails()
-  }, [projectId, roomId])
+  }, [projectId, meetingId, user?.accessToken])
+
+  useEffect(() => {
+    if (meetingInfo.title) {
+      setEditedTitle(meetingInfo.title)
+    }
+  }, [meetingInfo.title])
+
+  const handleTitleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedTitle(e.target.value)
+  }
+
+  const handleTitleBlur = async () => {
+    if (!user?.accessToken || editedTitle === meetingInfo.title) {
+      setIsEditingTitle(false)
+      return
+    }
+
+    try {
+      await updateMeeting(user.accessToken, meetingId, {
+        title: editedTitle,
+        masterId: meetingInfo.master.userId,
+      })
+      setMeetingInfo((prev) => ({ ...prev, title: editedTitle }))
+    } catch (error) {
+      console.error('제목 업데이트 실패:', error)
+      setEditedTitle(meetingInfo.title)
+    }
+    setIsEditingTitle(false)
+  }
 
   return (
     <>
       <div className="flex w-full flex-col h-full">
         <div className="flex-1 p-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold">{title}</h1>
-            <Button variant="cm" onClick={handleComplete}>
-              완료
-            </Button>
+          <div className="flex justify-between items-center gap-2">
+            <Input
+              value={editedTitle}
+              onChange={handleTitleChange}
+              onBlur={handleTitleBlur}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.currentTarget.blur()
+                }
+              }}
+              className={`!text-3xl font-bold h-12 px-2 shadow-none ${
+                !isEditingTitle
+                  ? 'border-0 bg-transparent hover:bg-gray-100 cursor-pointer focus-visible:ring-0 focus-visible:ring-offset-0'
+                  : ''
+              }`}
+              onClick={() => !isEditingTitle && setIsEditingTitle(true)}
+              readOnly={!isEditingTitle}
+            />
+            <div className="flex items-center gap-2">
+              <Button
+                variant="cmoutline"
+                onClick={() => setShowSummaryDialog(true)}
+                disabled={!meetingInfo.summary?.trim()}
+              >
+                요약본 확인
+              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="cm" onClick={handleComplete}>
+                      <Sparkles className="w-4 h-4" />
+                      완료
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>AI를 통해 회의록을 요약하고 액션 아이템을 추출합니다.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
         </div>
         <div className="flex h-full px-4 pb-4 gap-4">
-          <Room roomId={roomId} projectId={projectId} members={members}>
+          <Room roomId={meetingId} projectId={projectId} members={members}>
             <div className="flex-1 h-full">
               <div className="rounded-lg border h-full">
                 <Editor />
@@ -110,7 +222,7 @@ export default function MeetingNotePage() {
                   createdAt={roomInfo.createdAt}
                   updatedAt={roomInfo.updatedAt}
                   members={members}
-                  initialScrumMaster={members[0]}
+                  initialScrumMaster={meetingInfo.master}
                   onScrumMasterChange={handleScrumMasterChange}
                 />
               </div>
@@ -142,6 +254,28 @@ export default function MeetingNotePage() {
             </Button>
             <Button variant="cm" onClick={handleConfirmComplete}>
               확인
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSummaryDialog} onOpenChange={setShowSummaryDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>회의록 요약</DialogTitle>
+            <DialogDescription>
+              AI가 생성한 회의록 요약본입니다.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <p className="whitespace-pre-wrap">{meetingInfo.summary}</p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowSummaryDialog(false)}
+            >
+              닫기
             </Button>
           </DialogFooter>
         </DialogContent>
