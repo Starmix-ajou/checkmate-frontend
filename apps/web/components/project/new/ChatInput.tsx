@@ -32,6 +32,10 @@ type ChatInputProps = {
   setTableData: (value: TeamMember[]) => void
   onSend: () => void
   isLoading?: boolean
+  selectedSuggestions?: {
+    question: string
+    answers: string[]
+  }[]
 }
 
 export function ChatInput({
@@ -48,6 +52,7 @@ export function ChatInput({
   setTableData,
   onSend,
   isLoading = false,
+  selectedSuggestions = [],
 }: ChatInputProps) {
   const [emailError, setEmailError] = useState<string>('')
   const shouldAutoSend = useRef(false)
@@ -120,17 +125,41 @@ export function ChatInput({
   const renderQuickResponses = () => {
     if (phase.id < 6) return null
 
-    return (
-      <div className="flex gap-2 mb-2">
+    const quickResponses = [
+      <Button
+        key="default"
+        variant="outline"
+        size="sm"
+        className="text-sm"
+        onClick={() => handleQuickResponse('좋아요. 이대로 진행해 주세요.')}
+        disabled={isLoading}
+      >
+        좋아요. 이대로 진행해 주세요.
+      </Button>
+    ]
+
+    if (phase.id === 6 && selectedSuggestions.length > 0) {
+      const totalSelectedAnswers = selectedSuggestions.reduce(
+        (acc, curr) => acc + curr.answers.length,
+        0
+      )
+      quickResponses.push(
         <Button
+          key="add-selected"
           variant="outline"
           size="sm"
           className="text-sm"
-          onClick={() => handleQuickResponse('좋아요. 이대로 진행해 주세요.')}
+          onClick={() => handleQuickResponse(`체크한 ${totalSelectedAnswers}개 기능을 추가해줘`)}
           disabled={isLoading}
         >
-          좋아요. 이대로 진행해 주세요.
+          체크한 {totalSelectedAnswers}개 기능을 추가해줘
         </Button>
+      )
+    }
+
+    return (
+      <div className="flex gap-2 mb-2">
+        {quickResponses}
       </div>
     )
   }

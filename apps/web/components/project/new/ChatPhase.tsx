@@ -67,7 +67,10 @@ export default function ChatPhase({
   const [originalFeatures, setOriginalFeatures] = useState<Feature[]>([])
   const [projectTitle, setProjectTitle] = useState('')
   const [projectDescription, setProjectDescription] = useState(formPhaseInput)
-  const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([])
+  const [selectedSuggestions, setSelectedSuggestions] = useState<{
+    question: string
+    answers: string[]
+  }[]>([])
 
   const { startSSE } = useProjectSSE({
     onMessage: (message) => {
@@ -148,9 +151,45 @@ export default function ChatPhase({
   })
 
   const handleSuggestionChange = (suggestion: string, checked: boolean) => {
-    setSelectedSuggestions((prev) =>
-      checked ? [...prev, suggestion] : prev.filter((s) => s !== suggestion)
-    )
+    const currentSuggestion = messages
+      .find((msg) => msg.tableData?.suggestions)
+      ?.tableData?.suggestions?.find((s) => s.answers.includes(suggestion))
+
+    if (!currentSuggestion) return
+
+    setSelectedSuggestions((prev) => {
+      if (checked) {
+        const existingSuggestion = prev.find(
+          (s) => s.question === currentSuggestion.question
+        )
+        if (existingSuggestion) {
+          return prev.map((s) =>
+            s.question === currentSuggestion.question
+              ? {
+                  ...s,
+                  answers: [...s.answers, suggestion],
+                }
+              : s
+          )
+        }
+        return [
+          ...prev,
+          {
+            question: currentSuggestion.question,
+            answers: [suggestion],
+          },
+        ]
+      } else {
+        return prev.map((s) =>
+          s.question === currentSuggestion.question
+            ? {
+                ...s,
+                answers: s.answers.filter((a) => a !== suggestion),
+              }
+            : s
+        ).filter((s) => s.answers.length > 0)
+      }
+    })
   }
 
   const handleFeatureChange = (features: Feature[], msg: Message) => {
@@ -233,10 +272,11 @@ export default function ChatPhase({
     if (!user?.accessToken) return console.warn('JWT 토큰이 없습니다.')
 
     try {
+      const selectedAnswers = selectedSuggestions.flatMap((s) => s.answers)
       await putDefinitionFeedback(
         user.accessToken,
         feedback,
-        selectedSuggestions
+        selectedAnswers
       )
       setSelectedSuggestions([])
     } catch (error) {
@@ -436,6 +476,7 @@ export default function ChatPhase({
             setTableData={setTableData}
             onSend={handleSendMessage}
             isLoading={isLoading}
+            selectedSuggestions={selectedSuggestions}
           />
         </div>
       </div>

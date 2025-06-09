@@ -7,7 +7,10 @@ import { TeamMemberTable } from './TeamMemberTable'
 
 type ChatMessageProps = {
   message: Message
-  selectedSuggestions: string[]
+  selectedSuggestions: {
+    question: string
+    answers: string[]
+  }[]
   onSuggestionChange: (suggestion: string, checked: boolean) => void
   onFeatureChange: (features: Feature[], msg: Message) => void
 }
@@ -38,7 +41,11 @@ export function ChatMessage({
                     <li key={ansIndex} className="flex items-center gap-2">
                       <Checkbox
                         id={`suggestion-${index}-${ansIndex}`}
-                        checked={selectedSuggestions.includes(answer)}
+                        checked={selectedSuggestions.some(
+                          (selected) =>
+                            selected.question === suggestion.question &&
+                            selected.answers.includes(answer)
+                        )}
                         onCheckedChange={(checked) =>
                           onSuggestionChange(answer, checked as boolean)
                         }
