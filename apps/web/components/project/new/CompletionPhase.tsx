@@ -3,6 +3,7 @@
 import { Feature } from '@cm/types/project-creation'
 import { Button } from '@cm/ui/components/ui/button'
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 import { FeatureTable } from './FeatureTable'
 
@@ -16,6 +17,10 @@ export default function CompletionPhase({
   projectId,
 }: CompletionPhaseProps) {
   const router = useRouter()
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
 
   const handleComplete = async () => {
     router.push(`/projects/${projectId}/newsprint`)

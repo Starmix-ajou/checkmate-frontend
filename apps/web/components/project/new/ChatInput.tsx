@@ -15,6 +15,7 @@ import { ko } from 'date-fns/locale'
 import { ArrowUp, CalendarIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { DateRange } from 'react-day-picker'
+import { toast } from 'sonner'
 
 import { TeamMemberTable } from './TeamMemberTable'
 
@@ -71,17 +72,17 @@ export function ChatInput({
 
   const validateTableData = (): boolean => {
     if (tableData.length === 0) {
-      setEmailError('최소 한 명의 팀 멤버를 추가해주세요.')
+      toast.error('최소 한 명의 팀 멤버를 추가해주세요.')
       return false
     }
 
     for (const member of tableData) {
       if (!validateEmail(member.email)) {
-        setEmailError('유효한 이메일 주소를 입력해주세요.')
+        toast.error('유효한 이메일 주소를 입력해주세요.')
         return false
       }
       if (member.positions.length === 0) {
-        setEmailError('모든 멤버의 역할을 선택해주세요.')
+        toast.error('모든 멤버의 역할을 선택해주세요.')
         return false
       }
     }
@@ -135,7 +136,7 @@ export function ChatInput({
         disabled={isLoading}
       >
         좋아요. 이대로 진행해 주세요.
-      </Button>
+      </Button>,
     ]
 
     if (phase.id === 6 && selectedSuggestions.length > 0) {
@@ -149,7 +150,11 @@ export function ChatInput({
           variant="outline"
           size="sm"
           className="text-sm"
-          onClick={() => handleQuickResponse(`체크한 ${totalSelectedAnswers}개 기능을 추가해줘`)}
+          onClick={() =>
+            handleQuickResponse(
+              `체크한 ${totalSelectedAnswers}개 기능을 추가해줘`
+            )
+          }
           disabled={isLoading}
         >
           체크한 {totalSelectedAnswers}개 기능을 추가해줘
@@ -157,11 +162,7 @@ export function ChatInput({
       )
     }
 
-    return (
-      <div className="flex gap-2 mb-2">
-        {quickResponses}
-      </div>
-    )
+    return <div className="flex gap-2 mb-2">{quickResponses}</div>
   }
 
   switch (phase.inputType) {
@@ -183,9 +184,6 @@ export function ChatInput({
         <div className="relative flex-1 flex gap-2">
           <div className="flex flex-col gap-2 flex-1">
             <TeamMemberTable data={tableData} onDataChange={setTableData} />
-            {emailError && (
-              <p className="text-sm text-red-500 mt-1">{emailError}</p>
-            )}
           </div>
           {renderSendButton()}
         </div>

@@ -1,8 +1,11 @@
 import { Position, TeamMember } from '@cm/types/NewProjectTeamMember'
 import { Badge } from '@cm/ui/components/ui/badge'
 import { Input } from '@cm/ui/components/ui/input'
+import { selectStyles } from '@cm/ui/lib/select-styles'
 import { CellContext, ColumnDef } from '@tanstack/react-table'
 import CreatableSelect from 'react-select/creatable'
+import { MultiValue } from 'react-select'
+import { toast } from 'sonner'
 
 import { GenericEditableTable } from './GenericEditableTable'
 
@@ -25,52 +28,44 @@ function EditableCell({
     const positions = (value as Position[]) || []
     return (
       <div className="flex flex-col gap-2">
-        {!readOnly && (
+        {!readOnly ? (
           <CreatableSelect
             menuPlacement="auto"
             menuPortalTarget={
               typeof document !== 'undefined' ? document.body : null
             }
-            styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+            styles={{
+              ...selectStyles,
+              menuPortal: (base) => ({ ...base, zIndex: 9999 })
+            }}
             options={ROLE_OPTIONS.filter(
               (option) => !positions.includes(option.value as Position)
             )}
-            onChange={(option) => {
-              if (!option) return
-              const newValue = [...positions, option.value as Position]
+            onChange={(option: MultiValue<{ label: string; value: string }> | null) => {
+              if (!option) {
+                if (positions.length === 0) {
+                  toast.error('모든 멤버의 역할을 선택해주세요')
+                }
+                return
+              }
+              const newValue = option.map((opt: { label: string; value: string }) => opt.value as Position)
               table.options.meta?.updateData(row.index, column.id, newValue)
             }}
             placeholder="역할을 선택하거나 입력하세요"
             className="w-full"
             isClearable
+            isMulti
             formatCreateLabel={(inputValue) => `"${inputValue}" 추가`}
           />
+        ) : (
+          <div className="flex flex-wrap gap-1">
+            {positions.map((position, idx) => (
+              <Badge key={idx} variant="secondary" className="text-xs">
+                {position}
+              </Badge>
+            ))}
+          </div>
         )}
-        <div className="flex flex-wrap gap-1">
-          {positions.map((position, idx) => (
-            <Badge key={idx} className="flex items-center gap-1">
-              {position}
-              {!readOnly && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const newValue = positions.filter(
-                      (item) => item !== position
-                    )
-                    table.options.meta?.updateData(
-                      row.index,
-                      column.id,
-                      newValue
-                    )
-                  }}
-                  className="ml-1 text-xs"
-                >
-                  ✕
-                </button>
-              )}
-            </Badge>
-          ))}
-        </div>
       </div>
     )
   }
@@ -83,7 +78,7 @@ function EditableCell({
       onChange={(e) =>
         table.options.meta?.updateData(row.index, column.id, e.target.value)
       }
-      className="w-full"
+      className="w-full bg-white"
       placeholder="이메일을 입력하세요"
     />
   )
