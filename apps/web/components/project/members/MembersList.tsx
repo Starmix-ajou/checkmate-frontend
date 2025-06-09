@@ -1,12 +1,13 @@
-import { Member } from '@cm/types/project'
-import { getProjectMembers } from '@cm/api/member'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { useState, useCallback, useEffect } from 'react'
+import { getProjectMembers } from '@cm/api/member'
+import { Member } from '@cm/types/project'
+import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'sonner'
+
 import { MemberTable } from './MemberTable'
 import { AddMemberDialog } from './dialogs/AddMemberDialog'
 import { AddPMDialog } from './dialogs/AddPMDialog'
 import { EditMembersDialog } from './dialogs/EditMembersDialog'
-import { toast } from 'react-toastify'
 
 interface MembersListProps {
   projectId: string
@@ -48,8 +49,11 @@ export default function MembersList({ projectId }: MembersListProps) {
     setSelectedMembers([])
   }, [fetchMembers])
 
-  const selectedMemberIds = new Set(selectedMembers.map((member) => member.userId))
-  const isAllSelected = members.length > 0 && selectedMemberIds.size === members.length
+  const selectedMemberIds = new Set(
+    selectedMembers.map((member) => member.userId)
+  )
+  const isAllSelected =
+    members.length > 0 && selectedMemberIds.size === members.length
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -61,7 +65,13 @@ export default function MembersList({ projectId }: MembersListProps) {
 
   const handleSelectMember = (userId: string, checked: boolean) => {
     if (checked) {
-      const member = members.find((m) => m.userId === userId)
+      let member = members.find((m) => m.userId === userId)
+      if (!member && productManager?.userId === userId) {
+        member = productManager
+      }
+      if (!member && leader?.userId === userId) {
+        member = leader
+      }
       if (member) {
         setSelectedMembers([...selectedMembers, member])
       }
@@ -92,17 +102,15 @@ export default function MembersList({ projectId }: MembersListProps) {
         </div>
       </div>
 
-      {leader && productManager && (
-        <MemberTable
-          members={members}
-          selectedMembers={selectedMemberIds}
-          isAllSelected={isAllSelected}
-          onSelectAll={handleSelectAll}
-          onSelectMember={handleSelectMember}
-          leader={leader}
-          productManager={productManager}
-        />
-      )}
+      <MemberTable
+        members={members}
+        selectedMembers={selectedMemberIds}
+        isAllSelected={isAllSelected}
+        onSelectAll={handleSelectAll}
+        onSelectMember={handleSelectMember}
+        leader={leader}
+        productManager={productManager}
+      />
     </div>
   )
 }

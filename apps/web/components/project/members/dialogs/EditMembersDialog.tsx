@@ -1,8 +1,7 @@
+import { useAuthStore } from '@/stores/useAuthStore'
+import { removeMember, updateMemberPositions } from '@cm/api/member'
 import { Position } from '@cm/types/NewProjectTeamMember'
 import { Member } from '@cm/types/project'
-import { updateMemberPositions, removeMember } from '@cm/api/member'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { useParams } from 'next/navigation'
 import { Badge } from '@cm/ui/components/ui/badge'
 import { Button } from '@cm/ui/components/ui/button'
 import {
@@ -13,9 +12,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@cm/ui/components/ui/dialog'
+import { selectStyles } from '@cm/ui/lib/select-styles'
+import { UserPen } from 'lucide-react'
+import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
-import { toast } from 'react-toastify'
+import { toast } from 'sonner'
 
 const getEnumOptions = (e: object) =>
   Object.values(e).map((value) => ({ label: value, value }))
@@ -79,7 +81,9 @@ export function EditMembersDialog({
     setIsSubmitting(true)
 
     try {
-      await Promise.all(members.map((member) => handleUpdateMember(member.userId)))
+      await Promise.all(
+        members.map((member) => handleUpdateMember(member.userId))
+      )
       setOpen(false)
     } finally {
       setIsSubmitting(false)
@@ -90,7 +94,8 @@ export function EditMembersDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="cmoutline" disabled={disabled}>
-          선택된 멤버 정보 수정
+          <UserPen className="w-4 h-4" />
+          멤버 정보 수정
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] max-h-[80vh] flex flex-col">
@@ -98,88 +103,90 @@ export function EditMembersDialog({
           <DialogTitle>멤버 정보 수정</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4 overflow-y-auto flex-1">
-          {members.map((member) => (
-            <div key={member.userId} className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h4 className="font-medium">{member.name}</h4>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleRemoveMember(member.userId)}
-                  disabled={isSubmitting}
-                >
-                  삭제
-                </Button>
-              </div>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">포지션</label>
-                  <CreatableSelect
-                    menuPlacement="auto"
-                    styles={{
-                      menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-                    }}
-                    options={ROLE_OPTIONS.filter(
-                      (option) =>
-                        !(
+          {members.map((member) => {
+            const isProductManager =
+              member.profile.role?.includes('PRODUCT_MANAGER')
+            return (
+              <div key={member.userId} className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-medium">
+                    {member.name}
+                    {isProductManager && (
+                      <span className="ml-2 text-sm text-gray-500">
+                        (Product Manager)
+                      </span>
+                    )}
+                  </h4>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleRemoveMember(member.userId)}
+                    disabled={isSubmitting}
+                  >
+                    삭제
+                  </Button>
+                </div>
+                {!isProductManager && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">포지션</label>
+                      <div className="relative z-[9999]">
+                        <CreatableSelect
+                          isMulti
+                          options={ROLE_OPTIONS}
+                          value={
+                            editingMemberPositions[member.userId]?.map(
+                              (pos) => ({ label: pos, value: pos })
+                            ) || []
+                          }
+                          onChange={(newValue) =>
+                            setEditingMemberPositions({
+                              ...editingMemberPositions,
+                              [member.userId]: newValue.map(
+                                (v) => v.value as Position
+                              ),
+                            })
+                          }
+                          placeholder="포지션을 선택하세요"
+                          isDisabled={isSubmitting}
+                          styles={selectStyles}
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {(
                           editingMemberPositions[member.userId] ||
                           member.profile.positions ||
                           []
-                        ).includes(option.value as Position)
-                    )}
-                    value={null}
-                    onChange={(option) => {
-                      if (!option) return
-                      const newPosition = option.value as Position
-                      const currentPositions =
-                        editingMemberPositions[member.userId] ||
-                        member.profile.positions ||
-                        []
-                      if (!currentPositions.includes(newPosition)) {
-                        setEditingMemberPositions({
-                          ...editingMemberPositions,
-                          [member.userId]: [...currentPositions, newPosition],
-                        })
-                      }
-                    }}
-                    placeholder="역할을 선택하거나 입력하세요"
-                    className="w-full"
-                    isClearable
-                    formatCreateLabel={(inputValue) => `"${inputValue}" 추가`}
-                  />
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {(
-                      editingMemberPositions[member.userId] ||
-                      member.profile.positions ||
-                      []
-                    ).map((position, idx) => (
-                      <Badge key={idx} className="flex items-center gap-1">
-                        {position}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const currentPositions =
-                              editingMemberPositions[member.userId] ||
-                              member.profile.positions ||
-                              []
-                            setEditingMemberPositions({
-                              ...editingMemberPositions,
-                              [member.userId]: currentPositions.filter(
-                                (item) => item !== position
-                              ),
-                            })
-                          }}
-                          className="ml-1 text-xs"
-                        >
-                          ✕
-                        </button>
-                      </Badge>
-                    ))}
+                        ).map((position, idx) => (
+                          <Badge key={idx} className="flex items-center gap-1">
+                            {position}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const currentPositions =
+                                  editingMemberPositions[member.userId] ||
+                                  member.profile.positions ||
+                                  []
+                                setEditingMemberPositions({
+                                  ...editingMemberPositions,
+                                  [member.userId]: currentPositions.filter(
+                                    (item) => item !== position
+                                  ),
+                                })
+                              }}
+                              className="ml-1 text-xs"
+                            >
+                              ✕
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
         <DialogFooter className="flex-shrink-0">
           <Button onClick={handleSubmit} disabled={isSubmitting}>

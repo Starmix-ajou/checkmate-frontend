@@ -24,8 +24,8 @@ interface MemberTableProps {
   isAllSelected: boolean
   onSelectAll: (checked: boolean) => void
   onSelectMember: (userId: string, checked: boolean) => void
-  leader: Member
-  productManager: Member
+  leader: Member | null
+  productManager: Member | null
 }
 
 export function MemberTable({
@@ -39,7 +39,10 @@ export function MemberTable({
 }: MemberTableProps) {
   const regularMembers = members.filter(
     (member) =>
-      member.userId !== leader.userId && member.userId !== productManager.userId
+      leader &&
+      member.userId !== leader.userId &&
+      productManager &&
+      member.userId !== productManager.userId
   )
 
   const renderMemberRow = (member: Member, isLeader = false) => (
@@ -107,52 +110,59 @@ export function MemberTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {renderMemberRow(leader, true)}
+        {leader && renderMemberRow(leader, true)}
         {regularMembers.map((member) => renderMemberRow(member))}
-        <TableRow className="h-[1px] bg-gray-200" />
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <TableRow
-                className={`${
-                  !productManager.profile.isActive ? 'opacity-50' : ''
-                } transition-opacity border-t-2 border-gray-200`}
-              >
-                <TableCell>
-                  <Checkbox
-                    checked={selectedMembers.has(productManager.userId)}
-                    onCheckedChange={(checked) =>
-                      onSelectMember(productManager.userId, checked as boolean)
-                    }
-                  />
-                </TableCell>
-                <TableCell className="flex items-center gap-2">
-                  {productManager.profileImageUrl && (
-                    <Image
-                      src={productManager.profileImageUrl}
-                      alt={productManager.name}
-                      width={32}
-                      height={32}
-                      className="rounded-full"
-                    />
-                  )}
-                  {productManager.name}
-                </TableCell>
-                <TableCell>{productManager.email}</TableCell>
-                <TableCell>
-                  <PositionBadgeGroup
-                    positions={productManager.profile.positions || []}
-                  />
-                </TableCell>
-              </TableRow>
-            </TooltipTrigger>
-            {!productManager.profile.isActive && (
-              <TooltipContent>
-                <p>초대중인 멤버입니다</p>
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </TooltipProvider>
+        {productManager && (
+          <>
+            <TableRow className="h-[1px] bg-gray-200" />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TableRow
+                    className={`${
+                      !productManager.profile.isActive ? 'opacity-50' : ''
+                    } transition-opacity border-t-2 border-gray-200`}
+                  >
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedMembers.has(productManager.userId)}
+                        onCheckedChange={(checked) =>
+                          onSelectMember(
+                            productManager.userId,
+                            checked as boolean
+                          )
+                        }
+                      />
+                    </TableCell>
+                    <TableCell className="flex items-center gap-2">
+                      {productManager.profileImageUrl && (
+                        <Image
+                          src={productManager.profileImageUrl}
+                          alt={productManager.name}
+                          width={32}
+                          height={32}
+                          className="rounded-full"
+                        />
+                      )}
+                      {productManager.name}
+                    </TableCell>
+                    <TableCell>{productManager.email}</TableCell>
+                    <TableCell>
+                      <PositionBadgeGroup
+                        positions={productManager.profile.positions || []}
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TooltipTrigger>
+                {!productManager.profile.isActive && (
+                  <TooltipContent>
+                    <p>초대중인 멤버입니다</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+          </>
+        )}
       </TableBody>
     </Table>
   )
