@@ -18,7 +18,7 @@ const authOptions: NextAuthOptions = {
       if (account) {
         try {
           const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+            `${process.env.NEXT_PUBLIC_API_URL}/manager/auth/login`,
             {
               method: 'POST',
               headers: {
