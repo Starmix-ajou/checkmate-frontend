@@ -351,64 +351,51 @@ export default function KanbanView({
             }
           }}
         >
-          <div className="flex gap-3 relative">
-            <KanbanColumn
-              title={
-                <div className="flex items-center">
-                  <Pencil size={14} color="#858380" />
-                  <span className="ml-1 text-black-01 text-sm font-medium">
-                    To Do
-                  </span>
-                  <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
-                    ({filteredColumns.todo.length})
-                  </span>
-                </div>
-              }
-              columnKey="todo"
-              bg="bg-cm-gray-light rounded-none"
-              tasks={filteredColumns.todo}
-              onTaskSelect={handleTaskSelect}
-              onTaskUpdate={updateTaskAndState}
-              onTaskClick={handleTaskClick}
-            />
-            <KanbanColumn
-              title={
-                <div className="flex items-center">
-                  <Pickaxe size={14} color="#5093BC" />
-                  <span className="ml-1 text-black-01 text-sm font-medium">
-                    In Progress
-                  </span>
-                  <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
-                    ({filteredColumns.inProgress.length})
-                  </span>
-                </div>
-              }
-              columnKey="inProgress"
-              bg="bg-[#F3F9FC] rounded-none"
-              tasks={filteredColumns.inProgress}
-              onTaskSelect={handleTaskSelect}
-              onTaskUpdate={updateTaskAndState}
-              onTaskClick={handleTaskClick}
-            />
-            <KanbanColumn
-              title={
-                <div className="flex items-center">
-                  <Check size={14} color="#5C9771" />
-                  <span className="ml-1 text-black-01 text-sm font-medium">
-                    Done
-                  </span>
-                  <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
-                    ({filteredColumns.done.length})
-                  </span>
-                </div>
-              }
-              columnKey="done"
-              bg="bg-cm-green-light rounded-none"
-              tasks={filteredColumns.done}
-              onTaskSelect={handleTaskSelect}
-              onTaskUpdate={updateTaskAndState}
-              onTaskClick={handleTaskClick}
-            />
+          <div className="flex gap-4 h-[calc(100vh-200px)]">
+            {Object.entries(filteredColumns).map(([key, tasks]) => {
+              const columnConfig = {
+                todo: {
+                  icon: <Pencil size={14} color="#858380" />,
+                  bg: 'bg-cm-gray-light rounded-none',
+                  title: 'To Do',
+                },
+                inProgress: {
+                  icon: <Pickaxe size={14} color="#5093BC" />,
+                  bg: 'bg-[#F3F9FC] rounded-none',
+                  title: 'In Progress',
+                },
+                done: {
+                  icon: <Check size={14} color="#5C9771" />,
+                  bg: 'bg-cm-green-light rounded-none',
+                  title: 'Done',
+                },
+              }[key as keyof typeof filteredColumns]
+
+              if (!columnConfig) return null
+
+              return (
+                <KanbanColumn
+                  key={key}
+                  title={
+                    <div className="flex items-center">
+                      {columnConfig.icon}
+                      <span className="ml-1 text-black-01 text-sm font-medium">
+                        {columnConfig.title}
+                      </span>
+                      <span className="ml-1 mt-[1px] text-[#737373] text-[11px]">
+                        ({tasks.length})
+                      </span>
+                    </div>
+                  }
+                  columnKey={key as 'todo' | 'inProgress' | 'done'}
+                  bg={columnConfig.bg}
+                  tasks={tasks}
+                  onTaskSelect={handleTaskSelect}
+                  onTaskUpdate={updateTaskAndState}
+                  onTaskClick={handleTaskClick}
+                />
+              )
+            })}
 
             {selectedTasks.size > 0 && (
               <div className="fixed bottom-6 right-6 w-[240px] h-[40px] bg-[#FFE5E3] border border-[#FFE5E3] rounded-full flex items-center justify-between px-4 py-2">
