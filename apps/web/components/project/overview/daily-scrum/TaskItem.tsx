@@ -1,5 +1,6 @@
 import { Task } from '@cm/types/project'
 import { Card } from '@cm/ui/components/ui/card'
+import { taskSelectStyles } from '@cm/ui/lib/task-select-styles'
 import { Pencil, Trash2 } from 'lucide-react'
 import Select from 'react-select'
 
@@ -29,6 +30,7 @@ export function TaskItem({
       <div className="text-sm relative group">
         <div className="flex justify-between items-center">
           <Select
+            styles={taskSelectStyles}
             options={availableTasks}
             getOptionLabel={(option: Task) => option.title}
             getOptionValue={(option: Task) => option.taskId}

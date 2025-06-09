@@ -1,4 +1,5 @@
 import { Category, Task } from '@cm/types/project'
+import { taskSelectStyles } from '@cm/ui/lib/task-select-styles'
 import { Trash2 } from 'lucide-react'
 import Select from 'react-select'
 
@@ -65,6 +66,7 @@ export function TaskList({
             <div className="flex items-center gap-2">
               <div className="flex-1">
                 <Select
+                  styles={taskSelectStyles}
                   options={availableTasks}
                   getOptionLabel={(option: Task) => option.title}
                   getOptionValue={(option: Task) => option.taskId}

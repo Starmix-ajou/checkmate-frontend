@@ -1,17 +1,22 @@
 import { Project } from '@cm/types/project'
 import AvatarGroup from '@cm/ui/components/project/AvatarGroup'
-import { Button } from '@cm/ui/components/ui/button'
 import { Skeleton } from '@cm/ui/components/ui/skeleton'
+import { useState } from 'react'
+
+import { AddMemberDialog } from '../members/dialogs/AddMemberDialog'
 
 interface ProjectHeaderProps {
   project: Project | null
   loading: boolean
+  onMembersUpdate?: () => void
 }
 
 export default function ProjectHeader({
   project,
   loading,
+  onMembersUpdate,
 }: ProjectHeaderProps) {
+  const [isAddMemberOpen, setIsAddMemberOpen] = useState(false)
   const teamMembers =
     project?.members.map((member) => ({
       name: member.name,
@@ -33,7 +38,11 @@ export default function ProjectHeader({
           <h1 className="text-3xl font-bold">{project?.title}</h1>
           <div className="flex items-center gap-4">
             <AvatarGroup users={teamMembers} />
-            <Button variant="outline">멤버 추가</Button>
+            <AddMemberDialog
+              open={isAddMemberOpen}
+              onOpenChange={setIsAddMemberOpen}
+              onMembersUpdate={onMembersUpdate}
+            />
           </div>
         </>
       )}

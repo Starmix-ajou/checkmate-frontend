@@ -71,7 +71,6 @@ export default function SprintPeriodCard({
     )
   }
 
-  // 가장 마지막 스프린트 찾기
   const currentSprint = sprints.reduce((latest, current) => {
     return new Date(current.startDate) > new Date(latest.startDate)
       ? current
@@ -93,7 +92,7 @@ export default function SprintPeriodCard({
   return (
     <Card className="col-span-2 gap-2">
       <CardHeader>
-        <CardTitle>다음 스프린트까지</CardTitle>
+        <CardTitle>{currentSprint.title}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 items-center">
         <div className="flex flex-col w-full">
@@ -108,9 +107,11 @@ export default function SprintPeriodCard({
             />
           </div>
           <Progress value={progress} className="w-full h-2 rounded-full" />
-
-          <div className="text-right text-xs text-gray-500 font-medium mt-1">
-            {remainingDays < 0 ? 'Done' : `D-${remainingDays}`}
+          <div className="flex flex-row mt-1 justify-between">
+            <div className="text-xs text-muted-foreground">다음 Sprint까지</div>
+            <div className="text-right text-xs text-gray-500 font-medium">
+              {remainingDays < 0 ? 'Done' : `D-${remainingDays}`}
+            </div>
           </div>
         </div>
 
