@@ -1,4 +1,9 @@
 import { Task } from '@cm/types/userTask'
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@cm/ui/components/ui/avatar'
 import { Calendar } from '@cm/ui/components/ui/calendar'
 import {
   Popover,
@@ -20,6 +25,11 @@ type TaskProps = {
   priority: Task['priority']
   startDate: string
   endDate: string
+  assignee?: {
+    email: string
+    name: string
+    profileImageUrl?: string
+  }
   onSelect: (isSelected: boolean) => void
   onUpdate?: (
     taskId: string,
@@ -43,6 +53,7 @@ export default function KanbanTask({
   priority: initialPriority,
   startDate: initialStartDate,
   endDate: initialEndDate,
+  assignee,
   onSelect,
   onUpdate,
   onTaskClick,
@@ -288,6 +299,16 @@ export default function KanbanTask({
           />
         </PopoverContent>
       </Popover>
+
+      {/* Assignee Avatar */}
+      {assignee && (
+        <div className="absolute bottom-3 right-3">
+          <Avatar className="w-7 h-7">
+            <AvatarImage src={assignee.profileImageUrl} alt={assignee.name} />
+            <AvatarFallback>{assignee.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+        </div>
+      )}
     </div>
   )
 }
