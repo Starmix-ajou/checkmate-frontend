@@ -212,6 +212,15 @@ export default function TaskModal({
       }
 
       await onUpdate(task.taskId, updateData)
+
+      // Done 열에서 새로 생성된 태스크인 경우 토스트 표시
+      if (!task.taskId && status === 'DONE') {
+        const event = new CustomEvent('kanban:task-completion', {
+          detail: { columnKey: 'done' },
+        })
+        window.dispatchEvent(event)
+      }
+
       onClose()
     } catch (error) {
       console.error('태스크 업데이트 실패:', error)
