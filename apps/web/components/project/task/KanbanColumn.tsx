@@ -54,6 +54,7 @@ export default function KanbanColumn({
                 priority={task.priority}
                 startDate={task.startDate}
                 endDate={task.endDate}
+                assignee={task.assignee}
                 onSelect={(isSelected) => onTaskSelect(task.taskId, isSelected)}
                 onUpdate={onTaskUpdate}
                 onTaskClick={() => onTaskClick(task)}
