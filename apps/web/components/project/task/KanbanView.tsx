@@ -12,6 +12,7 @@ import EpicSelectionModal from './EpicSelectionModal'
 import KanbanColumn from './KanbanColumn'
 import { KanbanLogic } from './KanbanLogic'
 import MiniRetroDialog from './MiniRetroDialog'
+import { showTaskCompletionToast } from './TaskCompletionToast'
 import TaskModal from './TaskModal'
 
 interface KanbanViewProps {
@@ -91,19 +92,42 @@ export default function KanbanView({
 
   useEffect(() => {
     const handleTaskCompletion = (e: Event) => {
-      const { taskId } = (e as CustomEvent).detail
-      setCompletedTaskId(taskId)
-      setIsMiniRetroOpen(true)
+      const { taskId, columnKey } = (e as CustomEvent).detail
+      if (taskId) {
+        // In Progress에서 Done으로 이동할 때 토스트 먼저 표시
+        showTaskCompletionToast({
+          onWriteNow: () => {
+            setCompletedTaskId(taskId)
+            setIsMiniRetroOpen(true)
+          },
+        })
+      } else if (columnKey === 'done') {
+        // Done 열에서 태스크 추가 시 회고 토스트 표시
+        showTaskCompletionToast({
+          onWriteNow: () => {
+            // 태스크가 생성된 후에 taskId를 받아와서 처리
+            const event = new CustomEvent('kanban:open-task-modal', {
+              detail: { columnKey: 'done' },
+            })
+            window.dispatchEvent(event)
+          },
+        })
+      }
     }
 
     const handleOpenTaskModal = (e: Event) => {
-      const { taskId } = (e as CustomEvent).detail
-      for (const column of Object.values(columns)) {
-        const task = column.find((t) => t.taskId === taskId)
-        if (task) {
-          setSelectedTaskForModal(task)
-          break
+      const { taskId, columnKey } = (e as CustomEvent).detail
+      if (taskId) {
+        for (const column of Object.values(columns)) {
+          const task = column.find((t) => t.taskId === taskId)
+          if (task) {
+            setSelectedTaskForModal(task)
+            break
+          }
         }
+      } else if (columnKey === 'done') {
+        // Done 열에서 태스크 추가 시 모달 열기
+        setSelectedTaskForModal(null)
       }
     }
 

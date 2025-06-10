@@ -413,16 +413,12 @@ export function KanbanLogic(projectId: string) {
 
       // Done 열로 이동했을 때 토스트 메시지 표시
       if (toColumn === 'done') {
-        showTaskCompletionToast({
-          onWriteNow: () => {
-            const event = new CustomEvent('kanban:task-completion', {
-              detail: {
-                taskId: moved.taskId,
-              },
-            })
-            window.dispatchEvent(event)
+        const event = new CustomEvent('kanban:task-completion', {
+          detail: {
+            taskId: moved.taskId,
           },
         })
+        window.dispatchEvent(event)
       }
     }
   }
@@ -575,7 +571,14 @@ export function KanbanLogic(projectId: string) {
               : 'TODO'
 
         if (taskData) {
-          await createTask(taskData)
+          const newTask = await createTask(taskData)
+          // Done 열에 생성된 경우 토스트 표시
+          if (columnKey === 'done') {
+            const event = new CustomEvent('kanban:task-completion', {
+              detail: { columnKey: 'done' },
+            })
+            window.dispatchEvent(event)
+          }
         } else {
           // 에픽 선택 이벤트 발생
           const epicSelectionEvent = new CustomEvent('kanban:select-epic', {
