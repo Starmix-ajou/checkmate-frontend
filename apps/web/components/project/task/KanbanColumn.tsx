@@ -67,7 +67,7 @@ export default function KanbanColumn({
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                className="flex items-center text-sm text-[#474747] my-2 hover:text-black-01"
+                className="flex items-center text-sm text-[#474747] my-2 hover:text-black-01 cursor-pointer"
                 onClick={() => {
                   const event = new CustomEvent('kanban:add-task', {
                     detail: { columnKey },

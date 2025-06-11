@@ -16,7 +16,6 @@ import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { GripVertical } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { DayPicker, getDefaultClassNames } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 
 type TaskProps = {
@@ -171,7 +170,7 @@ export default function KanbanTask({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className={`relative bg-white text-black-01 rounded-md px-3 py-3.5 select-none mb-2 border border-[#DCDCDC] ${
+      className={`relative bg-white text-black-01 rounded-md px-3 py-3.5 select-none mb-2 border border-[#DCDCDC] cursor-pointer ${
         isDragging ? 'opacity-30' : 'opacity-100'
       }`}
       onMouseEnter={() => setIsHovered(true)}

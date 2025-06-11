@@ -402,14 +402,14 @@ export default function TaskComment({
                     <div className="flex items-center gap-4">
                       <button
                         onClick={() => handleUpdateComment(comment.commentId)}
-                        className="text-xs text-cm-gray hover:text-gray-700 flex items-center gap-1"
+                        className="text-xs text-cm-gray hover:text-gray-700 flex items-center gap-1 cursor-pointer"
                       >
                         <MessageSquareText size={14} />
                         저장
                       </button>
                       <button
                         onClick={handleCancelEdit}
-                        className="text-xs text-cm-gray hover:text-gray-700 flex items-center gap-1"
+                        className="text-xs text-cm-gray hover:text-gray-700 flex items-center gap-1 cursor-pointer"
                       >
                         <MessageSquareX size={14} />
                         취소
@@ -424,14 +424,14 @@ export default function TaskComment({
                     <div className="flex items-center gap-4">
                       <button
                         onClick={() => handleEditComment(comment.commentId)}
-                        className="text-xs text-cm-gray hover:text-gray-700 flex items-center gap-1"
+                        className="text-xs text-cm-gray hover:text-gray-700 flex items-center gap-1 cursor-pointer"
                       >
                         <PencilLine size={14} />
                         수정
                       </button>
                       <button
                         onClick={() => handleDeleteComment(comment.commentId)}
-                        className="text-xs text-cm-gray hover:text-gray-700 flex items-center gap-1"
+                        className="text-xs text-cm-gray hover:text-gray-700 flex items-center gap-1 cursor-pointer"
                       >
                         <Eraser size={14} />
                         삭제
@@ -457,7 +457,7 @@ export default function TaskComment({
             />
             <div className="absolute inset-right-0 bottom-3.5 right-3">
               <button
-                className="w-6 h-6 rounded-full bg-cm-900 flex items-center justify-center"
+                className="w-6 h-6 rounded-full bg-cm-900 flex items-center justify-center cursor-pointer"
                 onClick={handleCommentSubmit}
               >
                 <ArrowUp size={14} className="text-white" />

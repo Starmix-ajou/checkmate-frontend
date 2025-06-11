@@ -70,7 +70,7 @@ export default function TaskFilter({
           >
             <SlidersHorizontal
               size={20}
-              className={`transition-colors ${
+              className={`transition-colors cursor-pointer ${
                 isFixed ? 'text-black-01' : 'text-gray-01 hover:text-black-01'
               }`}
             />
@@ -81,7 +81,7 @@ export default function TaskFilter({
           <div className="absolute right-full mr-4 flex items-center gap-4">
             <div className="relative">
               <button
-                className={`text-sm whitespace-nowrap ${
+                className={`text-sm whitespace-nowrap cursor-pointer ${
                   activeFilter === 'priority' ? 'text-black-01' : 'text-gray-01'
                 }`}
                 onClick={() =>
@@ -126,7 +126,7 @@ export default function TaskFilter({
 
             <div className="relative">
               <button
-                className={`text-sm whitespace-nowrap ${
+                className={`text-sm whitespace-nowrap cursor-pointer ${
                   activeFilter === 'epicId' ? 'text-black-01' : 'text-gray-01'
                 }`}
                 onClick={() =>
@@ -160,7 +160,7 @@ export default function TaskFilter({
 
             <div className="relative">
               <button
-                className={`text-sm whitespace-nowrap ${
+                className={`text-sm whitespace-nowrap cursor-pointer ${
                   activeFilter === 'sprintId' ? 'text-black-01' : 'text-gray-01'
                 }`}
                 onClick={() =>
