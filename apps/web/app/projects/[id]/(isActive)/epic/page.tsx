@@ -224,7 +224,7 @@ export default function ProjectEpic() {
                 setViewType('EPIC')
               }}
             >
-              Epic
+              Week
             </button>
             <button
               className={`text-base font-medium px-2 py-3.5 border-b-2 transition ${
