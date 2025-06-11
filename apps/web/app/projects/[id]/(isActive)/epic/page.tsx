@@ -214,7 +214,7 @@ export default function ProjectEpic() {
         <div className="">
           <div className="flex gap-2 items-center">
             <button
-              className={`text-base font-medium mr-2 px-2 py-3.5 border-b-2 transition ${
+              className={`text-base font-medium mr-2 px-2 py-3.5 border-b-2 transition cursor-pointer ${
                 viewMode === ViewMode.Week && viewType === 'EPIC'
                   ? 'text-cm-900 border-cm-900'
                   : 'text-cm-100 border-transparent'
@@ -227,7 +227,7 @@ export default function ProjectEpic() {
               Week
             </button>
             <button
-              className={`text-base font-medium px-2 py-3.5 border-b-2 transition ${
+              className={`text-base font-medium px-2 py-3.5 border-b-2 transition cursor-pointer ${
                 viewMode === ViewMode.Day
                   ? 'text-cm-900 border-cm-900'
                   : 'text-cm-100 border-transparent'
@@ -241,7 +241,7 @@ export default function ProjectEpic() {
             </button>
             <div className="flex items-center">
               <button
-                className={`text-base font-medium mr-2 px-2 py-3.5 border-b-2 transition ${
+                className={`text-base font-medium mr-2 px-2 py-3.5 border-b-2 transition cursor-pointer ${
                   viewMode === ViewMode.Week && viewType === 'SPRINT'
                     ? 'text-cm-900 border-cm-900'
                     : 'text-cm-100 border-transparent'
@@ -267,7 +267,7 @@ export default function ProjectEpic() {
             </div>
             <Button
               variant="secondary"
-              className="ml-auto mr-3 flex items-center"
+              className="ml-auto mr-3 flex items-center cursor-pointer"
               onClick={() => setIsCreateEpicDialogOpen(true)}
             >
               <PlusIcon className="w-4 h-4" />
@@ -275,7 +275,7 @@ export default function ProjectEpic() {
             </Button>
             <Button
               variant="destructive"
-              className="flex items-center mr-16"
+              className="flex items-center mr-16 cursor-pointer"
               onClick={() => setIsDeleteEpicDialogOpen(true)}
             >
               <Trash2 className="w-4 h-4" />

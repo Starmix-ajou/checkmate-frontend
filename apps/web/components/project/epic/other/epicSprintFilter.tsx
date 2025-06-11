@@ -35,7 +35,7 @@ export const EpicSprintFilter = ({
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="w-[400px] justify-between ml-3 mt-1"
+          className="w-[400px] justify-between ml-3 mt-1 cursor-pointer"
         >
           <span className={!selectedSprint ? 'text-cm' : ''}>
             {selectedSprint ? selectedSprint.title : 'ALL'}
@@ -48,7 +48,7 @@ export const EpicSprintFilter = ({
           onClick={() => {
             onSprintSelect(null)
           }}
-          className="!text-cm"
+          className="!text-cm cursor-pointer"
         >
           ALL
         </DropdownMenuItem>
@@ -63,6 +63,7 @@ export const EpicSprintFilter = ({
               onClick={() => {
                 onSprintSelect(sprint.sprintId)
               }}
+              className="cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <span>{sprint.title}</span>

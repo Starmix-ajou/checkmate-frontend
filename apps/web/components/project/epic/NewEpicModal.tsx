@@ -100,12 +100,17 @@ export default function NewEpicModal({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="secondary" onClick={onClose}>
+          <Button
+            variant="secondary"
+            onClick={onClose}
+            className="cursor-pointer"
+          >
             취소
           </Button>
           <Button
             type="submit"
             onClick={handleSubmit}
+            className="cursor-pointer"
             disabled={!title || isSubmitting}
           >
             {isSubmitting ? '생성 중...' : '생성'}
