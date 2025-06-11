@@ -177,7 +177,7 @@ export default function TasksPage() {
                         : [...prev.assigneeEmails, member.email],
                     }))
                   }}
-                  className="flex flex-col items-center gap-1"
+                  className="flex flex-col items-center gap-1 cursor-pointer"
                 >
                   <Avatar
                     className={`w-10 h-10 transition-all ${
@@ -202,7 +202,7 @@ export default function TasksPage() {
         <div className="flex items-center mb-6">
           <div className="gap-8 flex-1">
             <button
-              className={`text-base font-medium mr-2 px-2 py-3.5 border-b-2 transition ${
+              className={`text-base font-medium mr-2 px-2 py-3.5 border-b-2 cursor-pointer transition ${
                 isToggled
                   ? 'text-cm-100 border-transparent'
                   : 'text-cm-900 border-cm-900'
@@ -212,7 +212,7 @@ export default function TasksPage() {
               칸반보드
             </button>
             <button
-              className={`text-base font-medium px-2 py-3.5 border-b-2 transition ${
+              className={`text-base font-medium px-2 py-3.5 border-b-2 cursor-pointer transition ${
                 isToggled
                   ? 'text-cm-900 border-cm-900'
                   : 'text-cm-100 border-transparent'

@@ -305,7 +305,7 @@ export default function TaskModal({
             </div>
             <button
               onClick={handleClose}
-              className="p-2 hover:bg-gray-100 rounded-full"
+              className="p-2 hover:bg-gray-100 rounded-full cursor-pointer"
             >
               <X size={20} />
             </button>
@@ -544,7 +544,7 @@ export default function TaskModal({
             <div className="flex justify-between items-center gap-2 mt-4">
               <Button
                 onClick={handleDelete}
-                className="flex items-center gap-2 bg-[#FFE5E3] text-[#D91F11] hover:bg-[#D91F11] hover:text-[#FFE5E3]"
+                className="flex items-center gap-2 bg-[#FFE5E3] text-[#D91F11] hover:bg-[#D91F11] hover:text-[#FFE5E3] cursor-pointer"
               >
                 <Trash2 size={16} />
                 삭제
@@ -552,7 +552,7 @@ export default function TaskModal({
               <div className="flex gap-2">
                 <Button
                   onClick={handleSave}
-                  className="bg-cm-900 hover:bg-cm-700"
+                  className="bg-cm-900 hover:bg-cm-700 cursor-pointer"
                 >
                   수정 완료
                 </Button>
