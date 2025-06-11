@@ -161,12 +161,17 @@ export default function DeleteEpicModal({
               )}
             </div>
             <DialogFooter>
-              <Button variant="secondary" onClick={onClose}>
+              <Button
+                variant="secondary"
+                onClick={onClose}
+                className="cursor-pointer"
+              >
                 취소
               </Button>
               <Button
                 variant="default"
                 onClick={handleNext}
+                className="cursor-pointer"
                 disabled={!selectedEpicId}
               >
                 다음
@@ -195,12 +200,17 @@ export default function DeleteEpicModal({
               </div>
             </div>
             <DialogFooter>
-              <Button variant="secondary" onClick={() => setStep(0)}>
+              <Button
+                variant="secondary"
+                onClick={() => setStep(0)}
+                className="cursor-pointer"
+              >
                 이전
               </Button>
               <Button
                 variant="destructive"
                 onClick={handleDelete}
+                className="cursor-pointer"
                 disabled={!deleteConfirmation || isDeleting}
               >
                 {isDeleting ? '삭제 중...' : '삭제'}
