@@ -432,13 +432,13 @@ export default function KanbanView({
                     disabled={isDeleting}
                     className="w-5 h-5 flex items-center justify-center text-[#D91F11] disabled:opacity-50"
                   >
-                    <Trash2 size={20} />
+                    <Trash2 size={20} className="cursor-pointer" />
                   </button>
                   <button
                     onClick={handleClearSelection}
                     className="w-5 h-5 flex items-center justify-center text-[#D91F11]"
                   >
-                    <X size={20} />
+                    <X size={20} className="cursor-pointer" />
                   </button>
                 </div>
               </div>

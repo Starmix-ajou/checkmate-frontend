@@ -17,7 +17,7 @@ export const showTaskCompletionToast = ({
           <div className="flex gap-2">
             <button
               onClick={() => toast.dismiss(t)}
-              className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 cursor-pointer"
             >
               나중에
             </button>
@@ -26,7 +26,7 @@ export const showTaskCompletionToast = ({
                 toast.dismiss(t)
                 onWriteNow()
               }}
-              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-cm rounded-md hover:bg-cm-700"
+              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-cm rounded-md hover:bg-cm-700 cursor-pointer"
             >
               지금 작성
             </button>

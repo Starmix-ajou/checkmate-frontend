@@ -170,17 +170,17 @@ export default function MiniRetroDialog({
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 cursor-pointer"
             disabled={isSaving}
           >
             취소
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 text-sm font-medium text-white bg-cm rounded-md hover:bg-cm-700 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-white bg-cm rounded-md hover:bg-cm-700 disabled:opacity-50 cursor-pointer"
             disabled={isSaving}
           >
-            {isSaving ? '저장 중...' : '저장하기'}
+            {isSaving ? '저장 중...' : '저장'}
           </button>
         </div>
       </DialogContent>

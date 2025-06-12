@@ -205,7 +205,11 @@ export default function EpicSelectionModal({
               )}
             </div>
             <DialogFooter>
-              <Button variant="secondary" onClick={() => setStep(1)}>
+              <Button
+                variant="secondary"
+                onClick={() => setStep(1)}
+                className="cursor-pointer"
+              >
                 생성
               </Button>
               <Button
@@ -217,6 +221,7 @@ export default function EpicSelectionModal({
                   }
                 }}
                 disabled={!selectedEpicId}
+                className="cursor-pointer"
               >
                 선택
               </Button>
@@ -250,11 +255,16 @@ export default function EpicSelectionModal({
               </div>
             </div>
             <DialogFooter>
-              <Button variant="secondary" onClick={() => setStep(0)}>
+              <Button
+                variant="secondary"
+                onClick={() => setStep(0)}
+                className="cursor-pointer"
+              >
                 이전
               </Button>
               <Button
                 onClick={handleNewEpicSubmit}
+                className="cursor-pointer"
                 disabled={!newEpicTitle || isSubmitting}
               >
                 {isSubmitting ? '생성 중...' : '생성'}

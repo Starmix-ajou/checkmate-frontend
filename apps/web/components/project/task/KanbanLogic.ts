@@ -8,11 +8,7 @@ import {
 } from '@dnd-kit/core'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { showTaskCompletionToast } from './TaskCompletionToast'
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
-
-const EPICCUSTOM = '682c6163b1db4571f3c0490f' // 햄주트의 epicId
 
 // API 엔드포인트 상수
 const API_ENDPOINTS = {
@@ -301,7 +297,7 @@ export function KanbanLogic(projectId: string) {
           ? formatDateToLocal(data.endDate)
           : formatDateToLocal(task.endDate),
         priority: data.priority || task.priority || 'MEDIUM',
-        epicId: data.epicId || currentEpicId || EPICCUSTOM,
+        epicId: data.epicId || currentEpicId,
         projectId: projectId,
         review: data.review ||
           task.review || {
@@ -392,7 +388,7 @@ export function KanbanLogic(projectId: string) {
         startDate: moved.startDate,
         endDate: moved.endDate,
         priority: moved.priority || 'MEDIUM',
-        epicId: currentEpicId || EPICCUSTOM,
+        epicId: currentEpicId,
         projectId: projectId,
         review: moved.review || {
           learn: '',
