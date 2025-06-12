@@ -39,7 +39,6 @@ export default function TasksPage() {
   const projectId = id as string
   const [searchText, setSearchText] = useState('')
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
-  const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [isToggled, setIsToggled] = useState(
     searchParams.get('view') === 'calendar'
   )

@@ -289,259 +289,271 @@ export default function TaskModal({
       />
       <div
         ref={modalRef}
-        className={`fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-y-auto transition-transform duration-300 ${isVisible ? 'translate-x-0' : 'translate-x-full'} z-30`}
+        className={`fixed top-12 right-0 h-[calc(100%-3rem)] w-[500px] bg-white shadow-lg overflow-hidden transition-transform duration-300 ${isVisible ? 'translate-x-0' : 'translate-x-full'} z-30`}
       >
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <h2 className="text-xl font-semibold">
-                {task.epic.sprint?.title || '스프린트 없음'}
-              </h2>
-              {task.epic?.description && (
-                <p className="text-base text-gray-01 mt-1">
-                  {task.epic.sprint?.description}
-                </p>
-              )}
-            </div>
-            <button
-              onClick={handleClose}
-              className="p-2 hover:bg-gray-100 rounded-full cursor-pointer"
-            >
-              <X size={20} />
-            </button>
-          </div>
-
-          <div className="grid gap-4">
-            {/* 에픽 정보 */}
-            <div>
-              <h3 className="text-sm font-medium text-cm-gray mb-2">Epic</h3>
-              {task.epic?.title && (
-                <p className="text-base font-medium text-gray-700 mt-2">
-                  {task.epic.title}
-                </p>
-              )}
-              {task.epic?.description && (
-                <p className="text-sm text-cm-gray mt-1">
-                  {task.epic.description}
-                </p>
-              )}
-            </div>
-            {/* 제목 */}
-            <div>
-              <h3 className="text-sm font-medium text-cm-gray mb-2">
-                Task Title
-              </h3>
-              <input
-                type="text"
-                value={title}
-                onChange={handleTitleChange}
-                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm"
-              />
+        <div className="h-full flex flex-col">
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h3 className="text-sm font-medium text-cm-gray mb-2">
+                  Sprint
+                </h3>
+                <h2 className="text-base font-semibold">
+                  {task.epic.sprint?.title || '스프린트 없음'}
+                </h2>
+                {task.epic?.description && (
+                  <p className="text-sm text-gray-01 mt-1">
+                    {task.epic.sprint?.description}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={handleClose}
+                className="p-2 hover:bg-gray-100 rounded-full cursor-pointer"
+              >
+                <X size={20} />
+              </button>
             </div>
 
-            {/* 담당자 */}
-            <div>
-              <h3 className="text-sm font-medium text-cm-gray mb-2">
-                Assignee
-              </h3>
-              <Popover open={isAssigneeOpen} onOpenChange={setIsAssigneeOpen}>
-                <PopoverTrigger asChild>
-                  <div className="flex items-center justify-between p-2 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">
-                    <div className="flex items-center gap-2">
-                      {selectedAssignee?.profileImageUrl && (
-                        <Image
-                          width={32}
-                          height={32}
-                          src={selectedAssignee.profileImageUrl}
-                          alt={selectedAssignee.name}
-                          className="w-8 h-8 rounded-full"
-                        />
-                      )}
-                      <div>
-                        <div className="text-sm font-medium">
-                          {selectedAssignee?.name || '담당자 선택'}
-                        </div>
-                        <div className="text-xs text-cm-gray">
-                          {selectedAssignee?.email}
-                        </div>
-                      </div>
-                    </div>
-                    <ChevronDown size={20} className="text-black-01" />
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent className="w-[300px] p-0">
-                  <div className="max-h-[300px] overflow-y-auto">
-                    {members.map((member) => (
-                      <div
-                        key={member.userId}
-                        className="flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer"
-                        onClick={() => {
-                          setSelectedAssignee(member)
-                          setIsAssigneeOpen(false)
-                        }}
-                      >
-                        {member.profileImageUrl && (
+            <div className="grid gap-4">
+              {/* 에픽 정보 */}
+              <div>
+                <h3 className="text-sm font-medium text-cm-gray mb-2">Epic</h3>
+                {task.epic?.title && (
+                  <p className="text-base font-medium text-gray-700 mt-2">
+                    {task.epic.title}
+                  </p>
+                )}
+                {task.epic?.description && (
+                  <p className="text-sm text-cm-gray mt-1">
+                    {task.epic.description}
+                  </p>
+                )}
+              </div>
+              {/* 제목 */}
+              <div>
+                <h3 className="text-sm font-medium text-cm-gray mb-2">
+                  Task Title
+                </h3>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={handleTitleChange}
+                  className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm"
+                />
+              </div>
+
+              {/* 담당자 */}
+              <div>
+                <h3 className="text-sm font-medium text-cm-gray mb-2">
+                  Assignee
+                </h3>
+                <Popover open={isAssigneeOpen} onOpenChange={setIsAssigneeOpen}>
+                  <PopoverTrigger asChild>
+                    <div className="flex items-center justify-between p-2 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">
+                      <div className="flex items-center gap-2">
+                        {selectedAssignee?.profileImageUrl && (
                           <Image
                             width={32}
                             height={32}
-                            src={member.profileImageUrl}
-                            alt={member.name}
+                            src={selectedAssignee.profileImageUrl}
+                            alt={selectedAssignee.name}
                             className="w-8 h-8 rounded-full"
                           />
                         )}
                         <div>
                           <div className="text-sm font-medium">
-                            {member.name}
+                            {selectedAssignee?.name || '담당자 선택'}
                           </div>
                           <div className="text-xs text-cm-gray">
-                            {member.email}
+                            {selectedAssignee?.email}
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            {/* 상태 */}
-            <div>
-              <h3 className="text-sm font-medium text-cm-gray mb-2">Status</h3>
-              <div
-                className={`inline-block text-sm font-normal px-3 py-1.5 rounded-sm cursor-pointer ${statusStyleMap[status]}`}
-                onClick={cycleStatus}
-              >
-                {formatStatus(status)}
+                      <ChevronDown size={20} className="text-black-01" />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0">
+                    <div className="max-h-[300px] overflow-y-auto">
+                      {members.map((member) => (
+                        <div
+                          key={member.userId}
+                          className="flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer"
+                          onClick={() => {
+                            setSelectedAssignee(member)
+                            setIsAssigneeOpen(false)
+                          }}
+                        >
+                          {member.profileImageUrl && (
+                            <Image
+                              width={32}
+                              height={32}
+                              src={member.profileImageUrl}
+                              alt={member.name}
+                              className="w-8 h-8 rounded-full"
+                            />
+                          )}
+                          <div>
+                            <div className="text-sm font-medium">
+                              {member.name}
+                            </div>
+                            <div className="text-xs text-cm-gray">
+                              {member.email}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
-            </div>
 
-            {/* 우선순위 */}
-            <div>
-              <h3 className="text-sm font-medium text-cm-gray mb-2">
-                Priority
-              </h3>
-              <div
-                className={`inline-block text-sm font-normal px-3 py-1.5 rounded-sm cursor-pointer ${priorityStyleMap[priority]}`}
-                onClick={cyclePriority}
-              >
-                {formatPriority(priority)}
+              {/* 상태 */}
+              <div>
+                <h3 className="text-sm font-medium text-cm-gray mb-2">
+                  Status
+                </h3>
+                <div
+                  className={`inline-block text-sm font-normal px-3 py-1.5 rounded-sm cursor-pointer ${statusStyleMap[status]}`}
+                  onClick={cycleStatus}
+                >
+                  {formatStatus(status)}
+                </div>
               </div>
-            </div>
 
-            {/* 기간 */}
-            <div>
-              <h3 className="text-sm font-medium text-cm-gray mb-2">
-                Duration
-              </h3>
-              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <div
-                    className="text-sm text-black-01 font-medium cursor-pointer hover:text-gray-01"
-                    onClick={() => setIsCalendarOpen(true)}
-                  >
-                    {formatDate(startDate.toISOString())} ~{' '}
-                    {formatDate(endDate.toISOString())}
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="range"
-                    selected={{ from: startDate, to: endDate }}
-                    onSelect={(range) => {
-                      if (range?.from) {
-                        setStartDate(range.from)
-                        if (range.to) {
-                          setEndDate(range.to)
+              {/* 우선순위 */}
+              <div>
+                <h3 className="text-sm font-medium text-cm-gray mb-2">
+                  Priority
+                </h3>
+                <div
+                  className={`inline-block text-sm font-normal px-3 py-1.5 rounded-sm cursor-pointer ${priorityStyleMap[priority]}`}
+                  onClick={cyclePriority}
+                >
+                  {formatPriority(priority)}
+                </div>
+              </div>
+
+              {/* 기간 */}
+              <div>
+                <h3 className="text-sm font-medium text-cm-gray mb-2">
+                  Duration
+                </h3>
+                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <div
+                      className="text-sm text-black-01 font-medium cursor-pointer hover:text-gray-01"
+                      onClick={() => setIsCalendarOpen(true)}
+                    >
+                      {formatDate(startDate.toISOString())} ~{' '}
+                      {formatDate(endDate.toISOString())}
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="range"
+                      selected={{ from: startDate, to: endDate }}
+                      onSelect={(range) => {
+                        if (range?.from) {
+                          setStartDate(range.from)
+                          if (range.to) {
+                            setEndDate(range.to)
+                          }
                         }
-                      }
-                    }}
-                    locale={ko}
-                    numberOfMonths={1}
-                    className="rounded-md border"
-                    classNames={{
-                      caption_label:
-                        'flex items-center justify-center h-10 ml-2 text-sm font-medium',
-                    }}
-                    formatters={{
-                      formatCaption: (date) =>
-                        format(date, 'yyyy. MM', { locale: ko }),
-                      formatWeekdayName: (weekday) => {
-                        const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-                        return weekdays[weekday.getDay()]
-                      },
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            {/* 설명 */}
-            <div>
-              <h3 className="text-sm font-medium text-cm-gray mb-2">
-                Description
-              </h3>
-              <textarea
-                value={description}
-                onChange={handleDescriptionChange}
-                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px]"
-                placeholder="Add a description..."
-              />
-            </div>
-
-            {/* 회고 */}
-            <div>
-              <h3 className="text-sm font-medium text-cm-gray mb-2">
-                Retrospective
-              </h3>
-              <div className="flex items-center mb-1">
-                <KeyRound size={16} className="text-[#FDB748] mr-1" />
-                <h4 className="text-xs font-medium text-cm-300">
-                  Key Learnings
-                </h4>
+                      }}
+                      locale={ko}
+                      numberOfMonths={1}
+                      className="rounded-md border"
+                      classNames={{
+                        caption_label:
+                          'flex items-center justify-center h-10 ml-2 text-sm font-medium',
+                      }}
+                      formatters={{
+                        formatCaption: (date) =>
+                          format(date, 'yyyy. MM', { locale: ko }),
+                        formatWeekdayName: (weekday) => {
+                          const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+                          return weekdays[weekday.getDay()]
+                        },
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
-              <textarea
-                value={learned}
-                onChange={(e) => setLearned(e.target.value)}
-                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px] mb-4"
-                placeholder="이번 Task를 통해 학습한 기술이나 개념 등 간단히 적어보세요."
-              />
-              <div className="flex items-center mb-1">
-                <Swords size={16} className="text-[#F26673] mr-1" />
-                <h4 className="text-xs font-medium text-cm-300">Challenges</h4>
+
+              {/* 설명 */}
+              <div>
+                <h3 className="text-sm font-medium text-cm-gray mb-2">
+                  Description
+                </h3>
+                <textarea
+                  value={description}
+                  onChange={handleDescriptionChange}
+                  className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px]"
+                  placeholder="Add a description..."
+                />
               </div>
-              <textarea
-                value={difficulties}
-                onChange={(e) => setDifficulties(e.target.value)}
-                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px] mb-4"
-                placeholder="어떤 부분에서 막혔는지, 예상보다 오래 걸린 이유가 무엇이었는지 간단히 적어보세요."
-              />
-              <div className="flex items-center mb-1">
-                <Milestone size={16} className="text-[#5585F7] mr-1" />
-                <h4 className="text-xs font-medium text-cm-300">Next Steps</h4>
+
+              {/* 회고 */}
+              <div>
+                <h3 className="text-sm font-medium text-cm-gray mb-2">
+                  Retrospective
+                </h3>
+                <div className="flex items-center mb-1">
+                  <KeyRound size={16} className="text-[#FDB748] mr-1" />
+                  <h4 className="text-xs font-medium text-cm-300">
+                    Key Learnings
+                  </h4>
+                </div>
+                <textarea
+                  value={learned}
+                  onChange={(e) => setLearned(e.target.value)}
+                  className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px] mb-4"
+                  placeholder="이번 Task를 통해 학습한 기술이나 개념 등 간단히 적어보세요."
+                />
+                <div className="flex items-center mb-1">
+                  <Swords size={16} className="text-[#F26673] mr-1" />
+                  <h4 className="text-xs font-medium text-cm-300">
+                    Challenges
+                  </h4>
+                </div>
+                <textarea
+                  value={difficulties}
+                  onChange={(e) => setDifficulties(e.target.value)}
+                  className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px] mb-4"
+                  placeholder="어떤 부분에서 막혔는지, 예상보다 오래 걸린 이유가 무엇이었는지 간단히 적어보세요."
+                />
+                <div className="flex items-center mb-1">
+                  <Milestone size={16} className="text-[#5585F7] mr-1" />
+                  <h4 className="text-xs font-medium text-cm-300">
+                    Next Steps
+                  </h4>
+                </div>
+                <textarea
+                  value={nextTasks}
+                  onChange={(e) => setNextTasks(e.target.value)}
+                  className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px]"
+                  placeholder="바로 이어서 할 Task나, 진행 중 떠오른 아이디어가 있다면 간단히 적어보세요."
+                />
               </div>
-              <textarea
-                value={nextTasks}
-                onChange={(e) => setNextTasks(e.target.value)}
-                className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cm min-h-[100px]"
-                placeholder="바로 이어서 할 Task나, 진행 중 떠오른 아이디어가 있다면 간단히 적어보세요."
+
+              {/* 댓글 섹션 */}
+              <TaskComment
+                taskId={task.taskId}
+                assignee={task.assignee}
+                onCommentAdded={() => {
+                  if (modalRef.current) {
+                    modalRef.current.scrollTo({
+                      top: modalRef.current.scrollHeight,
+                      behavior: 'smooth',
+                    })
+                  }
+                }}
               />
             </div>
-
-            {/* 댓글 섹션 */}
-            <TaskComment
-              taskId={task.taskId}
-              assignee={task.assignee}
-              onCommentAdded={() => {
-                if (modalRef.current) {
-                  modalRef.current.scrollTo({
-                    top: modalRef.current.scrollHeight,
-                    behavior: 'smooth',
-                  })
-                }
-              }}
-            />
-
-            <div className="flex justify-between items-center gap-2 mt-4">
+          </div>
+          <div className="px-6 py-3 border-t border-gray-200 bg-white">
+            <div className="flex justify-between items-center gap-2">
               <Button
                 onClick={handleDelete}
                 className="flex items-center gap-2 bg-[#FFE5E3] text-[#D91F11] hover:bg-[#D91F11] hover:text-[#FFE5E3] cursor-pointer"
