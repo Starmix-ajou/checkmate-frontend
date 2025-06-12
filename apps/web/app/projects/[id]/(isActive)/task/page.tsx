@@ -244,17 +244,7 @@ export default function TasksPage() {
             />
 
             <div className="flex items-center relative ml-3">
-              <div
-                className={`flex items-center transition-all duration-300 ease-in-out ${
-                  isSearchExpanded || searchText ? 'w-64' : 'w-10'
-                } ${isSearchFocused ? 'w-64' : ''} bg-[#F7F7F7] rounded-full`}
-                onMouseEnter={() =>
-                  !isSearchExpanded && !searchText && setIsSearchFocused(true)
-                }
-                onMouseLeave={() =>
-                  !isSearchExpanded && !searchText && setIsSearchFocused(false)
-                }
-              >
+              <div className="flex items-center w-64 bg-[#F7F7F7] rounded-full">
                 <button
                   onClick={() => setIsSearchExpanded(!isSearchExpanded)}
                   className="p-2"
@@ -263,9 +253,7 @@ export default function TasksPage() {
                 </button>
                 <input
                   type="text"
-                  className={`outline-none text-black-01 text-base font-medium placeholder-gray-01 placeholder-base transition-all duration-300 ease-in-out ${
-                    isSearchExpanded || isSearchFocused ? 'w-full px-3' : 'w-0'
-                  }`}
+                  className="outline-none text-black-01 text-base font-medium placeholder-gray-01 placeholder-base w-full px-3"
                   placeholder="검색"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
