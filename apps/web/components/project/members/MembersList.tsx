@@ -1,3 +1,4 @@
+import { useMembersSelection } from '@/hooks/useMembersSelection'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { getProjectMembers } from '@cm/api/member'
 import { Member } from '@cm/types/project'
@@ -18,10 +19,22 @@ export default function MembersList({ projectId }: MembersListProps) {
   const [members, setMembers] = useState<Member[]>([])
   const [leader, setLeader] = useState<Member | null>(null)
   const [productManager, setProductManager] = useState<Member | null>(null)
-  const [selectedMembers, setSelectedMembers] = useState<Member[]>([])
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false)
   const [isAddPMOpen, setIsAddPMOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  const {
+    selectedMembers,
+    selectedMemberIds,
+    isAllSelected,
+    handleSelectAll,
+    handleSelectMember,
+    clearSelection,
+  } = useMembersSelection({
+    members,
+    leader,
+    productManager,
+  })
 
   const fetchMembers = useCallback(async () => {
     if (!user?.accessToken) return
@@ -46,39 +59,8 @@ export default function MembersList({ projectId }: MembersListProps) {
   const handleMembersUpdate = useCallback(async () => {
     setLoading(true)
     await fetchMembers()
-    setSelectedMembers([])
-  }, [fetchMembers])
-
-  const selectedMemberIds = new Set(
-    selectedMembers.map((member) => member.userId)
-  )
-  const isAllSelected =
-    members.length > 0 && selectedMemberIds.size === members.length
-
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedMembers(members)
-    } else {
-      setSelectedMembers([])
-    }
-  }
-
-  const handleSelectMember = (userId: string, checked: boolean) => {
-    if (checked) {
-      let member = members.find((m) => m.userId === userId)
-      if (!member && productManager?.userId === userId) {
-        member = productManager
-      }
-      if (!member && leader?.userId === userId) {
-        member = leader
-      }
-      if (member) {
-        setSelectedMembers([...selectedMembers, member])
-      }
-    } else {
-      setSelectedMembers(selectedMembers.filter((m) => m.userId !== userId))
-    }
-  }
+    clearSelection()
+  }, [fetchMembers, clearSelection])
 
   return (
     <div>
